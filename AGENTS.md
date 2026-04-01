@@ -8,7 +8,34 @@
 - **სტეკი:** React (Vite) + TypeScript + Supabase (`@supabase/supabase-js`).
 - **რეპო:** GitHub-ზე; `.env` **არ უნდა** იყოს კომიტში (იხილე `.gitignore`).
 
-## სად არის სიმართი (წესრიგი)
+## ფოლდერების განლაგება (არ არის „გაფანტული“ — ეს არის სტანდარტი)
+
+ყველაფერი **ერთ რეპოში**ა: **დოკუმენტაცია ფესვში**, **კოდი `src/`-ში**, **ინსტრუმენტები/კონფიგი ფესვში**. ცალკე `docs/` ფოლდერი არ გვაქვს — `project.md` უკვე „ცოცხალი“ სპეკია; თუ გინდა მომავალში, შეგიძლია დაამატო `docs/` და გადაიტანო ან დაუკავშირო.
+
+```
+reziizi/
+├── .cursor/rules/          # Cursor AI წესები (reziizi.mdc)
+├── src/
+│   ├── components/         # განმეორებადი UI (Layout, …)
+│   ├── pages/              # გვერდები = მარშრუტები (HomePage, LoginPage, …)
+│   ├── lib/                # კლიენტები (supabaseClient.ts)
+│   ├── App.tsx             # Router
+│   ├── main.tsx            # Entry
+│   └── styles.css          # გლობალური სტილი (v1 UI)
+├── index.html
+├── vite.config.ts
+├── package.json
+├── .env                    # ლოკალური საიდუმლო — git-ში არა
+├── .env.example            # მაგალითი (კომიტდება)
+├── project.md              # სრული სპეკი + CURRENT WORK
+├── JOURNAL.md              # ჟურნალი
+├── AGENTS.md               # ეს ფაილი — ახალი ჩატისთვის
+└── README.md               # მოკლე quick start
+```
+
+**არ ინახება რეპოში:** `node_modules/`, `dist/`, `.env` (იხილე `.gitignore`).
+
+## სად არის სიმართი (დოკუმენტების რუკა)
 
 | ფაილი / ფოლდერი | რისთვის |
 |-----------------|--------|
