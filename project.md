@@ -103,15 +103,17 @@
 
 ## CURRENT WORK
 
-**REZIIZI v1 scaffold:** completed — Vite + React + TypeScript, routes and placeholder pages (see repo `src/`). **Next:** Supabase schema + RLS, then wire Auth, posts, feed pagination, reactions per feature breakdown.
+**REZIIZI v1 — done (local / dev):** სრული MVP ფუნქცია კოდში; **production deploy** გადავადებულია — სურვილისამებრ მერე (Vercel + env + Supabase redirect URLs).
 
-**Focus:** **1. User System** + **2. Authentication** (Supabase integration).
+**REZIIZI v2:** **Comments**, **Search**, **Theme**, **Notifications**, **Tags (15)**, **Trending (16)**, **Chat (13)** — migration `20260401170000_add_chat.sql` (`conversations`, `chat_messages`, `get_or_create_conversation`), `/messages`, `/messages/:peerId`, Search-ში **Message**.
+
+**Next v2:** **Algorithm / Ranking (17)** და სხვა v3 ფუნქციები — `project.md` **VERSIONS**. (Chat v2 baseline დასრულებულია.)
 
 ---
 
 ## FEATURE BREAKDOWN
 
-### 1. User System 🔄 (IN PROGRESS)
+### 1. User System ✅
 
 #### 📌 Description
 User system manages all users in the platform.
@@ -569,7 +571,7 @@ UI:
 
 ---
 
-### 9. Comments System ❌
+### 9. Comments System ✅ (v2 baseline)
 
 #### 📌 Description
 Users can comment on posts.
@@ -605,13 +607,13 @@ comments table
 #### 🧱 Implementation (9. Comments System)
 
 Frontend:
-- none (v1)
+- `CommentSection` on `PostCard`; `src/lib/comments.ts`
 
 Backend:
-- none
+- `public.comments` + RLS; migration `20260401130000_add_comments.sql`
 
 Notes:
-- v2 feature
+- v2; apply SQL in Supabase before use
 
 ---
 
@@ -708,7 +710,7 @@ Notes:
 
 ---
 
-### 12. Notifications ❌
+### 12. Notifications ✅ (v2 baseline)
 
 #### 📌 Description
 Notify users about activity.
@@ -744,17 +746,17 @@ notifications table
 #### 🧱 Implementation (12. Notifications)
 
 Frontend:
-- none (v1)
+- `/notifications`, `useUnreadNotificationCount`, `src/lib/notifications.ts`
 
 Backend:
-- none
+- `public.notifications` + RLS; triggers `notify_post_owner_on_comment` / `notify_post_owner_on_reaction`; migration `20260401140000_add_notifications.sql`
 
 Notes:
-- later
+- apply SQL in Supabase; inserts only via triggers (not client)
 
 ---
 
-### 13. Chat / Messaging System ❌
+### 13. Chat / Messaging System ✅ (v2 baseline)
 
 #### 📌 Description
 User-to-user messaging.
@@ -790,17 +792,17 @@ messages table
 #### 🧱 Implementation (13. Chat / Messaging System)
 
 Frontend:
-- none (v1)
+- `MessagesPage` `/messages`, `ChatThreadPage` `/messages/:peerId`; `src/lib/chat.ts`; Search-ში `Message` პროფილზე
 
 Backend:
-- none
+- `conversations` + `chat_messages`, RLS, RPC `get_or_create_conversation`
 
 Notes:
-- later
+- Realtime: `chat_messages` in `supabase_realtime` publication
 
 ---
 
-### 14. Search ❌
+### 14. Search ✅ (v2 baseline)
 
 #### 📌 Description
 Search posts or users.
@@ -836,17 +838,17 @@ users, posts
 #### 🧱 Implementation (14. Search)
 
 Frontend:
-- none (v1)
+- `SearchPage` `/search`; `src/lib/search.ts` (ilike on `posts.body`, `profiles.email`)
 
 Backend:
-- none
+- no new tables; uses existing RLS + indexes (seq scan OK for small data)
 
 Notes:
-- later
+- sanitize LIKE wildcards in user input; min 2 chars
 
 ---
 
-### 15. Categories / Tags ❌
+### 15. Categories / Tags ✅ (v2 baseline)
 
 #### 📌 Description
 Organize posts with tags.
@@ -882,17 +884,17 @@ tags table
 #### 🧱 Implementation (15. Categories / Tags)
 
 Frontend:
-- none (v1)
+- `PostForm` tags input; `PostCard` chips; `HomePage` `?tag=`; `lib/tagParse.ts`, `lib/tags.ts`
 
 Backend:
-- none
+- `tags`, `post_tags`, RLS; `feed_post_ids_by_tag` RPC; migration `20260401150000_add_tags.sql`
 
 Notes:
-- later
+- apply SQL in Supabase (RPC + tables)
 
 ---
 
-### 16. Trending System ❌
+### 16. Trending System ✅ (v2 baseline)
 
 #### 📌 Description
 Show trending posts.
@@ -927,19 +929,19 @@ uses posts + reactions
 #### 🧱 Implementation (16. Trending System)
 
 Frontend:
-- sort posts by score
+- `HomePage` Latest / Trending tabs; `/?sort=trending`; `feed.ts` `FeedSortMode`
 
 Backend:
-- calculate score
+- RPC `feed_trending_post_ids` — `sum(reactions.value)` per post, tie-break `created_at desc`
 
 Files:
-- Home.jsx
+- `HomePage.tsx`, `feed.ts`, migration `20260401160000_add_trending_feed_rpc.sql`
 
 Flow:
-1. sort posts
+1. full feed only: trending; with `?tag=` uses latest only
 
 UI:
-- trending list
+- feed sort links
 
 ---
 
@@ -1696,7 +1698,7 @@ Notes:
 
 ---
 
-### 33. UI Design System ❌
+### 33. UI Design System ✅ (v1 baseline)
 
 #### 📌 Description
 Design consistency.
@@ -1741,7 +1743,7 @@ Notes:
 
 ---
 
-### 34. Theme System ❌
+### 34. Theme System ✅ (v2 baseline)
 
 #### 📌 Description
 Light/Dark mode.
@@ -1776,17 +1778,17 @@ user preference
 #### 🧱 Implementation (34. Theme System)
 
 Frontend:
-- none (v1)
+- `ThemeProvider` / `useTheme`; `ThemePreferenceControls`; CSS vars + `html[data-theme="light"]`; `index.html` inline script
 
 Backend:
-- none
+- none (preference `localStorage` only)
 
 Notes:
-- later
+- system preference updates via `matchMedia`
 
 ---
 
-### 35. Mobile Responsiveness ❌
+### 35. Mobile Responsiveness ✅ (v1 baseline)
 
 #### 📌 Description
 Mobile-friendly UI.
@@ -2492,7 +2494,7 @@ Notes:
 
 ---
 
-### 51. Legal / Privacy (Terms & Privacy) ❌
+### 51. Legal / Privacy (Terms & Privacy) ✅
 
 #### 📌 Description
 Legal pages for users: Terms of Service and Privacy Policy.

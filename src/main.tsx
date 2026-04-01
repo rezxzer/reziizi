@@ -1,7 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App from "./App";
+import App from "./App.tsx";
+import { AuthProvider } from "./contexts/AuthContext.tsx";
+import { ThemeProvider } from "./contexts/ThemeContext.tsx";
 import "./styles.css";
 
 const rootEl = document.getElementById("root");
@@ -12,7 +14,11 @@ if (!rootEl) {
 createRoot(rootEl).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <ThemeProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
 );

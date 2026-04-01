@@ -1,3 +1,13 @@
+---
+description: 
+alwaysApply: true
+---
+
+---
+description: 
+alwaysApply: true
+---
+
 # REZIIZI — სწრაფი კონტექსტი (ახალი ჩატი / AI)
 
 ამ ფაილის მიზანია: **ახალ სესიაში** სწრაფად გაიგო პროექტი — სად რა წერია და რა რიგით ვაკეთებთ.
@@ -22,6 +32,8 @@ reziizi/
 │   ├── App.tsx             # Router
 │   ├── main.tsx            # Entry
 │   └── styles.css          # გლობალური სტილი (v1 UI)
+├── supabase/
+│   └── migrations/         # SQL (RLS, ცხრილები) — Supabase-თან სინქი CLI ან SQL Editor
 ├── index.html
 ├── vite.config.ts
 ├── package.json
@@ -58,8 +70,9 @@ npm run dev
 
 ## სად ვართ ახლა (მაღალი დონე)
 
-- **Scaffold:** Vite + routes (`/`, `/login`, `/profile`, `/settings`, `/legal`) + placeholder UI — **გაკეთებულია**.
-- **შემდეგი ტექნიკური ეტაპი (რიგით):** Supabase **`posts` + `reactions` ცხრილები და RLS** → შემდეგ **Auth** ინტეგრაცია → დანარჩენი v1 ფიჩები `reziizi.mdc`-ის რიგის მიხედვით.
+- **v1 core:** Supabase + აპი (Auth, feed, reactions, profile, settings, `/legal`); **UI ტოკენები + მობილური ბაზა** — `styles.css` / `index.html`.
+- **v2:** **Comments**, **Search**, **Theme**, **Notifications**, **Tags**, **Trending**, **Chat** (`/messages`); migration `20260401170000_add_chat.sql` Supabase-ში.
+- **შემდეგი:** v2-ში დარჩენილია ძირითადად **Algorithm (17)** / v3 — `project.md` **VERSIONS**.
 
 ## კომუნიკაცია და კოდი
 
