@@ -1,5 +1,7 @@
 # REZIIZI PROJECT
 
+> **ახალი ჩატი / სწრაფი ორიენტაცია:** გადახედე **[`AGENTS.md`](AGENTS.md)** (სად რა წერია, რა ეტაპზე ვართ, გაშვება). შემდეგ აქ ქვემოთ — **`## CURRENT WORK`**.
+
 ---
 
 ## MASTER FEATURE LIST

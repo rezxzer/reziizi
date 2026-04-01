@@ -17,6 +17,18 @@
 
 ## ჩანაწერები
 
+### 2026-04-01 — AGENTS.md + README (ახალი ჩატისთვის)
+
+- დამატებულია **`AGENTS.md`** — სწრაფი კონტექსტი: სად არის სპეკი, წესები, გაშვება, შემდეგი ეტაპი.
+- დამატებულია **`README.md`** — მოკლე quick start + ბმულები დოკუმენტებზე.
+- **`project.md`** თავში ბმული `AGENTS.md`-ზე.
+
+### 2026-04-01 — Git + GitHub
+
+- **Git** და **GitHub CLI (`gh`)** სისტემაში უკვე დაყენებული იყო — დამატებითი ინსტალაცია არ დასჭირდა.
+- **ლოკალური რეპო:** `git init`, `main`, პირველი კომიტი; `_scaffold_tmp/` ამოღებულია კომიტიდან და დამატებულია `.gitignore`-ში.
+- **Remote:** `origin` → `https://github.com/rezxzer/reziizi.git`; **`git push -u origin main`** წარმატებით.
+
 ### 2026-04-01 — Supabase `.env` (ლოკალური)
 
 - რეალური პროექტის `VITE_SUPABASE_URL` და `VITE_SUPABASE_ANON_KEY` ჩასმულია `.env`-ში (ფაილი git-ში არ ეშვება).
