@@ -2,12 +2,15 @@ import type { PostgrestError } from "@supabase/supabase-js";
 
 const FALLBACK: string = "Something went wrong. Please try again.";
 
+/** True for Supabase PostgREST errors (not `{ message: string }` alone — avoids empty messages). */
 export function isPostgrestError(err: unknown): err is PostgrestError {
   return (
     typeof err === "object" &&
     err !== null &&
     "message" in err &&
-    typeof (err as PostgrestError).message === "string"
+    typeof (err as PostgrestError).message === "string" &&
+    "code" in err &&
+    typeof (err as PostgrestError).code === "string"
   );
 }
 
@@ -27,7 +30,10 @@ export function errorMessage(err: unknown): string {
     return err;
   }
   if (isPostgrestError(err)) {
-    return err.message;
+    const m: string = err.message.trim();
+    if (m.length > 0) {
+      return m;
+    }
   }
   if (err instanceof Error && err.message.trim().length > 0) {
     return err.message;

@@ -5,7 +5,12 @@
  */
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { deleteAuthUser, deleteUserStorage } from "../src/lib/accountDeletionBackend";
+import { deleteAuthUser, deleteUserStorage } from "./lib/accountDeletionBackend";
+
+/** Vercel Node serverless — allow long Storage cleanup + auth.admin.deleteUser. */
+export const config: { maxDuration: number } = {
+  maxDuration: 120,
+};
 
 function json(res: VercelResponse, status: number, body: Record<string, unknown>): void {
   res.status(status).setHeader("Content-Type", "application/json").json(body);

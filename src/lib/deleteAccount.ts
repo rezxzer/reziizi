@@ -20,8 +20,8 @@ export async function deleteAccountViaEdgeFunction(): Promise<void> {
   }
 
   const anonKey: string | undefined = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  const tryVercelApi: boolean =
-    import.meta.env.PROD && typeof window !== "undefined" && Boolean(anonKey);
+  const tryVercelApi: boolean = import.meta.env.PROD && typeof window !== "undefined";
+  let vercelApiReturned404: boolean = false;
 
   if (tryVercelApi) {
     let res: Response;
@@ -30,7 +30,7 @@ export async function deleteAccountViaEdgeFunction(): Promise<void> {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
-          apikey: anonKey,
+          ...(anonKey ? { apikey: anonKey } : {}),
           "Content-Type": "application/json",
         },
         signal: AbortSignal.timeout(120_000),
@@ -42,13 +42,18 @@ export async function deleteAccountViaEdgeFunction(): Promise<void> {
       throw e;
     }
 
-    if (res.status !== 404) {
+    if (res.status === 404) {
+      vercelApiReturned404 = true;
+    } else {
       const body: unknown = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const msg: string =
+        let msg: string =
           typeof body === "object" && body !== null && "error" in body && typeof (body as { error: unknown }).error === "string"
             ? (body as { error: string }).error
             : res.statusText;
+        if (msg.trim().length === 0) {
+          msg = res.statusText.trim().length > 0 ? res.statusText : `Request failed (${res.status})`;
+        }
         if (res.status === 500 && msg === "Server misconfigured") {
           throw new Error(
             "Account deletion is not configured on the server. Add SUPABASE_SERVICE_ROLE_KEY to Vercel (see README).",
@@ -84,6 +89,14 @@ export async function deleteAccountViaEdgeFunction(): Promise<void> {
       throw new Error(error.message);
     }
     if (error instanceof FunctionsFetchError) {
+      if (vercelApiReturned404) {
+        throw new Error(
+          `POST /api/delete-account returned 404 on this deployment — the Vercel serverless route is missing. ` +
+            `Fix: Vercel project Root Directory must be the repo folder that contains the api/ directory; push latest code and redeploy. ` +
+            `Set SUPABASE_SERVICE_ROLE_KEY (and VITE_* for build). ` +
+            `Edge fallback failed too (${error.message}). See README.`,
+        );
+      }
       throw new Error(
         `Network error (${error.message}). Production needs Vercel env SUPABASE_SERVICE_ROLE_KEY and redeploy, or deploy the Edge Function. See README.`,
       );

@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/delete-account.ts": {
+      "maxDuration": 120
+    }
+  },
   "rewrites": [
     {
       "source": "/((?!api/).*)",

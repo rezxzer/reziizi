@@ -14,6 +14,12 @@ describe("errorMessage", () => {
     expect(errorMessage({ message: "rls" })).toBe("rls");
   });
 
+  it("returns fallback when PostgREST-shaped error has empty message", () => {
+    expect(errorMessage({ message: "", code: "PGRST116" })).toBe(
+      "Something went wrong. Please try again.",
+    );
+  });
+
   it("returns fallback for unknown", () => {
     expect(errorMessage(null)).toBe("Something went wrong. Please try again.");
     expect(errorMessage({})).toBe("Something went wrong. Please try again.");
@@ -21,9 +27,13 @@ describe("errorMessage", () => {
 });
 
 describe("isPostgrestError", () => {
-  it("narrows object with message string", () => {
+  it("narrows object with message and code strings", () => {
     const e = { message: "x", code: "PGRST" };
     expect(isPostgrestError(e)).toBe(true);
+  });
+
+  it("rejects message-only objects (not PostgREST errors)", () => {
+    expect(isPostgrestError({ message: "x" })).toBe(false);
   });
 
   it("rejects non-objects", () => {
