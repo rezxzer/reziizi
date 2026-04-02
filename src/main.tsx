@@ -1,9 +1,12 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import { ThemeProvider } from "./contexts/ThemeContext.tsx";
+import { queryClient } from "./lib/queryClient.ts";
 import "./styles.css";
 
 const rootEl = document.getElementById("root");
@@ -13,12 +16,16 @@ if (!rootEl) {
 
 createRoot(rootEl).render(
   <StrictMode>
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ThemeProvider>
+          <AuthProvider>
+            <ErrorBoundary>
+              <App />
+            </ErrorBoundary>
+          </AuthProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   </StrictMode>,
 );

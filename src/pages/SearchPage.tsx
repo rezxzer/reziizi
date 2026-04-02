@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { PostCard } from "../components/PostCard";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { errorMessage } from "../lib/errors.ts";
 import {
   isSearchQueryValid,
   sanitizeSearchQuery,
@@ -33,17 +34,20 @@ export function SearchPage(): ReactElement {
     setLoading(true);
     setError(null);
     try {
-      const [p, u] = await Promise.all([searchPostsByBody(pattern), searchProfilesByEmail(pattern)]);
+      const [p, u] = await Promise.all([
+        searchPostsByBody(pattern),
+        searchProfilesByEmail(pattern, user?.id ?? null),
+      ]);
       setPosts(p);
       setProfiles(u);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Search failed");
+      setError(errorMessage(e));
       setPosts([]);
       setProfiles([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     setInput(qParam);
@@ -112,6 +116,10 @@ export function SearchPage(): ReactElement {
               Users ({profiles.length})
             </h2>
             <div className="card__body">
+              <p className="muted">
+                Users who disabled email search discovery in Settings → Privacy won&apos;t appear here (except to
+                themselves).
+              </p>
               {profiles.length === 0 ? (
                 <p className="muted">No matching profiles.</p>
               ) : (

@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { errorMessage } from "../lib/errors.ts";
 import {
   fetchNotifications,
   markAllNotificationsRead,
@@ -21,7 +22,7 @@ export function NotificationsPage(): ReactElement {
       const list = await fetchNotifications();
       setItems(list);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to load notifications");
+      setError(errorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -39,7 +40,7 @@ export function NotificationsPage(): ReactElement {
         prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n)),
       );
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Could not update");
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }
@@ -52,7 +53,7 @@ export function NotificationsPage(): ReactElement {
       await markAllNotificationsRead();
       setItems((prev) => prev.map((n) => ({ ...n, read_at: now })));
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Could not update");
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }

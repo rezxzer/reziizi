@@ -1,6 +1,6 @@
 # REZIIZI PROJECT
 
-> **ახალი ჩატი / სწრაფი ორიენტაცია:** გადახედე **[`AGENTS.md`](AGENTS.md)** (სად რა წერია, რა ეტაპზე ვართ, გაშვება). შემდეგ აქ ქვემოთ — **`## CURRENT WORK`**.
+> **ახალი ჩატი / სწრაფი ორიენტაცია:** გადახედე **[`AGENTS.md`](AGENTS.md)**. შემდეგ აქ — **`## CURRENT WORK`** (დასრულებული + **შემდეგი განვითარების გეგმა (შევსებადი)**).
 
 ---
 
@@ -29,24 +29,24 @@
 21. Ban / Restriction System
 22. Statistics Dashboard
 23. Advertisement System
-24. Monetization System
-25. Settings Page
-26. Privacy Settings
-27. Security
-28. API Layer
-29. Database Structure
-30. Caching System
-31. Logging System
-32. Error Handling System
+24. Monetization System (v3 baseline)
+25. Settings Page (v3: + Privacy block)
+26. Privacy Settings (v3 baseline: searchable)
+27. Security (v3 baseline)
+28. API Layer (v3 baseline)
+29. Database Structure (v3 baseline: SCHEMA.md + verify_schema)
+30. Caching System 🟡
+31. Logging System 🟡
+32. Error Handling System 🟡
 33. UI Design System
 34. Theme System (Dark/Light)
 35. Mobile Responsiveness
-36. Performance Optimization
-37. Deployment System
+36. Performance Optimization 🟡
+37. Deployment System 🟡
 38. Environment Configuration (.env)
 39. Backup System
 40. Versioning System
-41. Testing System
+41. Testing System 🟡
 42. SEO Optimization
 43. Accessibility (A11Y)
 44. Localization (Languages)
@@ -84,30 +84,81 @@
 14. Search
 15. Categories / Tags
 16. Trending System
+17. Algorithm / Ranking (UI + Trending RPC; ახალი ცხრილი არ სჭირდება)
 13. Chat / Messaging System
 34. Theme System (Dark/Light)
+
+**შენიშვნა:** დამოკიდებულების მიხედვით ლოგიკური **იმპლემენტაციის რიგი** — `reziizi.mdc` → „REZIIZI v2 — ფუნქციების რიგი და Supabase migrations“.
 
 ---
 
 ### REZIIZI v3
 
-18. Admin Panel
-19. Moderation System
-20. Reports System
-21. Ban / Restriction System
-22. Statistics Dashboard
-23. Advertisement System
-17. Algorithm / Ranking
+18. Admin Panel (baseline: `/admin`, `is_admin` + stats)
+19. Moderation System (baseline: admin delete any post/comment, `/admin/moderation`)
+20. Reports System (baseline: post reports, `/admin/reports`)
+21. Ban / Restriction System (baseline: `is_banned`, `/admin/users`, `/banned`)
+22. Statistics Dashboard (baseline: `/admin/stats`, platform row counts)
+23. Advertisement System (baseline: `ad_slots`, feed-top strip, `/admin/ads`)
+24. Monetization System (baseline: `profiles.premium_until`, admin grants, `/admin/users`)
+25. Settings Page (baseline: `/settings`, password, theme, session, privacy toggle)
+26. Privacy Settings (baseline: `profiles.searchable`, email search opt-out)
+27. Security (baseline: password policy, ErrorBoundary, `/security`, `vercel.json` headers)
+28. API Layer (baseline: `src/lib/api` registry, `/admin/api` catalog)
+29. Database Structure (baseline: `supabase/SCHEMA.md`, `verify_schema.sql`)
+30. Caching System (baseline: TanStack Query — feed infinite cache, profile posts, profile flags; `queryKeys` / `queryClient`)
+31. Logging System (baseline: `src/lib/logger.ts` — `warnDev` / `debug` / `info` dev-only; `warn` / `error` always; replaces raw `console.*` in core paths)
+32. Error Handling System (baseline: `errorMessage` / `lib/errors.ts`, `InlineError`, Query/Mutation cache dev logging, unified catch handling)
+36. Performance Optimization (baseline: route code splitting — `React.lazy` + `Suspense`, admin + messaging chunks)
+37. Deployment System (baseline: Vercel + `vercel.json` SPA rewrites; **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**)
+41. Testing System (baseline: Vitest + Testing Library — `src/**/*.test.{ts,tsx}`, `npm test` / `npm run test:watch`)
 
 ---
 
 ## CURRENT WORK
 
-**REZIIZI v1 — done (local / dev):** სრული MVP ფუნქცია კოდში; **production deploy** გადავადებულია — სურვილისამებრ მერე (Vercel + env + Supabase redirect URLs).
+### რა გაკეთდა (სტატუსი — ამ ეტაპზე)
 
-**REZIIZI v2:** **Comments**, **Search**, **Theme**, **Notifications**, **Tags (15)**, **Trending (16)**, **Chat (13)** — migration `20260401170000_add_chat.sql` (`conversations`, `chat_messages`, `get_or_create_conversation`), `/messages`, `/messages/:peerId`, Search-ში **Message**.
+- **v1 (MVP):** Auth, პოსტები, feed, რეაქციები, პროფილი, settings, UI/მობილური, Legal — **დასრულებული** (ლოკალურად).
+- **v2:** კომენტარები, ძებნა, თემა, ნოტიფიკაციები, ტეგები, trending, chat, ranking UI — **baseline დასრულებული**.
+- **v3:** Admin, moderation, reports, ban, stats, ads, premium, settings+privacy, security, API catalog, DB docs (`SCHEMA.md`, `verify_schema`), **Caching (30)** TanStack Query, **Error Handling (32)**, **Logging (31)**, **Performance (36)** lazy routes, **Deployment (37)** Vercel + `vercel.json` + **`README.md` deployment გზამკვლევი**, **Testing (41)** Vitest — **baseline დასრულებული** კოდში.
+- **Production:** აპი **ატვირთულია Vercel-ზე** (GitHub დაკავშირება, `VITE_*` env, Supabase Auth URL-ები — იხილე **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**).
+- **Media Upload (11) + File Storage (47) — baseline:** Supabase Storage `post-images`, `posts.image_url`, `PostForm` სურათი, feed/admin `PostCard` / Moderation; პოსტის წაშლისას Storage cleanup (საუკეთესო ძალისხმევა).
+- **Avatar (4) — baseline:** `profiles.avatar_url`, bucket `avatars` (2 MiB), **Settings** → Profile photo, **Profile** + feed **PostCard** — `Avatar` კომპონენტი; ძველი სურათის წაშლა ახალი ატვირთვისას / Remove.
+- **GitHub CI:** `.github/workflows/ci.yml` — `main`/`master`-ზე push/PR: `npm ci` → `npm test` → `npm run build` (იხილე **`README.md` → „GitHub Actions (CI)“**). **Vercel** დეპლოი რჩება რეპოდან იმპორტით, როგორც ადრე.
 
-**Next v2:** **Algorithm / Ranking (17)** და სხვა v3 ფუნქციები — `project.md` **VERSIONS**. (Chat v2 baseline დასრულებულია.)
+**შენიშვნა:** **Database Structure (29)** — `supabase/SCHEMA.md`, `verify_schema.sql`; ახალი migration-ის შემდეგ ამ ფაილებიც განაახლე.
+
+---
+
+### v3 ტექნიკური სტეკი (დასრულებული baseline — ცხრილი)
+
+| # | ფიჩა | რა გაკეთდა | მომავალი (სურვილისამებრ) |
+|---|------|------------|---------------------------|
+| 1 | **Caching (30)** | TanStack Query: feed, profile, `useProfileFlags`; `queryKeys` / `queryClient` | Search/s სხვა გვერდები query-ზე, prefetch |
+| 2 | **Error Handling (32)** | `errorMessage`, `InlineError`, ერთიანი `catch`, query cache dev log | toast, `QueryErrorResetBoundary` |
+| 3 | **Performance (36)** | `React.lazy` + `Suspense` admin/messaging | tuning, virtualization, სურათები |
+| 4 | **Deployment (37)** | Vercel, SPA rewrites, README; **GitHub Actions** — `.github/workflows/ci.yml` (`npm test` + `npm run build`) | E2E, coverage thresholds, preview env |
+| 5 | **Logging (31)** | `src/lib/logger.ts` | Sentry / სხვა remote |
+| 6 | **Testing (41)** | Vitest + Testing Library, `*.test.ts(x)` | E2E, coverage, CI-ში `npm test` |
+
+---
+
+### შემდეგი განვითარების გეგმა (შევსებადი)
+
+შეავსე ქვემოთ — **პრიორიტეტი** 1 = პირველი. სტატუსი: მაგ. `⬜ დაგეგმილი` · `🔄 მუშაობს` · `✅ დასრულებული`. განაახლე ეს ცხრილი ყოველ იტერაციაში.
+
+| პრიორიტეტი | ფიჩა (MASTER #) | სტატუსი | ვადა / შენიშვნა |
+|-------------|-------------------|---------|------------------|
+| 1 | **11. Media Upload System** (+ **47. File Storage** როგორც ტექნიკური ფუძე) | ✅ baseline | სურათი პოსტზე; cleanup წაშლისას; ვიდეო არა (MVP) — იხილე §11 |
+| 2 | **4. Avatar** — `profiles.avatar_url`, bucket `avatars`, Settings upload, feed `PostCard` | ✅ baseline | სურვილისამებრ: სხვა გვერდებზე Avatar |
+| 3 | **მომდევნო (აირჩიე):** SEO **(42)**, Rate limit **(48)**, A11Y **(43)** … | ⬜ | **Email (45)** — მოგვიანებით (არა სავალდებულო ახლა) |
+| 4 | | ⬜ | |
+| 5 | | ⬜ | |
+
+**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Friends (5)**, **Video (10)**, **Rate limiting (48)**, **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + თითო ფიჩის **FEATURE BREAKDOWN** ქვეთავი. **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
+
+**სადაც „მომავალია“:** თითოეულ ფიჩას აქვს **🚀 Future** ან **Notes** `FEATURE BREAKDOWN`-ში; ახალი ფიჩა: ჯერ აქ გეგმა/სტატუსი, მერე კოდი (`reziizi.mdc`).
 
 ---
 
@@ -304,7 +355,7 @@ UI:
 
 ---
 
-### 4. Avatar System ❌
+### 4. Avatar System 🟡
 
 #### 📌 Description
 User profile image system.
@@ -663,50 +714,121 @@ Notes:
 
 ---
 
-### 11. Media Upload System ❌
+### 11. Media Upload System 🟡 — სრული breakdown (baseline: სურათი პოსტზე ✅)
 
-#### 📌 Description
-Upload images/videos for posts.
-
----
-
-#### ✅ v1 (MVP)
-- not included
+> **დამოკიდებულება:** **47. File Storage System** — Supabase Storage bucket(ები), პოლიტიკები (public read ან signed URL), ფაილის ზომის/ტიპის ლიმიტები. **10. Video System** — MVP-ში ვიდეო არა; ფოტო/გიფი პირველ რიგში. **4. Avatar System** — იგივე საცავის ხელშეკრულება შეიძლება გამოიყენოს პროფილის სურათისთვის მოგვიანებით.
 
 ---
 
-#### 🚀 Future (v2+)
-- upload images
-- upload videos
+#### ❗ Media type შეზღუდვა (MVP — Cursor)
+
+**ერთ ტალღაში არ უნდა გაკეთდეს ყველაფერი ერთად** — MVP-ის მინიმუმი:
+
+| | |
+|--|--|
+| **დაშვებული** | **მხოლოდ სურათის** ატვირთვა: `image/*` whitelist (მაგ. JPEG, PNG, WebP); GIF — მხოლოდ თუ პროდუქტულად დაუშვებ და ზომის ლიმიტით. |
+| **აკრძალული (ახლა)** | **ვიდეო** — არა ატვირთვა, არა პლეერი, არა `video/*` MIME; **§10 Video System** — მომავალ ეტაპზე. |
+
+- იმპლემენტაციაში: `<input type="file" accept="image/...">`, კლიენტური + Storage-ის ტიპის შემოწმება; ვიდეო ფაილები უარყოფილია მკაფიო შეტყობინებით.
 
 ---
 
-#### ⚙️ Logic
-- file stored in storage
-- linked to post
+#### Description
+
+მომხმარებელს შეუძლია პოსტთან ერთად **სურათის (ან მოკლე ვადით GIF)** ატვირთვა. ფაილი ინახება **ობიექტურ საცავში** (Supabase Storage); ბაზაში ინახება მიმართება (URL ან `storage path` + metadata), რათა feed-მა და პროფილის პოსტებმა გამოაჩინონ მედია. მიზანი: ტექსტური პოსტებიდან გადასვლა **ვიზუალურ კონტენტზე** — სოციალური ღირებულება მაღალია, SEO/Email-ზე ნაკლებად დამოკიდებულია პირველ ტალღაზე.
 
 ---
 
-#### 🗄️ Database (planned)
-media table (url, type, post_id)
+#### MVP Scope
+
+- **მედიის ტიპი:** იხილე ზემოთ **«❗ Media type შეზღუდვა (MVP — Cursor)»** — **მხოლოდ image**, **არა ვიდეო**.
+- **ერთი სურათი პოსტზე** (ან მაქს. 1–4 — გადაწყვეტა იმპლემენტაციისას; დოკუმენტში MVP = მინიმუმ 1 სურათი).
+- **ფორმატები (სურათი):** JPEG, PNG, WebP (სურვილისამებრ GIF — თუ ზომა/სპამი კონტროლდება).
+- **ატვირთვა:** მხოლოდ ავტორიზებული მომხმარებელი; **banned** მომხმარებელს არ ეშვება (იგივე წესი რაც `PostForm`-ში ტექსტისთვის).
+- **საცავი:** Supabase Storage bucket + RLS/პოლიტიკები (წაკითხვა feed-ისთვის — public object ან short-lived signed URL).
+- **ბაზა:** `posts` ცხრილის გაფართოება (`media` jsonb მასივი ან `post_media` ცხრილი — იმპლემენტაციის არჩევანი) ან მინიმალური სვეტი `image_url` / `media_paths` — ერთიანი წყარო feed query-სთვის.
+- **UI:** ატვირთვის ღილაკი/დროპზონა `PostForm`-ში, პრევიუ, პროგრესი, შეცდომის შეტყობინება; `PostCard`-ში სურათის ჩვენება (responsive, `loading="lazy"`).
+- **არ შედის MVP-ში:** ვიდეო, გალერეა 10+ ფოტოთი, რედაქტირი, ფილტრები.
+
+---
+
+#### Future Scope
+
+- რამდენიმე სურათი პოსტზე, კარუსელი, ზუმი/lightbox.
+- ვიდეო (ჯერ **§10 Video System** + transcoding თუ საჭიროა).
+- ავატარის ატვირთვა (**§4**) იგივე bucket-ის სუბფოლდერით `avatars/{user_id}`.
+- ოპტიმიზაცია: thumbnail-ები (Edge Function ან client resize), WebP კონვერტი.
+- მოდერაცია: NSFW scan, admin-ისთვის მედიის წაშლა (არსებული admin delete post უკვე ფარავს პოსტს მთლიანად).
+
+---
+
+#### Logic
+
+1. მომხმარებელი ირჩევს ფაილს → კლიენტი ამოწმებს ტიპს/ზომას (და სერვერული პოლიტიკა Storage-ზე).
+2. **Upload path:** `posts/{user_id}/{post_id_or_temp_uuid}/{filename}` — რათა RLS იყოს user-scoped; ალტერნატივა: დროებითი `uploads/{user_id}/...` შემდეგ post insert-ის შემდეგ გადატანა (ორფაზიანი ნაკლებად სასურველია — უმჯობესია ჯერ post row, შემდეგ attach, ან ერთ ტრანზაქციაში RPC).
+3. Post insert/update: ბაზაში ინახება მედიის მიმართება(ები).
+4. Feed / profile queries: არსებული `posts` select + join ან jsonb unwrap — TanStack Query cache keys განახლდეს (`queryKeys.posts` და სხვა), რომ ახალი ველები ინვალიდაციას არ გამოტოვებდეს.
+5. წაშლა: პოსტის წაშლისას cascade ან lifecycle hook — Storage-დან ობიექტის წაშლა (თუ არა — orphan cleanup job მომავალში).
+
+---
+
+#### Implementation
+
+**Frontend**
+
+- `PostForm`: ფაილის input ან drag-and-drop; ვალიდაცია; `supabase.storage.from(bucket).upload(...)`; შეცდომები `errorMessage` / `InlineError`.
+- `PostCard`: თუ `post`-ს აქვს მედია — `<img>` ან ერთიანი `MediaBlock` კომპონენტი; aspect-ratio / max-height დიზაინ სისტემის მიხედვით.
+- `src/types/db.ts` (ან ანალოგი): `Post` ტიპის გაფართოება ახალი ველებით.
+- TanStack Query: არსებული feed/profile hooks — განახლება select-ის ველებზე და `queryKeys`.
+
+**Backend (Supabase)**
+
+- Migration: `posts` სვეტ(ებ)ი ან `post_media` ცხრილი + RLS `insert/select` პოლიტიკები.
+- Storage: bucket შექმნა, **Storage policies** (მაგ. authenticated upload საკუთარ prefix-ზე, read საჭირო დონეზე).
+- ოფციონალური: Postgres trigger ან Edge Function ობიექტის წასაშლელად post delete-ზე.
+
+**Files (მიმდინარე პროექტის მიმართულებით — სამუშაო სია, არა ფიქსირებული სახელები)**
+
+- `src/components/PostForm.tsx` — ატვირთვის UI + ინტეგრაცია submit ფლოუში.
+- `src/components/PostCard.tsx` — მედიის რენდერი.
+- `src/lib/supabaseClient.ts` — უცვლელი თუ არა საჭიროა storage helper.
+- ახალი: `src/lib/storageUpload.ts` ან მსგავსი — upload ლოგიკა, path builder, ტიპის შემოწმება.
+- `supabase/migrations/*_post_media.sql` — სქემა.
+- `supabase/SCHEMA.md`, `supabase/verify_schema.sql` — განახლება პოლიტიკის მიხედვით.
+
+---
+
+#### Flow (step-by-step)
+
+1. მომხმარებელი იხსნის Home/feed გვერდს → `PostForm` ჩანს (როგორც ახლა).
+2. ირჩევს სურათს (არასავალდებულო ველი MVP-ში შეიძლება იყოს სურათი ან მხოლოდ ტექსტი — პროდუქტის გადაწყვეტა: „ტექსტი ან ტექსტ+სურათი“, ორივე არა ცარიელი).
+3. (ა) ჯერ ტექსტი+ტეგები validate → post insert → მიღებული `post.id` → upload path-ში გამოყენება; ან (ბ) presigned/temp upload → შემდეგ post — დოკუმენტირებული ორი ვარიანტიდან ერთი ირჩევა იმპლემენტაციისას.
+4. Upload სრულდება → ბაზაში ინახება მედიის მიმართება.
+5. `onPosted` / query invalidation → feed განახლდება → `PostCard` აჩვენებს სურათს.
+6. შეცდომისას: მომხმარებელს ეჩვენება შეტყობინება; თუ post უკვე შექმნილია მაგრამ upload ჩავარდა — rollback ან orphan post cleanup (MVP-ში უნდა იყოს განსაზღვრული ერთი სტრატეგია).
+
+---
+
+#### UI
+
+- **PostForm:** ტექსტის ველი და ტეგები როგორც ახლა; დამატებით: „Add image“ / ხატულა; არჩეული ფაილის სახელი და პატარა thumbnail; „Remove image“; ატვირთვისას disabled submit ან spinner; შეცდომა წითელი ტექსტით (`form__error`).
+- **PostCard:** ტექსტის ზემოთ ან ქვემოთ სურათი (ერთი სტილი მთელ აპში); სურათს არ გადაერღვას layout მობილურზე (`max-width: 100%`, `object-fit`).
+- **Feed / პროფილი:** იგივე ბარათი; ცარიელი სურათის მდგომარეობა არ ჩანს (მხოლოდ ტექსტი).
+- **Accessibility:** სურათს `alt` — პირველ ტალღაში შეიძლება ტექსტის პირველი ხაზის მოკლე excerpt ან „Post image“.
+
+---
+
+#### 🗄️ Database (planned — დეტალი MVP იმპლემენტაციისას)
+
+- ვარიანტი A: `posts` + `media_urls text[]` ან `media jsonb`.
+- ვარიანტი B: `post_media (id, post_id, storage_path, sort_order, created_at)` + FK `posts`.
 
 ---
 
 #### 🛠️ Notes
-- skip in MVP
 
----
-
-#### 🧱 Implementation (11. Media Upload System)
-
-Frontend:
-- none (v1)
-
-Backend:
-- none
-
-Notes:
-- later
+- **SEO (42)** და **Email (45)** პარალელურად მნიშვნელოვანია production-ისთვის, მაგრამ **Media** უშუალოდ უმატებს retention-ს feed-ში.
+- **Rate limiting (48) / Anti-spam (49)** — ატვირთვის ფრიქვენცია მომავალში შეიზღუდოს.
 
 ---
 
@@ -945,7 +1067,7 @@ UI:
 
 ---
 
-### 17. Algorithm / Ranking ❌
+### 17. Algorithm / Ranking ✅ (v2 baseline)
 
 #### 📌 Description
 Ranking system for feed.
@@ -980,20 +1102,20 @@ reactions
 #### 🧱 Implementation (17. Algorithm / Ranking)
 
 Frontend:
-- none (direct logic)
+- `PostCard` — net score (👍 − 👎); `ReactionButtons` — შეცდომის ტექსტი
 
 Backend:
-- score = likes - dislikes
+- `reactions.value`; Trending RPC `feed_trending_post_ids` — ჯამური ქულა
 
 Flow:
-1. calculate score
+1. ფიდი: Latest / Trending; ტეგზე latest
 
 Notes:
-- simple MVP
+- MVP
 
 ---
 
-### 18. Admin Panel ❌
+### 18. Admin Panel ✅ (v3 baseline)
 
 #### 📌 Description
 Admin control interface.
@@ -1029,17 +1151,17 @@ users role field
 #### 🧱 Implementation (18. Admin Panel)
 
 Frontend:
-- none (v1)
+- `/admin`, `AdminRoute`, `AdminPage` (counts: profiles, posts, comments, reactions); nav **Admin** თუ `is_admin`
 
 Backend:
-- none
+- migration `20260401180000_add_profiles_is_admin.sql` — `profiles.is_admin`, ტრიგერი (არა-admin ვერ ცვლის ლოგინით)
 
 Notes:
-- v3
+- პირველი admin: SQL Editor `update public.profiles set is_admin = true where id = '…'`
 
 ---
 
-### 19. Moderation System ❌
+### 19. Moderation System ✅ (v3 baseline)
 
 #### 📌 Description
 Content moderation.
@@ -1074,17 +1196,17 @@ reports
 #### 🧱 Implementation (19. Moderation System)
 
 Frontend:
-- none
+- `AdminModerationPage` `/admin/moderation`; `adminModeration.ts`
 
 Backend:
-- none
+- RLS `posts_delete_admin`, `comments_delete_admin` — migration `20260401200000_add_admin_moderation_delete_policies.sql`
 
 Notes:
-- later
+- პოსტის წაშლა — კომენტარები cascade
 
 ---
 
-### 20. Reports System ❌
+### 20. Reports System ✅ (v3 baseline)
 
 #### 📌 Description
 Users report content.
@@ -1119,17 +1241,17 @@ reports table
 #### 🧱 Implementation (20. Reports System)
 
 Frontend:
-- none
+- `ReportPostControl` on `PostCard`; `AdminReportsPage` `/admin/reports`; `reports.ts`
 
 Backend:
-- none
+- `reports` (reporter, post, reason, unique per user/post); RLS; admin delete
 
 Notes:
-- later
+- ერთი რეპორტი იგივე პოსტზე თითო მომხმარებლისთვის
 
 ---
 
-### 21. Ban / Restriction System ❌
+### 21. Ban / Restriction System ✅ (v3 baseline)
 
 #### 📌 Description
 Restrict users.
@@ -1164,17 +1286,19 @@ user status
 #### 🧱 Implementation (21. Ban / Restriction System)
 
 Frontend:
-- none (v1)
+- `AdminUsersPage` `/admin/users`, `BannedPage` `/banned`, `useProfileFlags`, `PostForm` ban message, Layout redirect
 
 Backend:
-- none
+- `profiles.is_banned`, `profiles.ban_reason`, `profiles.banned_at`, RLS writes blocked, `admin_set_user_banned(uuid, boolean, text)` RPC — migration `20260401270000_add_ban_reason.sql` (ძველი 2-arg ფუნქცია იცვლება)
+- `profiles_update_admin` RLS policy — migration `20260401260000_add_profiles_admin_update_policy.sql` (სხვა მომხმარებლის `profiles` UPDATE ban/premium RPC-ებისთვის; თუ მხოლოდ `profiles_update_own` იყო, admin UPDATE სხვაზე შეიძლება ჩაეფლო RLS-ში)
 
 Notes:
-- admin feature later
+- admin cannot ban self via RPC; SQL-ით შესაძლებელია როგორც სხვა ველზე
+- **ban reason UX:** `AdminUsersPage` — Ban ღილაკი textarea პანელით (max 500); `BannedPage` — „Why“ + „Restriction active since …`; სხვა UI არ აჩვენებს სხვის მიზეზს ცალკე (როგორც დოკუმენტი); **მომავალში:** `banned_until`, სხვის `ban_reason` დამალვა RLS/view-ით თუ ბაზიაში ღია რჩება
 
 ---
 
-### 22. Statistics Dashboard ❌
+### 22. Statistics Dashboard ✅ (v3 baseline)
 
 #### 📌 Description
 Platform analytics.
@@ -1210,17 +1334,17 @@ various tables
 #### 🧱 Implementation (22. Statistics Dashboard)
 
 Frontend:
-- none (v1)
+- `AdminStatsPage` `/admin/stats`; `fetchPlatformMetrics` — count ყველა ძირითად ცხრილზე
 
 Backend:
-- none
+- არა (კლიენტი `count` query-ები; პატარა მონაცემებისთვის OK)
 
 Notes:
-- later
+- მომავალში: SQL aggregate / charts
 
 ---
 
-### 23. Advertisement System ❌
+### 23. Advertisement System ✅ (v3 baseline)
 
 #### 📌 Description
 Display ads.
@@ -1242,8 +1366,8 @@ Display ads.
 
 ---
 
-#### 🗄️ Database (planned)
-ads table
+#### 🗄️ Database (v3 baseline)
+- `public.ad_slots` (`placement` unique, `feed_top` seed); RLS: public SELECT `is_active`; admin full CRUD
 
 ---
 
@@ -1255,17 +1379,19 @@ ads table
 #### 🧱 Implementation (23. Advertisement System)
 
 Frontend:
-- none (v1)
+- `FeedAdSlot` — Home feed-ის ზედა sponsored strip; ტექსტი მხოლოდ (არა HTML)
+- `AdminAdsPage` `/admin/ads` — title, body, URL, active checkbox
+- `src/lib/ads.ts` — `fetchActiveFeedTopAd`, `fetchFeedTopAdForAdmin`, `saveFeedTopAd`
 
 Backend:
-- none
+- migration `20260401230000_add_ad_slots.sql`
 
 Notes:
-- v3
+- მომავალში: სხვა `placement`-ები, ვიზუალი/სურათი
 
 ---
 
-### 24. Monetization System ❌
+### 24. Monetization System ✅ (v3 baseline)
 
 #### 📌 Description
 Earn money from platform.
@@ -1287,8 +1413,8 @@ Earn money from platform.
 
 ---
 
-#### 🗄️ Database (planned)
-payments
+#### 🗄️ Database (v3 baseline)
+- `profiles.premium_until` — admin-only changes (trigger + RPC); optional payment webhooks მომავალში
 
 ---
 
@@ -1300,17 +1426,19 @@ payments
 #### 🧱 Implementation (24. Monetization System)
 
 Frontend:
-- none (v1)
+- `lib/premium.ts` — `isPremiumActive`, `extendPremiumIso`
+- `/admin/users` — +30d / +365d / Clear premium (cannot change own row)
+- Profile / Settings — Premium სტატუსის ჩვენება
 
 Backend:
-- none
+- migration `20260401240000_add_premium_monetization.sql` — trigger, `admin_set_user_premium_until`
 
 Notes:
-- later
+- გადახდის პროვაიდერი (Stripe და სხვ.) — მომდევნო ეტაპი
 
 ---
 
-### 25. Settings Page ❌
+### 25. Settings Page ✅ (v1 + v3)
 
 #### 📌 Description
 User settings.
@@ -1351,29 +1479,26 @@ users
 #### 🧱 Implementation (25. Settings Page)
 
 Frontend:
-- simple settings page
+- `SettingsPage` — Appearance (theme), Account, **Privacy** (`searchable`), password, session, delete placeholder
 
 Backend:
-- Supabase Auth (password update, sign out, account delete)
-
-Files:
-- /src/pages/Settings.jsx
+- Supabase Auth (password update, sign out); `profiles` update for privacy
 
 Flow:
 1. user opens settings
 2. can change password (Supabase)
 3. can log out
-4. can delete account
+4. can delete account (placeholder — server flow later)
 
 UI:
-- basic inputs
 - password change
 - logout button
-- delete account (confirm)
+- delete account (disabled / soon)
+- Privacy: email search visibility
 
 ---
 
-### 26. Privacy Settings ❌
+### 26. Privacy Settings ✅ (v3 baseline)
 
 #### 📌 Description
 Control user privacy.
@@ -1395,8 +1520,8 @@ Control user privacy.
 
 ---
 
-#### 🗄️ Database (planned)
-privacy fields
+#### 🗄️ Database (v3 baseline)
+- `profiles.searchable` — `false` = hide from email user search (signed-in user still finds self)
 
 ---
 
@@ -1408,17 +1533,17 @@ privacy fields
 #### 🧱 Implementation (26. Privacy Settings)
 
 Frontend:
-- none (v1)
+- `SettingsPage` Privacy section; `profilePrivacy.ts`; Search page hint
 
 Backend:
-- none
+- migration `20260401250000_add_profile_searchable.sql`
 
 Notes:
-- later
+- მომავალში: პროფილის სრული დამალვა, follower-only, და სხვა
 
 ---
 
-### 27. Security ❌
+### 27. Security ✅ (v3 baseline)
 
 #### 📌 Description
 Protect system.
@@ -1453,17 +1578,20 @@ users
 #### 🧱 Implementation (27. Security)
 
 Frontend:
-- basic validation
+- `passwordPolicy.ts` — min length 8 (signup + change password); sign-in unchanged for legacy short passwords
+- `ErrorBoundary` — render failure UI + reload
+- `SecurityPage` `/security` — user-facing summary (RLS, HTTPS, Privacy link)
 
-Backend:
-- Supabase auth protection
+Backend / hosting:
+- Supabase Auth + RLS (unchanged)
+- `vercel.json` — X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy (when hosted on Vercel)
 
 Notes:
-- simple security
+- CSP / rate limits — მომავალში
 
 ---
 
-### 28. API Layer ❌
+### 28. API Layer ✅ (v3 baseline)
 
 #### 📌 Description
 Backend API.
@@ -1498,17 +1626,21 @@ all tables
 #### 🧱 Implementation (28. API Layer)
 
 Frontend:
-- direct Supabase calls
+- `src/lib/api/registry.ts` — `TABLE`, `RPC` (canonical names for Supabase)
+- `src/lib/api/errors.ts` — `errorMessage`, `isPostgrestError`
+- `src/lib/api/index.ts` — barrel export
+- `AdminApiPage` `/admin/api` — read-only catalog for admins
+- დანარჩენი მონაცემები: არსებული `src/lib/*.ts` მოდულები (`supabase.from` / `.rpc`)
 
 Backend:
-- Supabase handles API
+- Supabase PostgREST + Auth + RLS (არა ცალკე Node API)
 
 Notes:
-- no custom API yet
+- ახალი ცხრილი/RPC დამატებისას განაახლე `registry.ts` და `verify_schema.sql`
 
 ---
 
-### 29. Database Structure ❌
+### 29. Database Structure ✅ (v3 baseline)
 
 #### 📌 Description
 Database schema.
@@ -1532,8 +1664,8 @@ Database schema.
 
 ---
 
-#### 🗄️ Database (planned)
-core tables
+#### 🗄️ Database (v3 baseline)
+`public` ცხრილები migrations-ით; მიმოხილვა: `supabase/SCHEMA.md`
 
 ---
 
@@ -1545,25 +1677,24 @@ core tables
 #### 🧱 Implementation (29. Database Structure)
 
 Frontend:
-- none
+- none (დოკი რეპოში)
 
 Backend:
-- Supabase tables
+- Supabase tables + RLS (იხ. migrations)
 
-Tables:
-- users
-- posts
-- reactions
+Documentation:
+- `supabase/SCHEMA.md` — ცხრილები, RPC სია, ბმულები `registry.ts` / `types/db.ts`
+- `supabase/verify_schema.sql` — დაყენების შემოწმება (განახლებულია `admin_set_user_banned`)
 
 Notes:
-- core structure
+- ახალი ცხრილი → migration + `SCHEMA.md` + `registry.ts` + `types/db.ts`
 
 ---
 
-### 30. Caching System ❌
+### 30. Caching System 🟡
 
 #### 📌 Description
-Improve performance.
+Client-side **query cache** — fewer redundant Supabase reads, shared data across routes.
 
 ---
 
@@ -1572,43 +1703,52 @@ Improve performance.
 
 ---
 
+#### ✅ v3 (baseline — partial)
+- `@tanstack/react-query` — `QueryClientProvider` in `main.tsx`
+- `src/lib/queryClient.ts`, `src/lib/queryKeys.ts`
+- **Feed:** `useInfiniteQuery` on `HomePage` + invalidation on post / reaction
+- **Profile:** `useQuery` for email + `fetchUserPosts`
+- **`useProfileFlags`:** `useQuery` (single cache for Layout, PostForm, Settings, …)
+
+---
+
 #### 🚀 Future (v2+)
-- cache data
+- extend to Search, notifications list, chat; prefetch; persisted cache (optional)
 
 ---
 
 #### ⚙️ Logic
-- reduce DB calls
+- reduce DB calls; stale-while-revalidate (`staleTime` / refetch on focus)
 
 ---
 
 #### 🗄️ Database (planned)
-cache layer
+none — client cache only
 
 ---
 
 #### 🛠️ Notes
-- later
+- default `staleTime` 60s in `queryClient`; tune per-query if needed
 
 ---
 
 #### 🧱 Implementation (30. Caching System)
 
 Frontend:
-- none
+- TanStack Query + keys + invalidation (`queryKeys`, pages above)
 
 Backend:
 - none
 
 Notes:
-- later optimization
+- full feature 30 still open (broader coverage, server CDN cache, etc.)
 
 ---
 
-### 31. Logging System ❌
+### 31. Logging System 🟡
 
 #### 📌 Description
-Track system events.
+Centralized client logging instead of ad-hoc `console.*`.
 
 ---
 
@@ -1617,43 +1757,49 @@ Track system events.
 
 ---
 
+#### ✅ v3 (baseline — partial)
+- `src/lib/logger.ts` — `debug` / `info` / `warnDev` (dev only); `warn` / `error` (always)
+- Wired: `queryClient` (TanStack failures), `ErrorBoundary`, `PostCard` delete, `supabaseClient` missing env
+
+---
+
 #### 🚀 Future (v2+)
-- log storage
+- remote aggregation (Sentry, LogRocket, etc.), structured JSON, sampling
 
 ---
 
 #### ⚙️ Logic
-- log actions
+- one prefix `[reziizi]`; production stays quiet except `warn`/`error`
 
 ---
 
 #### 🗄️ Database (planned)
-logs
+none for client baseline
 
 ---
 
 #### 🛠️ Notes
-- simple first
+- do not log tokens or PII
 
 ---
 
 #### 🧱 Implementation (31. Logging System)
 
 Frontend:
-- console logs
+- `logger` module + call sites above
 
 Backend:
-- basic logs
+- Supabase logs (Dashboard) — separate
 
 Notes:
-- simple debugging
+- full feature 31 still open (server-side pipelines, retention)
 
 ---
 
-### 32. Error Handling System ❌
+### 32. Error Handling System 🟡
 
 #### 📌 Description
-Handle errors.
+Consistent user-facing messages and predictable handling for Supabase/JS failures.
 
 ---
 
@@ -1662,13 +1808,22 @@ Handle errors.
 
 ---
 
+#### ✅ v3 (baseline — partial)
+- `errorMessage()` in `src/lib/api/errors.ts` (Postgrest, `Error`, string, `{ message }`, fallback)
+- `src/lib/errors.ts` re-exports for app imports
+- `InlineError` component for query/form alerts
+- `QueryClient` — `QueryCache` / `MutationCache` `onError`: dev-only `console.warn` (skips cancelled queries)
+- Pages/components: `catch` blocks use `errorMessage(e)` instead of ad-hoc `instanceof Error`
+
+---
+
 #### 🚀 Future (v2+)
-- global handling
+- toast / global banner; `QueryErrorResetBoundary`; structured error codes
 
 ---
 
 #### ⚙️ Logic
-- catch errors
+- normalize unknown errors to a single English string for UI
 
 ---
 
@@ -1678,23 +1833,23 @@ Handle errors.
 ---
 
 #### 🛠️ Notes
-- improve later
+- `ReactionButtons` imports `errorMessage` as `formatError` (state name clash)
 
 ---
 
 #### 🧱 Implementation (32. Error Handling System)
 
 Frontend:
-- show error messages
+- `errorMessage`, `InlineError`, query cache logging, unified catch usage
 
 Backend:
-- catch errors
+- none
 
 UI:
-- alert / message
+- `.form__error` / `InlineError`
 
 Notes:
-- simple first
+- full feature 32 still open (toast, telemetry, etc.)
 
 ---
 
@@ -1830,15 +1985,22 @@ Notes:
 
 ---
 
-### 36. Performance Optimization ❌
+### 36. Performance Optimization 🟡
 
 #### 📌 Description
-Improve speed.
+Improve speed — **v3 baseline:** smaller initial JS by **lazy-loading** heavy routes (admin, messages, chat thread, notifications).
 
 ---
 
 #### ✅ v1 (MVP)
 - basic optimization
+
+---
+
+#### ✅ v3 (baseline — partial)
+- `src/lazy/chunks.ts` — `React.lazy` for admin pages, `MessagesPage`, `ChatThreadPage`, `NotificationsPage`
+- `src/components/RouteFallback.tsx` — Suspense fallback
+- `App.tsx` — `<Suspense>` around `<Routes>`
 
 ---
 
@@ -1848,7 +2010,7 @@ Improve speed.
 ---
 
 #### ⚙️ Logic
-- optimize queries
+- optimize queries; code-split routes to defer non-critical UI
 
 ---
 
@@ -1858,27 +2020,27 @@ Improve speed.
 ---
 
 #### 🛠️ Notes
-- later
+- later: memoization, list virtualization, image lazy load, Supabase query limits
 
 ---
 
 #### 🧱 Implementation (36. Performance Optimization)
 
 Frontend:
-- basic optimization
+- lazy route chunks + Suspense (`lazy/chunks.ts`, `RouteFallback.tsx`, `App.tsx`)
 
 Backend:
 - none
 
 Notes:
-- later tuning
+- full feature 36 still open (caching, profiling, etc.)
 
 ---
 
-### 37. Deployment System ❌
+### 37. Deployment System 🟡
 
 #### 📌 Description
-Deploy app online.
+Host the SPA online with correct routing and secrets.
 
 ---
 
@@ -1887,13 +2049,20 @@ Deploy app online.
 
 ---
 
+#### ✅ v3 (baseline — partial)
+- `vercel.json` — **rewrites** (`/(.*)` → `/index.html`) so React Router deep links and refresh work
+- `README.md` — **Production (Vercel)** steps: import repo, `VITE_*` env vars, Supabase Auth URL config
+- `.env.example` — note on Vercel Environment Variables
+
+---
+
 #### 🚀 Future (v2+)
-- CI/CD
+- CI/CD (GitHub Actions), preview deploys per PR, staging env
 
 ---
 
 #### ⚙️ Logic
-- deploy build
+- static build (`dist`) + SPA fallback; client uses Supabase cloud
 
 ---
 
@@ -1903,20 +2072,20 @@ Deploy app online.
 ---
 
 #### 🛠️ Notes
-- use Vercel
+- security headers unchanged (see Security (27))
 
 ---
 
 #### 🧱 Implementation (37. Deployment System)
 
 Frontend:
-- deploy via Vercel
+- Vite + Vercel; `vercel.json` rewrites + headers
 
 Backend:
 - Supabase hosted
 
 Notes:
-- simple deploy
+- full feature 37 still open (monitoring, rollback playbook, etc.)
 
 ---
 
@@ -2055,10 +2224,10 @@ Notes:
 
 ---
 
-### 41. Testing System ❌
+### 41. Testing System 🟡
 
 #### 📌 Description
-Test application functionality.
+Automated checks for pure logic and UI primitives.
 
 ---
 
@@ -2067,13 +2236,22 @@ Test application functionality.
 
 ---
 
+#### ✅ v3 (baseline — partial)
+- **Vitest** + **jsdom** + **@testing-library/react** + **@testing-library/jest-dom**
+- `vite.config.ts` — `test` block (`defineConfig` from `vitest/config`)
+- `src/test/setup.ts` — jest-dom matchers
+- Sample tests: `errorMessage`, `slugifyTag` / `parseTagsFromInput`, `isPasswordLongEnough`, `InlineError`
+- Scripts: `npm test`, `npm run test:watch`
+
+---
+
 #### 🚀 Future (v2+)
-- automated tests
+- Playwright/Cypress E2E; coverage thresholds; GitHub Actions `npm test` on PR
 
 ---
 
 #### ⚙️ Logic
-- test features manually
+- unit + component smoke tests; no Supabase in CI without secrets
 
 ---
 
@@ -2083,17 +2261,17 @@ Test application functionality.
 ---
 
 #### 🛠️ Notes
-- simple first
+- extend tests when changing `feed`, auth, or admin flows
 
 ---
 
 #### 🧱 Implementation (41. Testing System)
 
 Frontend:
-- manual testing
+- Vitest + Testing Library (see above)
 
 Notes:
-- test features manually
+- full feature 41 still open (integration tests, E2E, coverage gates)
 
 ---
 
@@ -2587,3 +2765,26 @@ Goal:
 Includes:
 - React app setup
 - simple homepage
+
+---
+
+## დოკუმენტის ბოლო განახლება (2026-04-01)
+
+**✔ რა დაემატა ფაილში**
+
+- **`## CURRENT WORK` → „შემდეგი განვითარების გეგმა“** ცხრილის პირველი რიგი: პრიორიტეტი **1** = **11. Media Upload System** + მითითება **47. File Storage**-ზე როგორც ტექნიკურ ფუძეზე; სტატუსი **⬜ დაგეგმილი**; შენიშვნა breakdown-ის მიმართ.
+- **`FEATURE BREAKDOWN` → §11** სრულად გადაკეთდა: **Description, MVP Scope, Future Scope, Logic, Implementation (Frontend / Backend / Files), Flow, UI**, პლუს **Database (planned)** და **Notes**; დამატებულია **დამოკიდებულების** ბლოკი (47, 10, 4).
+- **§11 — `#### ❗ Media type შეზღუდვა (MVP — Cursor)`:** ცხრილი/წესები — **მხოლოდ image upload**; **ვიდეო არა** (ჯერ); „ერთ ტალღაში არა ყველაფერი ერთად“. **MVP Scope**-ში პირველი პუნქტი უკავშირდება ამ ბლოკს.
+
+**✔ რა შეიცვალა ვიზუალურად დოკუმენტში**
+
+- ცხრილში პირველი სვეტი აღარაა ცარიელი — ჩანს ერთი შევსებული პრიორიტეტი მწვანე/ბოლდ გამოკვეთით (**11** + **47**).
+- §11 სათაური: `### 11. Media Upload System 🟡 — სრული breakdown (baseline: სურათი პოსტზე ✅)` (განახლებული სტატუსის შემდეგ).
+
+**✔ როგორ შევამოწმო რომ სწორად ჩაიწერა**
+
+1. `project.md`-ში ძებნა: `სრული breakdown` — უნდა მოხვდე §11-ის დასაწყისში.
+2. ძებნა: **`Media type შეზღუდვა`** ან **`არა ვიდეო`** — უნდა გამოჩნდეს ცალკე ქვეთავი §11-ში (image-only MVP).
+3. დარწმუნდი რომ **`#### MVP Scope`** და **`#### Implementation`** ორივე არსებობს ერთი §11-ის ფარგლებში.
+4. **`## დოკუმენტის ბოლო განახლება`** უნდა იყოს ფაილის ბოლოში **`## FIRST STEP`**-ის შემდეგ.
+5. **`შემდეგი განვითარების გეგმა`** ცხრილში პირველი სტრიქონი შეიცავს **Media Upload** და **File Storage** მითითებას.

@@ -13,7 +13,7 @@ async function fetchPostsByIdsOrdered(ids: string[]): Promise<FeedPost[]> {
   }
   const { data: postRows, error: postsError } = await supabase
     .from("posts")
-    .select("id, user_id, body, created_at, updated_at")
+    .select("id, user_id, body, image_url, created_at, updated_at")
     .in("id", ids);
 
   if (postsError) {
@@ -38,7 +38,7 @@ export async function enrichPosts(posts: PostRow[]): Promise<FeedPost[]> {
   const userIds: string[] = [...new Set(posts.map((p) => p.user_id))];
 
   const [{ data: profileRows }, { data: reactionRows }, authRes, tagMap] = await Promise.all([
-    supabase.from("profiles").select("id, email").in("id", userIds),
+    supabase.from("profiles").select("id, email, avatar_url").in("id", userIds),
     supabase.from("reactions").select("post_id, user_id, value").in("post_id", postIds),
     supabase.auth.getUser(),
     fetchTagSlugsForPostIds(postIds),
@@ -51,8 +51,11 @@ export async function enrichPosts(posts: PostRow[]): Promise<FeedPost[]> {
   const myId: string | null = authRes.data.user?.id ?? null;
 
   const emailByUserId = new Map<string, string | null>();
+  const avatarByUserId = new Map<string, string | null>();
   for (const row of profileRows ?? []) {
-    emailByUserId.set(row.id, row.email);
+    const r = row as { id: string; email: string | null; avatar_url: string | null };
+    emailByUserId.set(r.id, r.email);
+    avatarByUserId.set(r.id, r.avatar_url ?? null);
   }
 
   const counts = new Map<string, { up: number; down: number }>();
@@ -82,6 +85,7 @@ export async function enrichPosts(posts: PostRow[]): Promise<FeedPost[]> {
     return {
       ...p,
       authorEmail: emailByUserId.get(p.user_id) ?? null,
+      authorAvatarUrl: avatarByUserId.get(p.user_id) ?? null,
       thumbsUp: c.up,
       thumbsDown: c.down,
       myReaction: myByPost.get(p.id) ?? null,
@@ -137,7 +141,7 @@ export async function fetchFeedPage(
   const to = from + PAGE_SIZE - 1;
   const { data: postRows, error: postsError } = await supabase
     .from("posts")
-    .select("id, user_id, body, created_at, updated_at")
+    .select("id, user_id, body, image_url, created_at, updated_at")
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -153,7 +157,7 @@ export async function fetchFeedPage(
 export async function fetchUserPosts(userId: string): Promise<FeedPost[]> {
   const { data: postRows, error } = await supabase
     .from("posts")
-    .select("id, user_id, body, created_at, updated_at")
+    .select("id, user_id, body, image_url, created_at, updated_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 

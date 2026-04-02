@@ -1,13 +1,3 @@
----
-description: 
-alwaysApply: true
----
-
----
-description: 
-alwaysApply: true
----
-
 # REZIIZI — სწრაფი კონტექსტი (ახალი ჩატი / AI)
 
 ამ ფაილის მიზანია: **ახალ სესიაში** სწრაფად გაიგო პროექტი — სად რა წერია და რა რიგით ვაკეთებთ.
@@ -28,12 +18,15 @@ reziizi/
 ├── src/
 │   ├── components/         # განმეორებადი UI (Layout, …)
 │   ├── pages/              # გვერდები = მარშრუტები (HomePage, LoginPage, …)
-│   ├── lib/                # კლიენტები (supabaseClient.ts)
+│   ├── lib/                # კლიენტები (supabaseClient.ts, api/registry, …)
+│   ├── test/               # Vitest setup (jest-dom)
 │   ├── App.tsx             # Router
 │   ├── main.tsx            # Entry
 │   └── styles.css          # გლობალური სტილი (v1 UI)
 ├── supabase/
-│   └── migrations/         # SQL (RLS, ცხრილები) — Supabase-თან სინქი CLI ან SQL Editor
+│   ├── migrations/         # SQL (RLS, ცხრილები) — Supabase-თან სინქი CLI ან SQL Editor
+│   ├── SCHEMA.md           # public სქემის მიმოხილვა (Database Structure)
+│   └── verify_schema.sql   # დაყენების შემოწმება SQL Editor-ში
 ├── index.html
 ├── vite.config.ts
 ├── package.json
@@ -51,12 +44,14 @@ reziizi/
 
 | ფაილი / ფოლდერი | რისთვის |
 |-----------------|--------|
-| **`project.md`** | სრული სპეკი: feature-ები 1–51, VERSIONS (MVP/v2/v3), **FEATURE BREAKDOWN**, **CURRENT WORK**. |
+| **`README.md`** | Quick start, tests, **GitHub Actions (CI)**, **Production deployment (GitHub + Vercel + Supabase)** — სრული ნაბიჯები. |
+| **`project.md`** | სრული სპეკი: feature-ები 1–51, VERSIONS (MVP/v2/v3), **FEATURE BREAKDOWN**, **CURRENT WORK** (დასრულებული სტატუსი + **შემდეგი განვითარების გეგმა (შევსებადი)** ცხრილი). |
 | **`JOURNAL.md`** | ქრონოლოგია — რა გაკეთდა, რა გადაწყვიტე (მოკლე ჩანაწერები). |
-| **`.cursor/rules/reziizi.mdc`** | Cursor წესები: ენა, მიდგომა, **REZIIZI v1 იმპლემენტაციის რიგი**, Supabase/Git. |
+| **`supabase/SCHEMA.md`** | public DB სქემის მიმოხილვა (ცხრილები, RPC სია). |
+| **`.cursor/rules/reziizi.mdc`** | Cursor წესები: ენა, მიდგომა, **v1/v2 იმპლემენტაციის რიგი**, **მიგრაციების თანმიმდევრობა**, **იმპლემენტაციამდე: შემოწმება → დოკუმენტი → მერე კოდი**, Supabase/Git. |
 | **`src/`** | აპის კოდი — `pages/`, `components/`, `lib/supabaseClient.ts`. |
 
-**ახალი ჩატის მინიმალური წესი:** ჯერ გადახედე **`## CURRENT WORK`** `project.md`-ში, შემდეგ **იმპლემენტაციის რიგი** `reziizi.mdc`-ში — არ გადააბიჯო ეტაპებს უგეგმველოდ.
+**ახალი ჩატის მინიმალური წესი:** ჯერ **`## CURRENT WORK`** `project.md`, შემდეგ **`reziizi.mdc`** (v1/v2 რიგი, migrations ცხრილი, **იმპლემენტაციამდე** 4 ნაბიჯი). ახალი ფიჩა: თანმიმდევრობა არ ემთხვევა სპეკს → **ჯერ დოკუმენტი**, მერე კოდი.
 
 ## ლოკალურად გაშვება
 
@@ -71,8 +66,9 @@ npm run dev
 ## სად ვართ ახლა (მაღალი დონე)
 
 - **v1 core:** Supabase + აპი (Auth, feed, reactions, profile, settings, `/legal`); **UI ტოკენები + მობილური ბაზა** — `styles.css` / `index.html`.
-- **v2:** **Comments**, **Search**, **Theme**, **Notifications**, **Tags**, **Trending**, **Chat** (`/messages`); migration `20260401170000_add_chat.sql` Supabase-ში.
-- **შემდეგი:** v2-ში დარჩენილია ძირითადად **Algorithm (17)** / v3 — `project.md` **VERSIONS**.
+- **v2:** **Comments**, **Search**, **Theme**, **Notifications**, **Tags**, **Trending**, **Chat**, **Ranking (17)** — net score `PostCard`-ზე; migrations Supabase-ში.
+- **v3:** **Admin** … **API Layer**, **Database Structure**, **Caching (30)**, **Logging (31)**, **Error Handling (32)**, **Deployment (37)**, **Testing (41)** (Vitest), **Performance (36)** (lazy routes) — სრულად `project.md` → **REZIIZI v3**.
+- **შემდეგი განვითარება:** `project.md` → **`## CURRENT WORK`** → **„შემდეგი განვითარების გეგმა (შევსებადი)“** — იქ ჩაწერე პრიორიტეტები; v3 ტექნიკური baseline დასრულებულია. **Media (11)** / **Avatar (4)** — `project.md` ცხრილი. **Email (45)** — მოგვიანებით (არა სავალდებულო). **Tests:** `npm test`. **CI:** GitHub (`ci.yml`). **Production:** `README.md` → **„Production deployment“** (Vercel).
 
 ## კომუნიკაცია და კოდი
 

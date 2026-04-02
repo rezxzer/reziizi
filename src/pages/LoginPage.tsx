@@ -2,6 +2,8 @@ import type { FormEvent, ReactElement } from "react";
 import { useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { errorMessage } from "../lib/errors.ts";
+import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from "../lib/passwordPolicy.ts";
 import { supabase } from "../lib/supabaseClient";
 
 export function LoginPage(): ReactElement {
@@ -22,18 +24,22 @@ export function LoginPage(): ReactElement {
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setError(null);
+    if (mode === "signup" && !isPasswordLongEnough(password)) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      return;
+    }
     setSubmitting(true);
     try {
       if (mode === "signin") {
         const { error: signError } = await supabase.auth.signInWithPassword({ email, password });
         if (signError) {
-          setError(signError.message);
+          setError(errorMessage(signError));
           return;
         }
       } else {
         const { error: signError } = await supabase.auth.signUp({ email, password });
         if (signError) {
-          setError(signError.message);
+          setError(errorMessage(signError));
           return;
         }
       }
@@ -97,7 +103,7 @@ export function LoginPage(): ReactElement {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={mode === "signup" ? MIN_PASSWORD_LENGTH : 1}
               />
             </label>
             <button type="submit" className="btn btn--primary" disabled={submitting}>

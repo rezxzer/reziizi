@@ -9,6 +9,7 @@ import {
   sendMessage,
   subscribeToNewMessages,
 } from "../lib/chat.ts";
+import { errorMessage } from "../lib/errors.ts";
 import { supabase } from "../lib/supabaseClient.ts";
 import type { ChatMessageRow } from "../types/db.ts";
 
@@ -88,7 +89,7 @@ export function ChatThreadPage(): ReactElement {
         });
       } catch (e: unknown) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Could not open chat");
+          setError(errorMessage(e));
         }
       } finally {
         if (!cancelled) {
@@ -119,7 +120,7 @@ export function ChatThreadPage(): ReactElement {
         setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, row]));
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Send failed");
+      setError(errorMessage(err));
     } finally {
       setSending(false);
     }

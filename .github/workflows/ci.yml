@@ -1,0 +1,38 @@
+# REZIIZI — run tests + production build on every push/PR to main (or master).
+# Vercel still deploys from GitHub when connected; this job catches broken builds early.
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Placeholders so `vite build` can read `import.meta.env.VITE_*` (not used at runtime in CI).
+      VITE_SUPABASE_URL: https://placeholder.supabase.co
+      VITE_SUPABASE_ANON_KEY: ci-build-placeholder-not-for-production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build

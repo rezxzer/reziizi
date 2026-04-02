@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { fetchMyConversations, type ConversationWithPeer } from "../lib/chat.ts";
+import { errorMessage } from "../lib/errors.ts";
 
 export function MessagesPage(): ReactElement {
   const { user } = useAuth();
@@ -20,7 +21,7 @@ export function MessagesPage(): ReactElement {
       const list = await fetchMyConversations(user.id);
       setItems(list);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to load messages");
+      setError(errorMessage(e));
     } finally {
       setLoading(false);
     }

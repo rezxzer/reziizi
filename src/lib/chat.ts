@@ -51,7 +51,9 @@ export async function fetchMyConversations(me: string): Promise<ConversationWith
   const peerIds: string[] = rows.map((r) => otherParticipant(r, me));
   const { data: profs, error: profError } = await supabase
     .from("profiles")
-    .select("id, email, created_at")
+    .select(
+      "id, email, avatar_url, created_at, is_admin, is_banned, ban_reason, banned_at, premium_until, searchable",
+    )
     .in("id", peerIds);
 
   if (profError) {

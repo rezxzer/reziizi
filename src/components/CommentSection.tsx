@@ -7,6 +7,7 @@ import {
   getCommentMaxLength,
   type CommentWithAuthor,
 } from "../lib/comments";
+import { errorMessage } from "../lib/errors.ts";
 import { supabase } from "../lib/supabaseClient";
 
 type CommentSectionProps = {
@@ -38,7 +39,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       })
       .catch((e: unknown) => {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Failed to load comments");
+          setError(errorMessage(e));
         }
       })
       .finally(() => {
@@ -69,7 +70,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       .single();
     setSubmitting(false);
     if (insError || !data) {
-      setError(insError?.message ?? "Could not post comment");
+      setError(insError != null ? errorMessage(insError) : "Could not post comment");
       return;
     }
     setBody("");
@@ -92,7 +93,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
     setError(null);
     const { error: delError } = await supabase.from("comments").delete().eq("id", commentId).eq("user_id", user.id);
     if (delError) {
-      setError(delError.message);
+      setError(errorMessage(delError));
       return;
     }
     setComments((prev) => prev.filter((c) => c.id !== commentId));

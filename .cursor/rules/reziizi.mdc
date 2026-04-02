@@ -1,5 +1,5 @@
 ---
-description: 
+description: REZIIZI — ენა, v1/v2 რიგი, migrations თანმიმდევრობა, იმპლემენტაციამდე შემოწმება
 alwaysApply: true
 ---
 
@@ -18,7 +18,7 @@ alwaysApply: true
 
 ## პროექტის წყარო და რიგი
 
-- **`project.md`:** ერთიანი სპეკი — MVP/v2/v3, feature-ები, **CURRENT WORK**. ახალი ფუნქცია ან სკოპის შეცვლა: ჯერ აქ განახლება (ან ცალსახა შეთანხმება), მერე კოდი.
+- **`project.md`:** ერთიანი სპეკი — MVP/v2/v3, feature-ები, **CURRENT WORK** (დასრულებული სტატუსი + **შემდეგი განვითარების გეგმა (შევსებადი)** ცხრილი). ახალი ფუნქცია ან სკოპის შეცვლა: ჯერ აქ განახლება (ან ცალსახა შეთანხმება), მერე კოდი.
 - **`JOURNAL.md`:** მნიშვნელოვანი გადაწყვეტილებები და ეტაპები — მოკლედ ჩაწერა, რომ 2 კვირაში არ დავიწყო „რატომ ასე გავაკეთეთ“.
 - **ერთი feature ერთხელ:** `project.md`-ის RULES-ის მიხედვით — არ ავურიოთ პარალელურად ურთული ნაწილები უგეგმველოდ.
 
@@ -37,6 +37,52 @@ alwaysApply: true
 9. **UI Design System (33) + Mobile (35):** გაერთიანებული სტილი / responsive გადამოწმება — ფუნქციების მიბმის შემდეგ ან პარალელურად მცირე ცვლილებებით, მაგრამ **არ** „გადაფარო“ არაგაკეთებული Auth/DB.
 
 **შენიშვნა:** ამ რიგის **დარღვევა** (მაგ. reactions-ის ჩასმა სანამ posts/RLS არაა) იწვევს გაორმაგებულ სამუშაოს ან უსაფრთხოების ხვრელს — AI უნდა მიუთითოს, თუ მოთხოვნა ამას ეწინააღმდეგება.
+
+## REZIIZI v2 — ფუნქციების ლოგიკური რიგი და Supabase migrations
+
+**იმპლემენტაციის რიგი (დამოკიდებულებები):** ჯერ ის, რასაც სხვა ეყრდნობა DB/ტრიგერებით.
+
+1. **Comments (9)** — სჭირდება `posts`; migration `20260401130000_add_comments.sql`.
+2. **Notifications (12)** — სჭირდება `comments` + `reactions`; migration `20260401140000_add_notifications.sql` (ტრიგერები).
+3. **Search (14)** — ახალი ცხრილი არა; `posts` / `profiles` query.
+4. **Theme (34)** — კლიენტური; Supabase ცხრილი არა.
+5. **Tags (15)** — migration `20260401150000_add_tags.sql` (`tags`, `post_tags`, RPC ტეგით feed-ისთვის).
+6. **Trending (16)** — სჭირდება `reactions`; migration `20260401160000_add_trending_feed_rpc.sql`.
+7. **Algorithm / Ranking (17)** — ქულა `reactions`-ზე; UI აპში; Trending RPC უკვე იყენებს ჯამურ ქულას (დამატებითი migration არ სჭირდება MVP-სთვის).
+8. **Chat (13)** — migration `20260401170000_add_chat.sql` (`conversations`, `chat_messages`, RPC).
+
+**რეპოში SQL ფაილების თანმიმდევრობა** (ასე უნდა გაეშვას Supabase-ში, თარიღით ზრდადობით):
+
+| # | ფაილი |
+|---|--------|
+| 1 | `20260401120000_init_posts_reactions_profiles.sql` |
+| 2 | `20260401130000_add_comments.sql` |
+| 3 | `20260401140000_add_notifications.sql` |
+| 4 | `20260401150000_add_tags.sql` |
+| 5 | `20260401160000_add_trending_feed_rpc.sql` |
+| 6 | `20260401170000_add_chat.sql` |
+| 7 | `20260401180000_add_profiles_is_admin.sql` (v3 Admin) |
+| 8 | `20260401190000_fix_profiles_admin_trigger_null_uid.sql` (SQL Editor-ში admin promotion) |
+| 9 | `20260401200000_add_admin_moderation_delete_policies.sql` (moderation) |
+| 10 | `20260401210000_add_reports.sql` |
+| 11 | `20260401220000_add_bans.sql` (ban + RLS) |
+| 12 | `20260401230000_add_ad_slots.sql` (ads / feed top) |
+| 13 | `20260401240000_add_premium_monetization.sql` (premium_until + admin RPC) |
+| 14 | `20260401250000_add_profile_searchable.sql` (privacy / Search) |
+| 15 | `20260401260000_add_profiles_admin_update_policy.sql` (admin UPDATE profiles / ban RPC) |
+| 16 | `20260401270000_add_ban_reason.sql` (ban_reason, banned_at, RPC 3-arg) |
+| 17 | `20260401280000_add_storage_post_images.sql` (Storage bucket `post-images`, post image policies) |
+| 18 | `20260401290000_add_posts_image_url.sql` (`posts.image_url` nullable) |
+| 19 | `20260401300000_add_profiles_avatar_url_and_storage_avatars.sql` (`profiles.avatar_url`, bucket `avatars`) |
+
+**შენიშვნა:** Security (27) — SQL migration არ არის; `vercel.json` Vercel-ისთვის (headers + SPA rewrites; **Deployment (37)**). **Production:** `README.md` → „Production (Vercel)“. API Layer (28) — `src/lib/api/` (migration არა; ახალი ცხრილი/RPC → `registry.ts`). Database Structure (29) — `supabase/SCHEMA.md` + `verify_schema.sql` განახლება. Performance (36) — კლიენტი: `src/lazy/chunks.ts`, `RouteFallback`, `App.tsx` Suspense (migration არა). Caching (30) — `@tanstack/react-query`, `queryClient.ts`, `queryKeys.ts` (migration არა). Error Handling (32) — `errorMessage` / `lib/errors.ts`, `InlineError` (migration არა). Logging (31) — `src/lib/logger.ts` (migration არა). Testing (41) — Vitest (`npm test`; migration არა). **GitHub CI** — `.github/workflows/ci.yml` (არა migration).
+
+**იმპლემენტაციამდე — სავალდებულო წესი: თანმიმდევრობა → დოკუმენტი → მომზადება → მერე კოდი**
+
+1. **შემოწმება:** წაიკითხე `project.md` (**VERSIONS**, **CURRENT WORK**) და `AGENTS.md`; შეადარე **არსებულ** `src/` + `supabase/migrations/` სპეკს. თუ რიგი არ ემთხვევა, ფიჩა სპეკში ერთნაირად არ იწერება, ან მიგრაცია აკლია აპის მოთხოვნას — **არ დაიწყო ახალი იმპლემენტაცია** სანამ არ განვაახლებთ/არ გავარკვევთ.
+2. **გასწორება:** განაახლე **`project.md`** (საჭიროებისამებრ **`JOURNAL.md`**, **`AGENTS.md`**) — ერთი ჭეშმარიტი თანმიმდევრობა და სტატუსი; თუ v2/v3 სიაში ნომერი არასწორ არშია — **გამოასწორე** (მაგ. ფიჩა v2-ში დასრულებულია, v3 სიაში აღარ უნდა დუბლირდებოდეს).
+3. **მომზადება:** ახალი ფიჩისთვის — SQL საჭიროება (ახალი migration ფაილი რეპოში), RLS, Realtime თუ საჭიროა; env / Auth redirect თუ იცვლება.
+4. **იმპლემენტაცია:** მხოლოდ ამის შემდეგ — კოდი + migration ერთ ლოგიკურ სკოპში.
 
 ## სტეკი და სიმკაცრე
 
@@ -62,6 +108,6 @@ alwaysApply: true
 
 ## დადასტურება, რიგი და ჩანაწერი
 
-- **როცა შენ ამბობ, რომ რაღაც მუშაობს / მზადაა:** AI ჩააწერს მოკლე **განახლებას `JOURNAL.md`-ში** (რა გაკეთდა, თარიღი); საჭიროებისამებრ განაახლებს `project.md`-ს (მაგ. **CURRENT WORK**, ფიჩის სტატუსი) — რომ ისტორია არ დაიკარგოს.
+- **როცა შენ ამბობ, რომ რაღაც მუშაობს / მზადაა / დადასტურებულია:** AI ჩააწერს მოკლე **ჩანაწერს `JOURNAL.md`-ში** (რა დადასტურდა ან რა დასრულდა, თარიღი) — განსაკუთრებით როცა პირდაპირ წერ „მუშაობს“ ტესტის შემდეგ; საჭიროებისამებრ განაახლებს `project.md`-ს — რომ მომავალში სწრაფად ჩანდეს რა იყო მოწმინადე.
 - **თუ რამე გაუგებარია, ორმნიშვნელოვანია ან ირღვევა რიგი** (`project.md`, MVP, წესები): AI **გეტყვის პირდაპირ**, **არ გააგრძელებს** იმ ნაბიჯს (არ „გაიკეთებს ჩუმად“), სანამ არ გავარკვევთ / არ დაადასტურებ რა გინდა.
 - **გაორმაგებული ფაილები, დუბლირებული ლოგიკა, აშკარა ბაგები:** AI ცდილობს არ დაუშვას და თუ რისკი ჩანს — **ამოგიწერს**; შენ **ვამოწმებთ** ერთად (run, UI, ფაილების სია), სანამ „დასრულებულად“ არ ჩავთვლით — ეს წესი ორვეს მხარეს.

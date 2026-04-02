@@ -1,14 +1,23 @@
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { FeedAdSlot } from "../components/FeedAdSlot.tsx";
+import { InlineError } from "../components/InlineError.tsx";
 import { PostCard } from "../components/PostCard.tsx";
 import { PostForm } from "../components/PostForm.tsx";
+import { useAuth } from "../contexts/AuthContext.tsx";
+import { errorMessage } from "../lib/errors.ts";
 import { fetchFeedPage, getPageSize, type FeedSortMode } from "../lib/feed.ts";
+import { queryKeys } from "../lib/queryKeys.ts";
 import { slugifyTag } from "../lib/tagParse.ts";
 import type { FeedPost } from "../types/feed.ts";
 
 export function HomePage(): ReactElement {
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   const rawTag = searchParams.get("tag");
   const tagSlug = rawTag ? slugifyTag(rawTag) : null;
   const tagInvalid = Boolean(rawTag && !tagSlug);
@@ -16,54 +25,50 @@ export function HomePage(): ReactElement {
   const wantsTrending = searchParams.get("sort") === "trending";
   const effectiveSort: FeedSortMode = effectiveTag ? "latest" : wantsTrending ? "trending" : "latest";
 
-  const [posts, setPosts] = useState<FeedPost[]>([]);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const feedQuery = useInfiniteQuery({
+    queryKey: [...queryKeys.feed.list(effectiveTag, effectiveSort), tagInvalid ? "invalid" : "ok"],
+    queryFn: async ({ pageParam }: { pageParam: number }) =>
+      fetchFeedPage(pageParam, effectiveTag ?? undefined, effectiveSort),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.hasMore) {
+        return undefined;
+      }
+      return allPages.reduce((acc, p) => acc + p.posts.length, 0);
+    },
+    enabled: !tagInvalid,
+  });
 
-  const refresh = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { posts: page, hasMore: more } = await fetchFeedPage(0, effectiveTag ?? undefined, effectiveSort);
-      setPosts(page);
-      setOffset(page.length);
-      setHasMore(more);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Failed to load feed";
-      setError(msg);
-    } finally {
-      setLoading(false);
+  const posts: FeedPost[] = useMemo(
+    () => feedQuery.data?.pages.flatMap((p) => p.posts) ?? [],
+    [feedQuery.data?.pages],
+  );
+
+  const loading: boolean = feedQuery.isPending && posts.length === 0;
+  const loadingMore: boolean = feedQuery.isFetchingNextPage;
+  const hasMore: boolean = Boolean(feedQuery.hasNextPage);
+  const error: string | null = feedQuery.isError ? errorMessage(feedQuery.error) : null;
+
+  const onPosted = useCallback((): void => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.feed.all });
+    if (user) {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userPosts(user.id) });
     }
-  }, [effectiveTag, effectiveSort]);
+  }, [queryClient, user]);
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  const onPostChanged = useCallback(
+    (authorUserId: string): void => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.feed.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userPosts(authorUserId) });
+    },
+    [queryClient],
+  );
 
-  async function loadMore(): Promise<void> {
+  function loadMore(): void {
     if (!hasMore || loadingMore || loading) {
       return;
     }
-    setLoadingMore(true);
-    setError(null);
-    try {
-      const { posts: next, hasMore: more } = await fetchFeedPage(
-        offset,
-        effectiveTag ?? undefined,
-        effectiveSort,
-      );
-      setPosts((prev) => [...prev, ...next]);
-      setOffset((o) => o + next.length);
-      setHasMore(more);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Failed to load more";
-      setError(msg);
-    } finally {
-      setLoadingMore(false);
-    }
+    void feedQuery.fetchNextPage();
   }
 
   const latestHref: string = effectiveTag ? `/?tag=${encodeURIComponent(effectiveTag)}` : "/";
@@ -109,9 +114,11 @@ export function HomePage(): ReactElement {
               Invalid tag in URL. Use letters, numbers, and hyphens only.
             </p>
           ) : null}
-          <PostForm onPosted={() => void refresh()} />
+          <PostForm onPosted={onPosted} />
         </div>
       </section>
+
+      <FeedAdSlot />
 
       {loading && posts.length === 0 ? (
         <p className="page-loading" role="status">
@@ -119,21 +126,17 @@ export function HomePage(): ReactElement {
         </p>
       ) : null}
 
-      {error ? (
-        <p className="form__error" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <InlineError message={error} />
 
       <ul className="post-list">
         {posts.map((p) => (
           <li key={p.id}>
-            <PostCard post={p} onChanged={() => void refresh()} />
+            <PostCard post={p} onChanged={() => onPostChanged(p.user_id)} />
           </li>
         ))}
       </ul>
 
-      {!loading && posts.length === 0 && !error ? (
+      {!loading && posts.length === 0 && !error && !tagInvalid ? (
         <p className="muted">
           {effectiveTag ? "No posts with this tag yet." : "No posts yet. Be the first to post."}
         </p>
@@ -145,7 +148,7 @@ export function HomePage(): ReactElement {
             type="button"
             className="btn"
             disabled={loadingMore || loading}
-            onClick={() => void loadMore()}
+            onClick={() => loadMore()}
           >
             {loadingMore ? "Loading…" : `Load more (${getPageSize()} per page)`}
           </button>

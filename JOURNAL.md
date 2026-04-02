@@ -2,6 +2,10 @@
 
 აქ იწერება **ერთიანი ისტორია**: რა გაკეთდა, რა გადაწყვიტე, რა დარჩა. ახალი ჩანაწერი ყოველთვის **ზედა ნაწილში** (უახლესი ზემოთ) ან თარიღის სექციის ქვეშ — როგორც გეხერხება.
 
+**დადასტურება ჩატში:** როცა წერს „მუშაობს“ / „დადასტურებულია“ (ფიჩა ან მიგრაცია) — AI ჩაამატებს აქ **მოკლე ხაზს** (რა დადასტურდა, თარიღი), რომ მომავალში სწრაფად ჩანდეს რა იყო შემოწმებული ცოცხალ გარემოში.
+
+**შემდეგი ნაბიჯების რიგი (ერთი წყარო):** `project.md` → **`## CURRENT WORK`** + **`### NEXT STEPS`**; მოკლე მიმართულება — `AGENTS.md` „სად ვართ ახლა“.
+
 ---
 
 ## ფორმატი (რეკომენდებული)
@@ -16,6 +20,186 @@
 ---
 
 ## ჩანაწერები
+
+### 2026-04-01 — GitHub Actions CI + Email (45) დოკში გადაცილება
+
+- **`.github/workflows/ci.yml`:** `push`/`pull_request` → `main`/`master` — `npm ci`, `npm test`, `npm run build`; placeholder `VITE_*` build-ისთვის.
+- **`README.md`:** სექცია „GitHub Actions (CI)“.
+- **`project.md` / `AGENTS.md`:** Deployment v3 ცხრილი + `CURRENT WORK`; **Email (45)** — მოგვიანებით.
+
+### 2026-04-01 — Feature 4 Avatar — baseline
+
+- **Migration:** `20260401300000_add_profiles_avatar_url_and_storage_avatars.sql` — `profiles.avatar_url`, bucket `avatars` + policies (`avatars/{user_id}/...`).
+- **კოდი:** `avatarStorage.ts`, `Avatar.tsx`, `AvatarUploadSection.tsx` (Settings); `FeedPost.authorAvatarUrl`; `feed.ts` / `search.ts` / `chat.ts` / `adminUsers` select-ები; `queryKeys.profile.display`; **PostCard** + **ProfilePage**.
+- **დოკი:** `SCHEMA.md`, `reziizi.mdc` #19, `project.md` §4 + `CURRENT WORK`.
+
+### 2026-04-01 — Feature 11: დოკი + Storage cleanup (ნაბიჯი 5)
+
+- **`postImageStorage.ts`:** `postImagePublicUrlToStoragePath`, `removeStoredPostImageByPublicUrl` (არ აგდებს — `logger.warn` შეცდომაზე).
+- **`PostCard` / `deletePostAsModerator`:** DB წაშლის შემდეგ Storage-ის ობიექტის წაშლა (თუ `image_url` იყო).
+- **`postImageStorage.test.ts`:** URL-დან path-ის ტესტები.
+- **`project.md`:** `CURRENT WORK` + §11 სტატუსი, გეგმის ცხრილი (11 ✅, რიგი 2 — მომდევნო იდეები); **`AGENTS.md`** მიმართება Media-ზე.
+
+### 2026-04-01 — Feature 11: Admin Moderation — პოსტის სურათი
+
+- **`AdminModerationPage`:** `image_url`-ის არსებობისას სურათი (იგივე პატერნი რაც feed-ში); `postImageAltFromBody`.
+- **`src/lib/postImageAlt.ts`:** საერთო `alt` ტექსტი; **`PostCard`** იყენებს აქედან (დუბლიკატი ამოღებული).
+
+### 2026-04-01 — Feature 11 Media Upload: ნაბიჯი 4 — Feed / `PostCard` სურათი
+
+- **`PostCard.tsx`:** თუ `post.image_url` — `<img>` ჰედერის შემდეგ, `loading="lazy"`, `alt` პირველი ხაზის excerpt ან „Post image“.
+- **`styles.css`:** `.post-card__media`, `.post-card__image` (responsive, `max-height`, `object-fit: contain`).
+- **გამოყენება:** Home feed, Profile, Search — იგივე `PostCard`.
+
+### 2026-04-01 — Feature 11 Media Upload: ნაბიჯი 3 — PostForm upload + preview + `image_url`
+
+- **`src/lib/postImageStorage.ts`:** `validatePostImageFile` (JPEG/PNG/WebP/GIF, 5 MiB), `uploadPostImage` → public URL + path, `removePostImageObject` rollback; path `posts/{userId}/{postId}/{uuid}.ext`.
+- **`PostForm.tsx`:** „Add image“ / ფაილის input (`accept` image only), პრევიუ, „Remove image“; ფლოუ: insert post → upload → `update` `image_url`; შეცდომაზე post `delete`; update error-ზე Storage წაშლა + post წაშლა.
+- **`styles.css`:** `.post-form__*` პრევიუ/ფაილის სახელი.
+- **შემდეგი ნაბიჯი:** ნაბიჯი 4 — `PostCard` / feed-ში სურათის ჩვენება.
+
+### 2026-04-01 — Feature 11 Media Upload: ნაბიჯი 2 — `posts.image_url` + ტიპები
+
+- **Migration:** `supabase/migrations/20260401290000_add_posts_image_url.sql` — `posts.image_url text null`.
+- **ტიპები:** `src/types/db.ts` — `PostRow.image_url`.
+- **Query select:** `feed.ts`, `search.ts`, `adminModeration.ts` — `image_url` ჩართულია (რომ feed/search/moderation მონაცემი სრული იყოს).
+- **დოკი:** `SCHEMA.md` (`posts`); **`reziizi.mdc`** — migration #18.
+- **დადასტურება:** live Supabase — `information_schema`: `posts.image_url`, `data_type` = `text`.
+- **შემდეგი ნაბიჯი:** ნაბიჯი 3 — `PostForm` upload + preview + `image_url` შენახვა; ნაბიჯი 4 — `PostCard` რენდერი.
+
+### 2026-04-01 — Feature 11 Media Upload: ნაბიჯი 1 — Supabase Storage
+
+- **Migration:** `supabase/migrations/20260401280000_add_storage_post_images.sql` — bucket `post-images` (public, 5 MiB, MIME: jpeg/png/webp/gif); `storage.objects` პოლიტიკები: SELECT public; INSERT/UPDATE/DELETE მხოლოდ `posts/{auth.uid()}/...` prefix-ზე.
+- **დოკი:** `supabase/SCHEMA.md` — Storage სექცია; **`reziizi.mdc`** — migration #17 რიგში.
+- **დადასტურება:** migration გაშვებულია ცოცხალ Supabase პროექტში (bucket + policies დამატებულია).
+- **შემდეგი ნაბიჯი:** ნაბიჯი 2 — `posts.image_url` (ან მსგავსი) migration + ტიპები.
+
+### 2026-04-02 — დოკი: CURRENT WORK + შევსებადი გეგმა
+
+- **`project.md`** — **CURRENT WORK** განახლებული: „რა გაკეთდა“, v3 ტექნიკური ცხრილი, **„შემდეგი განვითარების გეგმა (შევსებადი)“**; **`AGENTS.md`** მიმართება.
+
+### 2026-04-01 — დოკი: README production deployment (GitHub + Vercel + Supabase)
+
+- **`README.md`** — გაფართოებული სექცია **„Production deployment“** (Supabase keys, Vercel import/env, Auth URLs, verify, migrations შენიშვნა).
+- **`AGENTS.md`** — დოკუმენტების ცხრილში `README.md`; **სად ვართ** → მიმართვა ამ სექციაზე.
+
+### 2026-04-01 — v3: Testing (41) baseline — Vitest
+
+- **Vitest** + **jsdom** + **Testing Library**; `vite.config.ts` `test` ბლოკი; **`src/test/setup.ts`**.
+- **ტესტები:** `errors.test.ts`, `tagParse.test.ts`, `passwordPolicy.test.ts`, `InlineError.test.tsx`; **`npm test`** / **`npm run test:watch`**.
+
+### 2026-04-01 — v3: Logging (31) baseline
+
+- **`src/lib/logger.ts`** — `debug`/`info`/`warnDev` (მხოლოდ dev), `warn`/`error` (ყოველთვის).
+- **ინტეგრაცია:** `queryClient` (TanStack `warnDev`), `ErrorBoundary`, `PostCard` წაშლა, `supabaseClient` missing env.
+
+### 2026-04-01 — v3: Deployment (37) baseline — Vercel
+
+- **`vercel.json`** — SPA **rewrites** (`/(.*)` → `/index.html`) + არსებული security headers.
+- **`README.md`** — `Production (Vercel)` (env, Supabase redirect); **`.env.example`** — Vercel env შენიშვნა.
+
+### 2026-04-01 — v3: Error Handling (32) baseline
+
+- **`errorMessage`** (`src/lib/api/errors.ts`, `src/lib/errors.ts`), **`InlineError`**, **`QueryCache`/`MutationCache` onError** (dev `console.warn`, cancelled skip).
+- **გვერდები/კომპონენტები** — ერთიანი `catch` (`HomePage`, `ProfilePage`, admin, chat, notifications, `CommentSection`, `PostForm`, `ReactionButtons` `formatError` alias, და სხვ.).
+
+### 2026-04-01 — v3: Caching (30) baseline — TanStack Query
+
+- **`@tanstack/react-query`**, **`src/lib/queryClient.ts`**, **`queryKeys.ts`**, **`QueryClientProvider`** (`main.tsx`).
+- **`HomePage`:** `useInfiniteQuery` feed + invalidation post/reaction-ზე; invalid tag URL — სწორი cache key.
+- **`ProfilePage`:** `useQuery` email + user posts; **`useProfileFlags`:** `useQuery` (ერთი cache მთელ აპში).
+
+### 2026-04-01 — v3: Performance (36) baseline — route code splitting
+
+- **`src/lazy/chunks.ts`** — `React.lazy` admin + `MessagesPage`, `ChatThreadPage`, `NotificationsPage`.
+- **`src/components/RouteFallback.tsx`**, **`App.tsx`** — `<Suspense fallback={…}>` მთელ router-ზე.
+- **Build:** ცალკე chunks (`dist/assets/*Page-*.js`); ინიციალური `index-*.js` უფრო მცირე.
+
+### 2026-04-01 — v3: Database Structure (29) baseline
+
+- **`supabase/SCHEMA.md`** — public ცხრილები, RPC, ბმულები `registry.ts` / `types/db.ts`.
+- **`verify_schema.sql`** — RPC სიაში `admin_set_user_banned`; `registry.ts` კომენტარი.
+
+### 2026-04-01 — feature: ban reason + banned_at
+
+- **Migration:** `20260401270000_add_ban_reason.sql` — `ban_reason`, `banned_at`, `admin_set_user_banned(..., p_reason)`.
+- **აპი:** `AdminUsersPage` (textarea, Reason სვეტი), `BannedPage` (Why / since), `banReason.ts`, `ProfileRow`.
+
+### 2026-04-01 — fix: Ban / admin profile UPDATE + RLS
+
+- **Migration:** `20260401260000_add_profiles_admin_update_policy.sql` — `profiles_update_admin` (admin-ს შეუძლია სხვა `profiles` ჩანაწერის UPDATE; რატომ: მხოლოდ `profiles_update_own` იყო, ban/premium RPC-ები სხვა მომხმარებელზე RLS-ს ვერ გადიოდა).
+
+### 2026-04-01 — v3: API Layer (28) MVP
+
+- **აპი:** `src/lib/api` (`TABLE`, `RPC`, `errorMessage`), `/admin/api` (admin კატალოგი), Layout/Admin ლინკები.
+
+### 2026-04-01 — v3: Security (27) MVP
+
+- **აპი:** `passwordPolicy.ts` (min 8), `ErrorBoundary`, `/security`, Login/Settings ვალიდაცია; Layout/Legal ლინკები.
+- **Hosting:** `vercel.json` security headers (Vercel).
+
+### 2026-04-01 — v3: Settings (25) + Privacy (26) MVP
+
+- **Migration:** `20260401250000_add_profile_searchable.sql` — `profiles.searchable`.
+- **აპი:** Settings → Privacy, `profilePrivacy.ts`, `searchProfilesByEmail` ფილტრი + self-or-visible; Search გვერდზე მოკლე ახსნა.
+
+### 2026-04-01 — დადასტურება (მომხმარებელი): Advertisement (23)
+
+- Ads / `ad_slots` / `/admin/ads` / `FeedAdSlot` — მუშაობს (თქვენი ტესტი).
+
+### 2026-04-01 — v3: Monetization (24) MVP
+
+- **Migration:** `20260401240000_add_premium_monetization.sql` — `profiles.premium_until`, trigger, `admin_set_user_premium_until`.
+- **აპი:** `/admin/users` (+30d / +365d / clear), `premium.ts`, Profile/Settings UI; `useProfileFlags` — `isPremium`.
+
+### 2026-04-01 — v3: Advertisement (23) MVP
+
+- **Migration:** `20260401230000_add_ad_slots.sql` — `ad_slots`, RLS, seed `feed_top`.
+- **აპი:** `FeedAdSlot` Home-ზე, `/admin/ads`, `ads.ts`; admin stats-ში `ad_slots` row count.
+
+### 2026-04-01 — დადასტურება (მომხმარებელი): Ban v3
+
+- Ban / `is_banned` / `/banned` / `/admin/users` — მუშაობს (თქვენი ტესტი).
+
+### 2026-04-01 — v3: Statistics (22) MVP
+
+- **აპი:** `/admin/stats`, `adminStats.ts` (`fetchPlatformMetrics`), Admin overview იგივე ფუნქციით 4 ძირითად count-ზე.
+
+### 2026-04-01 — v3: Ban / Restriction (21) MVP
+
+- **Migration:** `20260401220000_add_bans.sql` — `is_banned`, RLS, `admin_set_user_banned`.
+- **აპი:** `/admin/users`, `/banned`, `useProfileFlags`.
+
+### 2026-04-01 — v3: Reports (20) MVP
+
+- **Migration:** `20260401210000_add_reports.sql` — `reports`, RLS.
+- **აპი:** `ReportPostControl`, `/admin/reports`, `reports.ts`.
+
+### 2026-04-01 — v3: Moderation (19) MVP + Admin დადასტურებული
+
+- **დადასტურება:** `/admin` მუშაობს (counts, ნავიგაცია).
+- **Migration:** `20260401200000_add_admin_moderation_delete_policies.sql` — admin `DELETE` posts/comments.
+- **აპი:** `/admin/moderation`, `adminModeration.ts`.
+
+### 2026-04-01 — fix: admin ტრიგერი + migration `20260401190000`
+
+- `auth.uid()` null როცა (SQL Editor) — პირველი admin UPDATE აღარ იჭერება.
+
+### 2026-04-01 — v3: Admin Panel (18) MVP
+
+- **Migration:** `20260401180000_add_profiles_is_admin.sql` — `is_admin`, ტრიგერი.
+- **აპი:** `/admin`, `AdminRoute`, `useIsAdmin`, სტატისტიკის ჯამები.
+
+### 2026-04-01 — დოკი: თანმიმდევრობა და წესები
+
+- **`project.md` VERSIONS:** v2-ში დაემატა **17**; v3 სიიდან ამოღებული დუბლირებული 17; **CURRENT WORK** გასუფთავებული.
+- **`reziizi.mdc`:** v2 ლოგიკური რიგი, migrations ცხრილი, **იმპლემენტაციამდე** 4 ნაბიჯი (შემოწმება → დოკუმენტი → მომზადება → კოდი).
+- **`AGENTS.md`:** ცხრილი + მინიმალური წესი განახლებული; დუბლირებული frontmatter მოხსნილი.
+
+### 2026-04-01 — v2: Algorithm / Ranking (17) MVP
+
+- **UI:** `PostCard` — წმინდა ქულა (thumbs up − down); `ReactionButtons` — შეცდომის ტექსტი.
+- **Backend:** უცვლელი — Trending უკვე იყენებს `reactions` ჯამს.
 
 ### 2026-04-01 — v2: Chat / Messaging (13)
 

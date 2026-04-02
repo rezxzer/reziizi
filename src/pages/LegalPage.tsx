@@ -14,6 +14,12 @@ export function LegalPage(): ReactElement {
         <Link to="/login" className="inline-link">
           Login
         </Link>
+        <span className="legal-page__sep" aria-hidden="true">
+          ·
+        </span>
+        <Link to="/security" className="inline-link">
+          Security
+        </Link>
       </nav>
 
       <article className="card legal-page__article">
