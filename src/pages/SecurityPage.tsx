@@ -1,79 +1,71 @@
 import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
+import { useI18n } from "../contexts/I18nContext.tsx";
 
 export function SecurityPage(): ReactElement {
+  const { t } = useI18n();
   return (
     <div className="stack security-page">
-      <nav className="legal-page__nav" aria-label="Security navigation">
+      <nav className="legal-page__nav" aria-label={t("pages.security.navAria")}>
         <Link to="/" className="inline-link">
-          ← Home
+          {t("pages.chrome.backHome")}
         </Link>
         <span className="legal-page__sep" aria-hidden="true">
           ·
         </span>
         <Link to="/settings" className="inline-link">
-          Settings
+          {t("layout.nav.settings")}
         </Link>
         <span className="legal-page__sep" aria-hidden="true">
           ·
         </span>
         <Link to="/legal" className="inline-link">
-          Legal
+          {t("layout.nav.legal")}
         </Link>
       </nav>
 
       <article className="card">
-        <h1 className="card__title">Security</h1>
+        <h1 className="card__title">{t("pages.security.title")}</h1>
         <div className="card__body">
-          <p className="muted">How REZIIZI approaches security in the MVP (high level).</p>
+          <p className="muted">{t("pages.security.intro")}</p>
 
           <section className="legal-section" aria-labelledby="sec-auth-heading">
             <h2 id="sec-auth-heading" className="legal-section__title">
-              Account &amp; passwords
+              {t("pages.security.sectionAuth")}
             </h2>
             <ul className="legal-list">
+              <li>{t("pages.security.sectionAuthLi1")}</li>
               <li>
-                New passwords and password changes must be at least{" "}
-                <strong>8 characters</strong> (enforced in the app; Supabase Auth stores credentials securely).
-              </li>
-              <li>
-                Use a <strong>unique password</strong> for this site; sign out from{" "}
-                <Link to="/settings">Settings</Link> on shared devices.
+                {t("pages.security.sectionAuthLi2")}{" "}
+                <Link to="/settings">{t("layout.nav.settings")}</Link>
+                {t("pages.security.sectionAuthLi2End")}
               </li>
             </ul>
           </section>
 
           <section className="legal-section" aria-labelledby="sec-data-heading">
             <h2 id="sec-data-heading" className="legal-section__title">
-              Data access
+              {t("pages.security.sectionData")}
             </h2>
-            <p>
-              The backend uses <strong>Row Level Security (RLS)</strong> on database tables so clients only access data
-              allowed by policy (e.g. your own profile updates, public posts, admin tools for admins).
-            </p>
-            <p>
-              API keys in the web app are <strong>anon</strong> keys (limited by RLS). Never put service-role or
-              secret keys in the frontend or public repos.
-            </p>
+            <p>{t("pages.security.sectionDataP1")}</p>
+            <p>{t("pages.security.sectionDataP2")}</p>
           </section>
 
           <section className="legal-section" aria-labelledby="sec-transport-heading">
             <h2 id="sec-transport-heading" className="legal-section__title">
-              Transport &amp; hosting
+              {t("pages.security.sectionTransport")}
             </h2>
-            <p>
-              Use <strong>HTTPS</strong> in production. When deployed (e.g. Vercel), HTTP security headers can be set
-              via hosting config to reduce common web risks (clickjacking, MIME sniffing, referrer leakage).
-            </p>
+            <p>{t("pages.security.sectionTransportP")}</p>
           </section>
 
           <section className="legal-section" aria-labelledby="sec-privacy-heading">
             <h2 id="sec-privacy-heading" className="legal-section__title">
-              Privacy controls
+              {t("pages.security.sectionPrivacy")}
             </h2>
             <p>
-              Control email search visibility under <Link to="/settings">Settings → Privacy</Link>. See also{" "}
-              <Link to="/legal">Terms &amp; Privacy</Link>.
+              {t("pages.security.privacyIntro")}{" "}
+              <Link to="/settings">{t("pages.security.privacySettingsPrivacy")}</Link>. {t("pages.security.privacySeeAlso")}{" "}
+              <Link to="/legal">{t("settings.termsLink")}</Link>.
             </p>
           </section>
         </div>

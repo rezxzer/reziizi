@@ -72,6 +72,19 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 
 - `id`, `placement` (unique), `title`, `body`, `link_url`, `is_active`, `updated_at`
 
+## Rate limits (DB triggers)
+
+BEFORE INSERT on **`posts`**, **`comments`**, **`chat_messages`**, **`reports`**. Counts existing rows in a rolling window; `SECURITY DEFINER` counts bypass RLS edge cases. Migration: `20260401310000_add_rate_limit_triggers.sql`.
+
+| Table | Max | Window |
+|-------|-----|--------|
+| `posts` | 12 | 1 minute |
+| `comments` | 45 | 1 minute |
+| `chat_messages` | 90 | 1 minute |
+| `reports` | 24 | 24 hours |
+
+Errors surface as PostgREST messages (e.g. `Too many posts. Wait a minute and try again.`).
+
 ## RPCs (invoked from web client)
 
 | Name | Role |
@@ -82,7 +95,7 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 | `admin_set_user_banned` | Admin ban/unban (+ reason) |
 | `admin_set_user_premium_until` | Admin premium window |
 
-Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_post_owner_on_*`); not called directly from the app.
+Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_post_owner_on_*`, `enforce_*_rate_limit`); not called directly from the app.
 
 ## Storage (Supabase)
 
@@ -94,6 +107,10 @@ Not in `public`; configured in `storage.buckets` / policies on `storage.objects`
 | `avatars` | yes | 2 MiB | same image MIMEs | `avatars/{user_id}/{filename}` |
 
 Authenticated users may **insert/update/delete** post images only under `posts/{their_user_id}/...`, and avatars only under `avatars/{their_user_id}/...`.
+
+### Account deletion (Edge Function)
+
+User-initiated deletion is implemented by the **`delete-account`** Edge Function (not SQL-only): it removes objects under the two prefixes above for the user, then deletes the **`auth.users`** row (public rows cascade per FKs — see **`ACCOUNT_DELETION_DESIGN.md`**). Deploy: `supabase functions deploy delete-account`.
 
 ## RLS
 

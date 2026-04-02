@@ -2,11 +2,13 @@ import type { FormEvent, ReactElement } from "react";
 import { useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from "../lib/passwordPolicy.ts";
 import { supabase } from "../lib/supabaseClient";
 
 export function LoginPage(): ReactElement {
+  const { t } = useI18n();
   const { user, loading } = useAuth();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? "/";
@@ -25,7 +27,7 @@ export function LoginPage(): ReactElement {
     e.preventDefault();
     setError(null);
     if (mode === "signup" && !isPasswordLongEnough(password)) {
-      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      setError(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
       return;
     }
     setSubmitting(true);
@@ -51,7 +53,7 @@ export function LoginPage(): ReactElement {
   if (loading) {
     return (
       <div className="page-loading" role="status">
-        Loading…
+        {t("pages.common.loading")}
       </div>
     );
   }
@@ -59,10 +61,13 @@ export function LoginPage(): ReactElement {
   return (
     <div className="stack">
       <section className="card">
-        <h2 className="card__title">{mode === "signin" ? "Log in" : "Create account"}</h2>
+        <h2 className="card__title">
+          {mode === "signin" ? t("pages.login.titleSignIn") : t("pages.login.titleSignUp")}
+        </h2>
         <div className="card__body">
           <p className="muted">
-            By continuing you agree to our <Link to="/legal">Terms &amp; Privacy</Link>.
+            {t("pages.login.termsPrefix")}{" "}
+            <Link to="/legal">{t("settings.termsLink")}</Link>.
           </p>
           <div className="auth-mode">
             <button
@@ -70,19 +75,19 @@ export function LoginPage(): ReactElement {
               className={`auth-mode__btn${mode === "signin" ? " auth-mode__btn--active" : ""}`}
               onClick={() => setMode("signin")}
             >
-              Sign in
+              {t("pages.login.modeSignIn")}
             </button>
             <button
               type="button"
               className={`auth-mode__btn${mode === "signup" ? " auth-mode__btn--active" : ""}`}
               onClick={() => setMode("signup")}
             >
-              Sign up
+              {t("pages.login.modeSignUp")}
             </button>
           </div>
           <form className="form" onSubmit={(e) => void handleSubmit(e)}>
             <label className="form__label">
-              Email
+              {t("pages.login.email")}
               <input
                 className="form__input"
                 type="email"
@@ -94,7 +99,7 @@ export function LoginPage(): ReactElement {
               />
             </label>
             <label className="form__label">
-              Password
+              {t("pages.login.password")}
               <input
                 className="form__input"
                 type="password"
@@ -107,7 +112,11 @@ export function LoginPage(): ReactElement {
               />
             </label>
             <button type="submit" className="btn btn--primary" disabled={submitting}>
-              {submitting ? "Please wait…" : mode === "signin" ? "Sign in" : "Sign up"}
+              {submitting
+                ? t("pages.login.submitWait")
+                : mode === "signin"
+                  ? t("pages.login.submitSignIn")
+                  : t("pages.login.submitSignUp")}
             </button>
             {error ? (
               <p className="form__error" role="alert">

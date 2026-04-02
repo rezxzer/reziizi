@@ -7,6 +7,7 @@ import { InlineError } from "../components/InlineError.tsx";
 import { PostCard } from "../components/PostCard.tsx";
 import { PostForm } from "../components/PostForm.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import { fetchFeedPage, getPageSize, type FeedSortMode } from "../lib/feed.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
@@ -14,6 +15,7 @@ import { slugifyTag } from "../lib/tagParse.ts";
 import type { FeedPost } from "../types/feed.ts";
 
 export function HomePage(): ReactElement {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -76,16 +78,16 @@ export function HomePage(): ReactElement {
   return (
     <div className="stack">
       <section className="card">
-        <h2 className="card__title">Feed</h2>
+        <h2 className="card__title">{t("pages.home.title")}</h2>
         <div className="card__body">
-          <div className="feed-sort" role="tablist" aria-label="Feed order">
+          <div className="feed-sort" role="tablist" aria-label={t("pages.home.feedSortAria")}>
             <Link
               to={latestHref}
               className={`feed-sort__link${effectiveSort === "latest" ? " feed-sort__link--active" : ""}`}
               role="tab"
               aria-selected={effectiveSort === "latest"}
             >
-              Latest
+              {t("pages.home.latest")}
             </Link>
             <Link
               to="/?sort=trending"
@@ -93,25 +95,23 @@ export function HomePage(): ReactElement {
               role="tab"
               aria-selected={effectiveSort === "trending"}
             >
-              Trending
+              {t("pages.home.trending")}
             </Link>
           </div>
           {effectiveTag && wantsTrending ? (
-            <p className="muted form__hint">
-              Trending applies to the full feed. Showing latest posts for this tag.
-            </p>
+            <p className="muted form__hint">{t("pages.home.trendingTagHint")}</p>
           ) : null}
           {effectiveTag ? (
             <p className="feed-filter">
-              Filter: tag <strong>{effectiveTag}</strong>{" "}
+              {t("pages.home.filterTag", { tag: effectiveTag })}{" "}
               <Link to={effectiveSort === "trending" ? "/?sort=trending" : "/"} className="inline-link">
-                Clear
+                {t("pages.home.clear")}
               </Link>
             </p>
           ) : null}
           {tagInvalid ? (
             <p className="form__error" role="alert">
-              Invalid tag in URL. Use letters, numbers, and hyphens only.
+              {t("pages.home.invalidTag")}
             </p>
           ) : null}
           <PostForm onPosted={onPosted} />
@@ -122,7 +122,7 @@ export function HomePage(): ReactElement {
 
       {loading && posts.length === 0 ? (
         <p className="page-loading" role="status">
-          Loading posts…
+          {t("pages.home.loadingPosts")}
         </p>
       ) : null}
 
@@ -138,7 +138,7 @@ export function HomePage(): ReactElement {
 
       {!loading && posts.length === 0 && !error && !tagInvalid ? (
         <p className="muted">
-          {effectiveTag ? "No posts with this tag yet." : "No posts yet. Be the first to post."}
+          {effectiveTag ? t("pages.home.emptyTagged") : t("pages.home.emptyFeed")}
         </p>
       ) : null}
 
@@ -150,7 +150,7 @@ export function HomePage(): ReactElement {
             disabled={loadingMore || loading}
             onClick={() => loadMore()}
           >
-            {loadingMore ? "Loading…" : `Load more (${getPageSize()} per page)`}
+            {loadingMore ? t("pages.common.loading") : t("pages.home.loadMore", { pageSize: getPageSize() })}
           </button>
         </div>
       ) : null}

@@ -2,6 +2,7 @@ import type { ChangeEvent, FormEvent, ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
 import {
@@ -20,6 +21,7 @@ type PostFormProps = {
 };
 
 export function PostForm({ onPosted }: PostFormProps): ReactElement {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { isBanned, loading: flagsLoading } = useProfileFlags();
   const [body, setBody] = useState("");
@@ -57,9 +59,9 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   if (!user) {
     return (
       <p className="muted">
-        Sign in to create posts.{" "}
+        {t("pages.postForm.signInPrompt")}{" "}
         <Link to="/login" className="inline-link">
-          Log in
+          {t("pages.postForm.signInLink")}
         </Link>
       </p>
     );
@@ -68,7 +70,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   if (flagsLoading) {
     return (
       <p className="page-loading" role="status">
-        Loading…
+        {t("pages.common.loading")}
       </p>
     );
   }
@@ -76,7 +78,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   if (isBanned) {
     return (
       <p className="form__error" role="alert">
-        Your account cannot create posts right now.
+        {t("pages.postForm.banned")}
       </p>
     );
   }
@@ -111,7 +113,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
     e.preventDefault();
     const trimmed = body.trim();
     if (trimmed.length < 1 || trimmed.length > MAX_LEN) {
-      setError(`Body must be 1–${MAX_LEN} characters.`);
+      setError(t("pages.postForm.bodyLength", { max: MAX_LEN }));
       return;
     }
     const tagSlugs = parseTagsFromInput(tagsInput);
@@ -127,7 +129,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
       .single();
     if (insertError || !post) {
       setSubmitting(false);
-      setError(insertError != null ? errorMessage(insertError) : "Could not create post");
+      setError(insertError != null ? errorMessage(insertError) : t("pages.postForm.createFailed"));
       return;
     }
 
@@ -179,7 +181,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   return (
     <form className="form form--post" onSubmit={(e) => void handleSubmit(e)}>
       <label className="form__label">
-        New post
+        {t("pages.postForm.label")}
         <textarea
           className="form__textarea"
           name="body"
@@ -187,7 +189,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           maxLength={MAX_LEN}
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="Write something…"
+          placeholder={t("pages.postForm.placeholder")}
           required
         />
       </label>
@@ -197,7 +199,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           className="post-form__file-input"
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
-          aria-label="Attach image"
+          aria-label={t("pages.postForm.attachAria")}
           onChange={handleImagePick}
           disabled={submitting}
         />
@@ -208,7 +210,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
             disabled={submitting}
             onClick={() => fileInputRef.current?.click()}
           >
-            Add image
+            {t("pages.postForm.addImage")}
           </button>
           {previewUrl ? (
             <button
@@ -217,13 +219,13 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
               disabled={submitting}
               onClick={handleRemoveImage}
             >
-              Remove image
+              {t("pages.postForm.removeImage")}
             </button>
           ) : null}
         </div>
         {previewUrl ? (
           <div className="post-form__preview-wrap">
-            <img className="post-form__preview" src={previewUrl} alt="Selected image preview" />
+            <img className="post-form__preview" src={previewUrl} alt={t("pages.postForm.previewAlt")} />
             {imageFile ? (
               <p className="muted post-form__file-name" title={imageFile.name}>
                 {imageFile.name}
@@ -233,24 +235,24 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
         ) : null}
       </div>
       <label className="form__label">
-        Tags (optional)
+        {t("pages.postForm.tagsLabel")}
         <input
           className="form__input"
           type="text"
           name="tags"
           value={tagsInput}
           onChange={(e) => setTagsInput(e.target.value)}
-          placeholder="e.g. news, dev, release-notes"
+          placeholder={t("pages.postForm.tagsPlaceholder")}
           autoComplete="off"
         />
       </label>
-      <p className="muted form__hint">Comma-separated. Lowercase letters, numbers, hyphens. Up to 8 tags.</p>
+      <p className="muted form__hint">{t("pages.postForm.tagsHint")}</p>
       <div className="form__row">
         <span className="muted">
           {body.length}/{MAX_LEN}
         </span>
         <button type="submit" className="btn btn--primary" disabled={submitting}>
-          {submitting ? "Posting…" : "Post"}
+          {submitting ? t("pages.postForm.posting") : t("pages.postForm.post")}
         </button>
       </div>
       {error ? (

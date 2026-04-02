@@ -1,17 +1,28 @@
 import type { ReactElement } from "react";
-import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useUnreadNotificationCount } from "../hooks/useUnreadNotificationCount.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
+import { RouteAnnouncer } from "./RouteAnnouncer.tsx";
+import { RouteSeo } from "./RouteSeo.tsx";
 import { ThemePreferenceControls } from "./ThemePreferenceControls.tsx";
 
 const ALLOWED_WHEN_BANNED: readonly string[] = ["/banned", "/login", "/legal"];
 
 export function Layout(): ReactElement {
   const { pathname } = useLocation();
+  const { t } = useI18n();
   const { user, loading } = useAuth();
   const { isAdmin, isBanned, loading: flagsLoading } = useProfileFlags();
   const unreadNotifications = useUnreadNotificationCount();
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const isAdminRoute: boolean = pathname.startsWith("/admin");
+
+  useEffect(() => {
+    setAdminMenuOpen(false);
+  }, [pathname]);
 
   const blockBanned: boolean =
     !loading &&
@@ -26,60 +37,83 @@ export function Layout(): ReactElement {
 
   return (
     <div className="layout">
-      <header className="layout__header">
-        <strong className="layout__brand">REZIIZI</strong>
+      <RouteSeo />
+      <RouteAnnouncer />
+      <a className="skip-link" href="#main-content">
+        {t("layout.skipToMain")}
+      </a>
+      <header className="layout__header" translate="no">
+        <Link className="layout__brand" to="/" aria-label={t("layout.brandAria")}>
+          REZIIZI
+        </Link>
         <div className="layout__theme">
           <ThemePreferenceControls />
         </div>
-        <nav className="layout__nav" aria-label="Main">
+        <nav className="layout__nav" aria-label={t("layout.navAria")}>
           <NavLink to="/" end>
-            Home
+            {t("layout.nav.home")}
           </NavLink>
-          <NavLink to="/search">Search</NavLink>
+          <NavLink to="/search">{t("layout.nav.search")}</NavLink>
           {!loading && !user ? (
-            <NavLink to="/login">Login</NavLink>
+            <NavLink to="/login">{t("layout.nav.login")}</NavLink>
           ) : null}
           {user ? (
-            <NavLink to="/messages">Messages</NavLink>
+            <NavLink to="/messages">{t("layout.nav.messages")}</NavLink>
           ) : null}
           {user ? (
             <NavLink to="/notifications" className="layout__nav-notify">
-              Notifications
+              {t("layout.nav.notifications")}
               {unreadNotifications > 0 ? (
-                <span className="nav-badge" aria-label={`${unreadNotifications} unread`}>
+                <span
+                  className="nav-badge"
+                  aria-label={t("layout.unreadBadge", { count: unreadNotifications })}
+                >
                   {unreadNotifications > 99 ? "99+" : unreadNotifications}
                 </span>
               ) : null}
             </NavLink>
           ) : null}
-          <NavLink to="/profile">Profile</NavLink>
-          <NavLink to="/settings">Settings</NavLink>
+          <NavLink to="/profile">{t("layout.nav.profile")}</NavLink>
+          <NavLink to="/settings">{t("layout.nav.settings")}</NavLink>
           {user && !flagsLoading && isAdmin ? (
-            <NavLink to="/admin">Admin</NavLink>
+            <details
+              className="layout__nav-details"
+              open={adminMenuOpen}
+              onToggle={(e) => {
+                setAdminMenuOpen((e.currentTarget as HTMLDetailsElement).open);
+              }}
+            >
+              <summary
+                className={
+                  isAdminRoute
+                    ? "layout__nav-details__summary layout__nav-details__summary--active"
+                    : "layout__nav-details__summary"
+                }
+              >
+                {t("layout.nav.admin")}
+              </summary>
+              <div
+                className="layout__nav-details__panel"
+                role="group"
+                aria-label={t("layout.nav.adminMenuAria")}
+              >
+                <NavLink to="/admin" end>
+                  {t("layout.nav.adminOverview")}
+                </NavLink>
+                <NavLink to="/admin/users">{t("layout.nav.users")}</NavLink>
+                <NavLink to="/admin/moderation">{t("layout.nav.moderation")}</NavLink>
+                <NavLink to="/admin/reports">{t("layout.nav.reports")}</NavLink>
+                <NavLink to="/admin/stats">{t("layout.nav.stats")}</NavLink>
+                <NavLink to="/admin/ads">{t("layout.nav.ads")}</NavLink>
+                <NavLink to="/admin/api">{t("layout.nav.api")}</NavLink>
+              </div>
+            </details>
           ) : null}
-          {user && !flagsLoading && isAdmin ? (
-            <NavLink to="/admin/users">Users</NavLink>
-          ) : null}
-          {user && !flagsLoading && isAdmin ? (
-            <NavLink to="/admin/moderation">Moderation</NavLink>
-          ) : null}
-          {user && !flagsLoading && isAdmin ? (
-            <NavLink to="/admin/reports">Reports</NavLink>
-          ) : null}
-          {user && !flagsLoading && isAdmin ? (
-            <NavLink to="/admin/stats">Stats</NavLink>
-          ) : null}
-          {user && !flagsLoading && isAdmin ? (
-            <NavLink to="/admin/ads">Ads</NavLink>
-          ) : null}
-          {user && !flagsLoading && isAdmin ? (
-            <NavLink to="/admin/api">API</NavLink>
-          ) : null}
-          <NavLink to="/security">Security</NavLink>
-          <NavLink to="/legal">Legal</NavLink>
+          <NavLink to="/security">{t("layout.nav.security")}</NavLink>
+          <NavLink to="/legal">{t("layout.nav.legal")}</NavLink>
         </nav>
       </header>
-      <main className="layout__main">
+      <main id="main-content" className="layout__main" tabIndex={-1}>
         <Outlet />
       </main>
     </div>

@@ -1,16 +1,25 @@
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AvatarUploadSection } from "../components/AvatarUploadSection.tsx";
 import { ThemePreferenceControls } from "../components/ThemePreferenceControls.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
+import { normalizeLocale } from "../i18n/locale.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from "../lib/passwordPolicy.ts";
 import { fetchProfileSearchable, setProfileSearchable } from "../lib/profilePrivacy.ts";
+import { deleteAccountViaEdgeFunction } from "../lib/deleteAccount.ts";
+import { queryClient } from "../lib/queryClient.ts";
 import { supabase } from "../lib/supabaseClient.ts";
 
+/** Must match `settings.deleteAccountConfirmPlaceholder` / user instructions (Latin, all locales). */
+const DELETE_CONFIRM_PHRASE: string = "DELETE";
+
 export function SettingsPage(): ReactElement {
+  const { t, locale, setLocale } = useI18n();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { isPremium, premiumUntil, loading: flagsLoading } = useProfileFlags();
   const [searchable, setSearchable] = useState<boolean>(true);
@@ -22,13 +31,16 @@ export function SettingsPage(): ReactElement {
   const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordBusy, setPasswordBusy] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState<string>("");
+  const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function handlePassword(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setPasswordError(null);
     setPasswordMsg(null);
     if (!isPasswordLongEnough(newPassword)) {
-      setPasswordError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      setPasswordError(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
       return;
     }
     setPasswordBusy(true);
@@ -39,11 +51,29 @@ export function SettingsPage(): ReactElement {
       return;
     }
     setNewPassword("");
-    setPasswordMsg("Password updated.");
+    setPasswordMsg(t("settings.passwordUpdated"));
   }
 
   async function handleLogout(): Promise<void> {
     await supabase.auth.signOut();
+  }
+
+  async function handleDeleteAccount(): Promise<void> {
+    if (!user || deleteConfirmText !== DELETE_CONFIRM_PHRASE) {
+      return;
+    }
+    setDeleteError(null);
+    setDeleteBusy(true);
+    try {
+      await deleteAccountViaEdgeFunction();
+      queryClient.clear();
+      await supabase.auth.signOut();
+      navigate("/", { replace: true });
+    } catch (err: unknown) {
+      setDeleteError(t("settings.deleteAccountFailed", { message: errorMessage(err) }));
+    } finally {
+      setDeleteBusy(false);
+    }
   }
 
   useEffect(() => {
@@ -84,7 +114,7 @@ export function SettingsPage(): ReactElement {
     setPrivacyBusy(true);
     try {
       await setProfileSearchable(user.id, searchable);
-      setPrivacyMsg("Privacy settings saved.");
+      setPrivacyMsg(t("settings.privacySaved"));
     } catch (err: unknown) {
       setPrivacyError(errorMessage(err));
     } finally {
@@ -92,14 +122,41 @@ export function SettingsPage(): ReactElement {
     }
   }
 
+  const dateLocale: string | undefined =
+    locale === "ka" ? "ka-GE" : locale === "ru" ? "ru-RU" : undefined;
+
   return (
     <div className="stack">
       <section className="card">
-        <h2 className="card__title" id="theme-heading">
-          Appearance
+        <h2 className="card__title" id="language-heading">
+          {t("settings.language")}
         </h2>
         <div className="card__body">
-          <p className="muted">Color theme (stored on this device).</p>
+          <p className="muted">{t("settings.languageHelp")}</p>
+          <div className="form">
+            <label className="form__label" htmlFor="settings-locale">
+              {t("settings.language")}
+            </label>
+            <select
+              id="settings-locale"
+              className="form__input"
+              value={locale}
+              onChange={(ev) => setLocale(normalizeLocale(ev.target.value))}
+            >
+              <option value="en">{t("settings.languageEn")}</option>
+              <option value="ka">{t("settings.languageKa")}</option>
+              <option value="ru">{t("settings.languageRu")}</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section className="card">
+        <h2 className="card__title" id="theme-heading">
+          {t("settings.appearance")}
+        </h2>
+        <div className="card__body">
+          <p className="muted">{t("settings.appearanceHint")}</p>
           <ThemePreferenceControls labelledBy="theme-heading" />
         </div>
       </section>
@@ -107,36 +164,36 @@ export function SettingsPage(): ReactElement {
       {user ? <AvatarUploadSection userId={user.id} /> : null}
 
       <section className="card">
-        <h2 className="card__title">Account</h2>
+        <h2 className="card__title">{t("settings.account")}</h2>
         <div className="card__body">
           <p className="muted">
-            Signed in as <strong>{user?.email ?? "—"}</strong>
+            {t("settings.signedInAs")} <strong>{user?.email ?? "—"}</strong>
           </p>
           <p className="muted">
-            Premium:{" "}
+            {t("settings.premium")}:{" "}
             {flagsLoading ? (
-              "…"
+              t("settings.premiumLoading")
             ) : isPremium && premiumUntil != null ? (
               <>
-                active until{" "}
+                {t("settings.premiumActiveUntil")}{" "}
                 <strong>
-                  {new Date(premiumUntil).toLocaleDateString(undefined, { dateStyle: "medium" })}
+                  {new Date(premiumUntil).toLocaleDateString(dateLocale, { dateStyle: "medium" })}
                 </strong>
               </>
             ) : (
-              "none"
+              t("settings.premiumNone")
             )}
           </p>
         </div>
       </section>
 
       <section className="card">
-        <h2 className="card__title">Privacy</h2>
+        <h2 className="card__title">{t("settings.privacy")}</h2>
         <div className="card__body">
-          <p className="muted">Control whether your account appears when others search by email on the Search page.</p>
+          <p className="muted">{t("settings.privacyHint")}</p>
           {privacyLoading ? (
             <p className="page-loading" role="status">
-              Loading…
+              {t("settings.privacyLoading")}
             </p>
           ) : (
             <form className="form" onSubmit={(ev) => void handlePrivacySave(ev)}>
@@ -146,10 +203,10 @@ export function SettingsPage(): ReactElement {
                   checked={searchable}
                   onChange={(ev) => setSearchable(ev.target.checked)}
                 />
-                Show my profile in email search results
+                {t("settings.privacyCheckbox")}
               </label>
               <button type="submit" className="btn btn--primary" disabled={privacyBusy}>
-                {privacyBusy ? "Saving…" : "Save privacy"}
+                {privacyBusy ? t("settings.privacySaving") : t("settings.privacySave")}
               </button>
               {privacyError ? (
                 <p className="form__error" role="alert">
@@ -167,15 +224,15 @@ export function SettingsPage(): ReactElement {
       </section>
 
       <section className="card">
-        <h2 className="card__title">Change password</h2>
+        <h2 className="card__title">{t("settings.changePassword")}</h2>
         <div className="card__body">
           <p className="muted">
-            Use at least {MIN_PASSWORD_LENGTH} characters. See also{" "}
-            <Link to="/security">Security</Link>.
+            {t("settings.passwordMinHint", { min: MIN_PASSWORD_LENGTH })}{" "}
+            <Link to="/security">{t("layout.nav.security")}</Link>.
           </p>
           <form className="form" onSubmit={(e) => void handlePassword(e)}>
             <label className="form__label">
-              New password
+              {t("settings.newPassword")}
               <input
                 className="form__input"
                 type="password"
@@ -188,7 +245,7 @@ export function SettingsPage(): ReactElement {
               />
             </label>
             <button type="submit" className="btn btn--primary" disabled={passwordBusy}>
-              {passwordBusy ? "Updating…" : "Update password"}
+              {passwordBusy ? t("settings.updatingPassword") : t("settings.updatePassword")}
             </button>
             {passwordError ? (
               <p className="form__error" role="alert">
@@ -205,29 +262,55 @@ export function SettingsPage(): ReactElement {
       </section>
 
       <section className="card">
-        <h2 className="card__title">Session</h2>
+        <h2 className="card__title">{t("settings.session")}</h2>
         <div className="card__body">
           <button type="button" className="btn" onClick={() => void handleLogout()}>
-            Log out
+            {t("settings.logOut")}
           </button>
         </div>
       </section>
 
-      <section className="card">
-        <h2 className="card__title">Delete account</h2>
-        <div className="card__body">
-          <p className="muted">
-            Account deletion is not available in the web app yet (requires a secure server flow). Contact
-            support or use the Supabase dashboard for manual removal if needed.
-          </p>
-          <button type="button" className="btn btn--danger" disabled>
-            Delete account (soon)
-          </button>
-        </div>
-      </section>
+      {user ? (
+        <section className="card">
+          <h2 className="card__title">{t("settings.deleteAccount")}</h2>
+          <div className="card__body">
+            <p className="muted">{t("settings.deleteAccountHint")}</p>
+            <p className="muted">{t("settings.deleteAccountTypeDelete")}</p>
+            <div className="form">
+              <label className="form__label" htmlFor="settings-delete-confirm">
+                {t("settings.deleteAccountConfirmPlaceholder")}
+              </label>
+              <input
+                id="settings-delete-confirm"
+                className="form__input"
+                type="text"
+                autoComplete="off"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder={t("settings.deleteAccountConfirmPlaceholder")}
+                disabled={deleteBusy}
+                aria-invalid={deleteConfirmText.length > 0 && deleteConfirmText !== DELETE_CONFIRM_PHRASE}
+              />
+              <button
+                type="button"
+                className="btn btn--danger"
+                disabled={deleteBusy || deleteConfirmText !== DELETE_CONFIRM_PHRASE}
+                onClick={() => void handleDeleteAccount()}
+              >
+                {deleteBusy ? t("settings.deleteAccountDeleting") : t("settings.deleteAccountSubmit")}
+              </button>
+              {deleteError ? (
+                <p className="form__error" role="alert">
+                  {deleteError}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <p className="muted">
-        <Link to="/legal">Terms &amp; Privacy</Link>
+        <Link to="/legal">{t("settings.termsLink")}</Link>
       </p>
     </div>
   );

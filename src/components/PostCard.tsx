@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { logger } from "../lib/logger.ts";
 import { supabase } from "../lib/supabaseClient.ts";
 import { Avatar } from "./Avatar.tsx";
@@ -18,6 +19,7 @@ type PostCardProps = {
 };
 
 export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [deleting, setDeleting] = useState(false);
   const isOwner = user?.id === post.user_id;
@@ -29,7 +31,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
     if (!user || !isOwner || deleting) {
       return;
     }
-    if (!window.confirm("Delete this post?")) {
+    if (!window.confirm(t("pages.postCard.deleteConfirm"))) {
       return;
     }
     setDeleting(true);
@@ -88,7 +90,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
           />
           <span
             className="post-card__score"
-            title="Net score (thumbs up minus thumbs down)"
+            title={t("pages.postCard.netScoreTitle")}
           >
             {netScore > 0 ? `+${netScore}` : `${netScore}`}
           </span>
@@ -101,7 +103,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
               disabled={deleting}
               onClick={() => void handleDelete()}
             >
-              {deleting ? "…" : "Delete"}
+              {deleting ? t("pages.postCard.deleting") : t("pages.postCard.delete")}
             </button>
           ) : null}
         </div>

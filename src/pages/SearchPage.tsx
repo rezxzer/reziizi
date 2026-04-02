@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { PostCard } from "../components/PostCard";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import {
   isSearchQueryValid,
@@ -14,6 +15,7 @@ import type { FeedPost } from "../types/feed";
 import type { ProfileRow } from "../types/db";
 
 export function SearchPage(): ReactElement {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const qParam: string = searchParams.get("q") ?? "";
@@ -71,35 +73,35 @@ export function SearchPage(): ReactElement {
     <div className="stack search-page">
       <section className="card" aria-labelledby="search-heading">
         <h1 id="search-heading" className="card__title">
-          Search
+          {t("pages.search.title")}
         </h1>
         <div className="card__body">
           <form className="search-form form" role="search" onSubmit={handleSubmit}>
             <label className="form__label">
-              Query
+              {t("pages.search.queryLabel")}
               <input
                 className="form__input"
                 type="search"
                 name="q"
                 autoComplete="off"
-                placeholder="Posts (body) or users (email)…"
+                placeholder={t("pages.search.placeholder")}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
             </label>
             <button type="submit" className="btn btn--primary">
-              Search
+              {t("pages.search.submit")}
             </button>
           </form>
           {showHint ? (
-            <p className="muted">Enter at least 2 characters (after trimming).</p>
+            <p className="muted">{t("pages.search.hintMinChars")}</p>
           ) : null}
         </div>
       </section>
 
       {loading ? (
         <p className="page-loading" role="status">
-          Searching…
+          {t("pages.search.searching")}
         </p>
       ) : null}
 
@@ -113,15 +115,12 @@ export function SearchPage(): ReactElement {
         <>
           <section className="card" aria-labelledby="users-heading">
             <h2 id="users-heading" className="card__title">
-              Users ({profiles.length})
+              {t("pages.search.usersWithCount", { count: profiles.length })}
             </h2>
             <div className="card__body">
-              <p className="muted">
-                Users who disabled email search discovery in Settings → Privacy won&apos;t appear here (except to
-                themselves).
-              </p>
+              <p className="muted">{t("pages.search.usersPrivacyNote")}</p>
               {profiles.length === 0 ? (
-                <p className="muted">No matching profiles.</p>
+                <p className="muted">{t("pages.search.noProfiles")}</p>
               ) : (
                 <ul className="search-profile-list">
                   {profiles.map((p) => (
@@ -133,7 +132,7 @@ export function SearchPage(): ReactElement {
                         </div>
                         {user && user.id !== p.id ? (
                           <Link to={`/messages/${p.id}`} className="btn btn--small">
-                            Message
+                            {t("pages.search.message")}
                           </Link>
                         ) : null}
                       </div>
@@ -146,11 +145,11 @@ export function SearchPage(): ReactElement {
 
           <section className="card" aria-labelledby="posts-heading">
             <h2 id="posts-heading" className="card__title">
-              Posts ({posts.length})
+              {t("pages.search.postsWithCount", { count: posts.length })}
             </h2>
             <div className="card__body search-posts">
               {posts.length === 0 ? (
-                <p className="muted">No matching posts.</p>
+                <p className="muted">{t("pages.search.noPosts")}</p>
               ) : (
                 <ul className="post-list">
                   {posts.map((post) => (

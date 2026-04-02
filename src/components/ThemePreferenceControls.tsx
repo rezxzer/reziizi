@@ -1,27 +1,29 @@
 import type { ReactElement } from "react";
-import type { ThemePreference } from "../lib/theme";
-import { useTheme } from "../contexts/ThemeContext";
+import { useI18n } from "../contexts/I18nContext.tsx";
+import { useTheme } from "../contexts/ThemeContext.tsx";
+import type { ThemePreference } from "../lib/theme.ts";
 
 type ThemePreferenceControlsProps = {
   /** If set, adds a heading for the settings page */
   labelledBy?: string;
 };
 
-const OPTIONS: { value: ThemePreference; label: string }[] = [
-  { value: "system", label: "Auto" },
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-];
+const OPTIONS: readonly { value: ThemePreference; labelKey: string }[] = [
+  { value: "system", labelKey: "theme.auto" },
+  { value: "light", labelKey: "theme.light" },
+  { value: "dark", labelKey: "theme.dark" },
+] as const;
 
 export function ThemePreferenceControls({ labelledBy }: ThemePreferenceControlsProps): ReactElement {
   const { preference, setPreference } = useTheme();
+  const { t } = useI18n();
 
   return (
     <div
       className="theme-mode"
       role="radiogroup"
       aria-labelledby={labelledBy}
-      aria-label={labelledBy ? undefined : "Color theme"}
+      aria-label={labelledBy ? undefined : t("theme.ariaGroup")}
     >
       {OPTIONS.map((opt) => (
         <button
@@ -32,7 +34,7 @@ export function ThemePreferenceControls({ labelledBy }: ThemePreferenceControlsP
           className={`theme-mode__btn${preference === opt.value ? " theme-mode__btn--active" : ""}`}
           onClick={() => setPreference(opt.value)}
         >
-          {opt.label}
+          {t(opt.labelKey)}
         </button>
       ))}
     </div>

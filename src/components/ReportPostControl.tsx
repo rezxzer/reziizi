@@ -1,6 +1,7 @@
 import type { FormEvent, ReactElement } from "react";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import { submitPostReport } from "../lib/reports.ts";
 
@@ -10,6 +11,7 @@ type ReportPostControlProps = {
 };
 
 export function ReportPostControl({ postId, isOwner }: ReportPostControlProps): ReactElement | null {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -28,7 +30,7 @@ export function ReportPostControl({ postId, isOwner }: ReportPostControlProps): 
     setBusy(true);
     try {
       await submitPostReport(postId, reason);
-      setMessage("Report sent. Thanks.");
+      setMessage(t("pages.report.success"));
       setReason("");
       setOpen(false);
     } catch (err: unknown) {
@@ -42,12 +44,12 @@ export function ReportPostControl({ postId, isOwner }: ReportPostControlProps): 
     <div className="report-post">
       {!open ? (
         <button type="button" className="btn btn--small report-post__toggle" onClick={() => setOpen(true)}>
-          Report
+          {t("pages.report.report")}
         </button>
       ) : (
         <form className="report-post__form form" onSubmit={(e) => void handleSubmit(e)}>
           <label className="form__label" htmlFor={`report-reason-${postId}`}>
-            Why are you reporting this post?
+            {t("pages.report.whyLabel")}
           </label>
           <textarea
             id={`report-reason-${postId}`}
@@ -55,14 +57,14 @@ export function ReportPostControl({ postId, isOwner }: ReportPostControlProps): 
             rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Brief reason…"
+            placeholder={t("pages.report.placeholder")}
             disabled={busy}
             maxLength={2000}
             required
           />
           <div className="report-post__actions">
             <button type="submit" className="btn btn--primary btn--small" disabled={busy}>
-              {busy ? "Sending…" : "Submit report"}
+              {busy ? t("pages.report.sending") : t("pages.report.submit")}
             </button>
             <button
               type="button"
@@ -74,7 +76,7 @@ export function ReportPostControl({ postId, isOwner }: ReportPostControlProps): 
                 setReason("");
               }}
             >
-              Cancel
+              {t("pages.report.cancel")}
             </button>
           </div>
           {error ? (

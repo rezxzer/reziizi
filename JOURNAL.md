@@ -21,6 +21,53 @@
 
 ## ჩანაწერები
 
+### 2026-04-01 — ანგარიშის წაშლა + დოკუმენტაციის სინქი
+
+- **Edge Function:** `supabase/functions/delete-account/index.ts` — JWT → Storage რეკურსიული წაშლა → `auth.admin.deleteUser`.
+- **კლიენტი:** `src/lib/deleteAccount.ts` — `POST` `/functions/v1/delete-account`, `AbortSignal.timeout(120s)`, 404-ზე დეპლოის მინიშნება.
+- **UI:** `SettingsPage` — `DELETE` დადასტურება, `queryClient.clear`, sign out, `/`.
+- **Deno / TypeScript:** `supabase/functions/deno.json` (`npm:@supabase/supabase-js`), `tsconfig.json` (`paths` → `node_modules`), `deno-env.d.ts` — IDE აღარ ეძებს `https://esm.sh/...` მოდულს.
+- **დოკუმენტაცია განახლებული:** `project.md` (**CURRENT WORK** + გეგმის ცხრილი), `AGENTS.md` (ხე + რუკა), `README.md` (Docs ცხრილი), `SCHEMA.md` (Storage ქვეთავი — Edge წაშლა), `ACCOUNT_DELETION_DESIGN.md` (დაკავშირებულია `README`-ის დეპლოის სექციასთან).
+- **ცოცხალი Supabase:** საჭიროა **`supabase functions deploy delete-account`** — სანამ არ დაიდეპლოირებ, წაშლა 404-ს დააბრუნებს.
+
+### 2026-04-01 — Localization v2: Home, Login, Search, PostForm
+
+- **`messages.ts`:** `pages.common` / `home` / `login` / `search` / `postForm` (სამივე ენა).
+- **კომპონენტები:** `HomePage`, `LoginPage`, `SearchPage`, `PostForm` — `useI18n().t()`.
+
+### 2026-04-01 — Localization: `ru` + SEO/announcer ლოკალით
+
+- **`Locale`:** `ru`; **`messages.seo`** (admin + routes + `announcer`); **`seo.ts`** `getSeoForPath`/`applyPageSeo`/`getRouteAnnouncement(path, locale)`; **`RouteSeo`/`RouteAnnouncer`** `useI18n`.
+- **Settings:** `languageRu`, თარიღის `ru-RU`; **`html[lang]`** `ru`.
+
+### 2026-04-01 — Feature 44 Localization — baseline (`en` / `ka`)
+
+- **`I18nProvider`**, `useI18n().t()`, `src/i18n/messages.ts`, `locale.ts`, `resolveMessage.ts`, ტესტები.
+- **Settings:** ენის არჩევა; **Layout** + **Theme** + **Settings** ტექსტები; `html[lang]` დინამიკური.
+- **`project.md`:** §44 + `CURRENT WORK`.
+
+### 2026-04-01 — Feature 43 A11Y — route announcer (v2)
+
+- **`RouteAnnouncer`:** `aria-live="polite"` + `getRouteAnnouncement` (`seo.ts`); **`.sr-only`** in `styles.css`; **`Layout`**.
+
+### 2026-04-01 — Feature 48 Rate limiting — DB baseline
+
+- **Migration:** `20260401310000_add_rate_limit_triggers.sql` — BEFORE INSERT: `posts` (12/min), `comments` (45/min), `chat_messages` (90/min), `reports` (24/24h).
+- **`SCHEMA.md`:** Rate limits ცხრილი; **`project.md`:** §48 + `CURRENT WORK`.
+
+### 2026-04-01 — Feature 43 A11Y — baseline
+
+- **`Layout`:** skip-to-main (`#main-content`), ბრენდი `Link` + `aria-label`, `<main tabIndex={-1}>`.
+- **`styles.css`:** `.skip-link`, `#main-content` scroll-margin, `.layout__brand` ფოკუსი.
+- **`project.md`:** §43 + `CURRENT WORK`.
+
+### 2026-04-01 — Feature 42 SEO — baseline
+
+- **`index.html`:** default `description`, Open Graph + Twitter card shell.
+- **`src/lib/seo.ts`:** `getSeoForPath` / `applyPageSeo` (robots, OG, canonical); **`RouteSeo`** in `Layout`.
+- **`seo.test.ts`:** `getSeoForPath` მარშრუტების ტესტები.
+- **`project.md`:** §42 + `CURRENT WORK` განახლება.
+
 ### 2026-04-01 — GitHub Actions CI + Email (45) დოკში გადაცილება
 
 - **`.github/workflows/ci.yml`:** `push`/`pull_request` → `main`/`master` — `npm ci`, `npm test`, `npm run build`; placeholder `VITE_*` build-ისთვის.

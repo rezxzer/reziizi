@@ -38,7 +38,11 @@ WHERE n.nspname = 'public'
     'notify_post_owner_on_reaction',
     'touch_conversation_on_message',
     'admin_set_user_banned',
-    'admin_set_user_premium_until'
+    'admin_set_user_premium_until',
+    'enforce_post_rate_limit',
+    'enforce_comment_rate_limit',
+    'enforce_chat_message_rate_limit',
+    'enforce_report_rate_limit'
   )
 ORDER BY p.proname;
 

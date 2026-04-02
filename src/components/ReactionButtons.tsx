@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { errorMessage as formatError } from "../lib/errors.ts";
 import { supabase } from "../lib/supabaseClient";
 
@@ -19,6 +20,7 @@ export function ReactionButtons({
   myReaction,
   onChanged,
 }: ReactionButtonsProps): ReactElement {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [reactionError, setReactionError] = useState<string | null>(null);
@@ -70,14 +72,14 @@ export function ReactionButtons({
   const disabled = !user || busy;
 
   return (
-    <div className="reactions" aria-label="Reactions">
+    <div className="reactions" aria-label={t("pages.reactions.ariaLabel")}>
       <div className="reactions__buttons">
         <button
           type="button"
           className={`reactions__btn${myReaction === 1 ? " reactions__btn--active" : ""}`}
           disabled={disabled}
           onClick={() => void apply(1)}
-          title={user ? "Thumbs up" : "Sign in to react"}
+          title={user ? t("pages.reactions.thumbsUp") : t("pages.reactions.signInToReact")}
         >
           👍 <span className="reactions__count">{thumbsUp}</span>
         </button>
@@ -86,7 +88,7 @@ export function ReactionButtons({
           className={`reactions__btn${myReaction === -1 ? " reactions__btn--active" : ""}`}
           disabled={disabled}
           onClick={() => void apply(-1)}
-          title={user ? "Thumbs down" : "Sign in to react"}
+          title={user ? t("pages.reactions.thumbsDown") : t("pages.reactions.signInToReact")}
         >
           👎 <span className="reactions__count">{thumbsDown}</span>
         </button>

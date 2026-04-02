@@ -30,6 +30,8 @@ On **push** and **pull requests** to `main` / `master`, [`.github/workflows/ci.y
 | [**AGENTS.md**](AGENTS.md) | **Start here in a new chat** — context, doc map, folder tree, run commands, next steps. |
 | [project.md](project.md) | Full spec: features, MVP scope, **CURRENT WORK**, **`### NEXT STEPS`**. |
 | [JOURNAL.md](JOURNAL.md) | Project log. |
+| [supabase/SCHEMA.md](supabase/SCHEMA.md) | DB tables, RPCs, Storage buckets, rate-limit triggers. |
+| [supabase/ACCOUNT_DELETION_DESIGN.md](supabase/ACCOUNT_DELETION_DESIGN.md) | Account deletion flow (Edge Function + deploy checklist). |
 | [.cursor/rules/reziizi.mdc](.cursor/rules/reziizi.mdc) | Cursor rules + **v1 implementation order**. |
 
 ## Production deployment (GitHub + Vercel + Supabase)
@@ -98,6 +100,18 @@ Password sign-in needs a correct **Site URL**; magic links / OAuth need **Redire
 ### Repo layout note
 
 `vercel.json` sets SPA **rewrites** (all routes → `index.html`) and security headers so React Router deep links and refresh work on Vercel.
+
+### Supabase Edge Function — account deletion
+
+**Settings → Delete account** calls `POST /functions/v1/delete-account`. That function is **not** deployed by Vercel; deploy it to your Supabase project once:
+
+1. Install [Supabase CLI](https://supabase.com/docs/guides/cli) and log in (`supabase login`).
+2. Link the project: `supabase link --project-ref YOUR_PROJECT_REF`.
+3. From the repo root: `supabase functions deploy delete-account`.
+
+Hosted Edge Functions receive `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` automatically. If deletion fails with **404**, the function is missing or the URL is wrong.
+
+See `supabase/ACCOUNT_DELETION_DESIGN.md` for behavior (Storage + `auth.users`).
 
 ## Repo
 

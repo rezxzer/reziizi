@@ -2,6 +2,7 @@ import type { FormEvent, ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import {
   fetchCommentsForPost,
   getCommentMaxLength,
@@ -15,6 +16,7 @@ type CommentSectionProps = {
 };
 
 export function CommentSection({ postId }: CommentSectionProps): ReactElement {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
@@ -70,7 +72,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       .single();
     setSubmitting(false);
     if (insError || !data) {
-      setError(insError != null ? errorMessage(insError) : "Could not post comment");
+      setError(insError != null ? errorMessage(insError) : t("pages.comment.commentFailed"));
       return;
     }
     setBody("");
@@ -87,7 +89,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
     if (!user || user.id !== authorId) {
       return;
     }
-    if (!window.confirm("Delete this comment?")) {
+    if (!window.confirm(t("pages.comment.deleteCommentConfirm"))) {
       return;
     }
     setError(null);
@@ -107,7 +109,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
-        {open ? "Hide comments" : "Comments"}
+        {open ? t("pages.comment.hideComments") : t("pages.comment.comments")}
         {!loading && open ? ` (${comments.length})` : ""}
         {!open && comments.length > 0 ? ` (${comments.length})` : ""}
       </button>
@@ -116,7 +118,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
         <div className="comment-section__panel">
           {loading ? (
             <p className="muted" role="status">
-              Loading comments…
+              {t("pages.comment.loading")}
             </p>
           ) : null}
           {error ? (
@@ -146,7 +148,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
                         className="btn btn--danger btn--small comment-list__delete"
                         onClick={() => void handleDelete(c.id, c.user_id)}
                       >
-                        Delete
+                        {t("pages.comment.delete")}
                       </button>
                     ) : null}
                   </li>
@@ -158,14 +160,14 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
           {user ? (
             <form className="comment-form form form--post" onSubmit={(e) => void handleSubmit(e)}>
               <label className="form__label">
-                Add a comment
+                {t("pages.comment.addLabel")}
                 <textarea
                   className="form__textarea"
                   rows={2}
                   maxLength={maxLen}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  placeholder="Write a comment…"
+                  placeholder={t("pages.comment.placeholder")}
                 />
               </label>
               <div className="form__row">
@@ -173,16 +175,16 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
                   {body.length}/{maxLen}
                 </span>
                 <button type="submit" className="btn btn--primary" disabled={submitting || body.trim().length < 1}>
-                  {submitting ? "Sending…" : "Comment"}
+                  {submitting ? t("pages.comment.sending") : t("pages.comment.submit")}
                 </button>
               </div>
             </form>
           ) : (
             <p className="muted">
               <Link to="/login" className="inline-link">
-                Sign in
+                {t("pages.comment.signInLink")}
               </Link>{" "}
-              to comment.
+              {t("pages.comment.signInSuffix")}
             </p>
           )}
         </div>

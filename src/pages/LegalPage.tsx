@@ -1,30 +1,32 @@
 import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
+import { useI18n } from "../contexts/I18nContext.tsx";
 
 export function LegalPage(): ReactElement {
+  const { t } = useI18n();
   return (
     <div className="stack legal-page">
-      <nav className="legal-page__nav" aria-label="Legal navigation">
+      <nav className="legal-page__nav" aria-label={t("pages.legal.navAria")}>
         <Link to="/" className="inline-link">
-          ← Home
+          {t("pages.chrome.backHome")}
         </Link>
         <span className="legal-page__sep" aria-hidden="true">
           ·
         </span>
         <Link to="/login" className="inline-link">
-          Login
+          {t("layout.nav.login")}
         </Link>
         <span className="legal-page__sep" aria-hidden="true">
           ·
         </span>
         <Link to="/security" className="inline-link">
-          Security
+          {t("layout.nav.security")}
         </Link>
       </nav>
 
       <article className="card legal-page__article">
-        <h1 className="legal-page__title">Legal information</h1>
-        <p className="legal-page__updated muted">Last updated: April 1, 2026 · REZIIZI v1 (MVP)</p>
+        <h1 className="legal-page__title">{t("pages.legal.title")}</h1>
+        <p className="legal-page__updated muted">{t("pages.legal.lastUpdated")}</p>
 
         <section className="legal-section" id="terms" aria-labelledby="terms-heading">
           <h2 id="terms-heading" className="legal-section__title">

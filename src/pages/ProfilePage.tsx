@@ -6,6 +6,7 @@ import { Avatar } from "../components/Avatar.tsx";
 import { InlineError } from "../components/InlineError.tsx";
 import { PostCard } from "../components/PostCard";
 import { useAuth } from "../contexts/AuthContext";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { fetchUserPosts } from "../lib/feed";
@@ -13,6 +14,7 @@ import { queryKeys } from "../lib/queryKeys.ts";
 import { supabase } from "../lib/supabaseClient";
 
 export function ProfilePage(): ReactElement {
+  const { t } = useI18n();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { isPremium, loading: flagsLoading } = useProfileFlags();
@@ -64,46 +66,46 @@ export function ProfilePage(): ReactElement {
     <div className="stack">
       <section className="card">
         <h2 className="card__title">
-          Profile
-          {!flagsLoading && isPremium ? <span className="premium-badge">Premium</span> : null}
+          {t("pages.profile.title")}
+          {!flagsLoading && isPremium ? (
+            <span className="premium-badge">{t("pages.profile.premiumBadge")}</span>
+          ) : null}
         </h2>
         <div className="card__body">
           {loading ? (
             <p className="page-loading" role="status">
-              Loading…
+              {t("pages.profile.loading")}
             </p>
           ) : null}
           <InlineError message={error} />
           {!loading && !error ? (
             <>
               <div className="profile-page__identity">
-                <Avatar imageUrl={avatarUrl} label={displayEmail ?? "Profile"} size="lg" />
+                <Avatar imageUrl={avatarUrl} label={displayEmail ?? t("pages.profile.avatarLabel")} size="lg" />
                 <div>
                   <p>
-                    <strong>Email:</strong> {displayEmail ?? "—"}
+                    <strong>{t("pages.profile.emailLabel")}</strong> {displayEmail ?? "—"}
                   </p>
                   <p className="muted">
                     <Link className="inline-link" to="/settings">
-                      {avatarUrl ? "Change profile photo" : "Upload profile photo"}
+                      {avatarUrl ? t("pages.profile.changePhoto") : t("pages.profile.uploadPhoto")}
                     </Link>
                     {" — "}
-                    Settings → Profile photo
+                    {t("pages.profile.settingsPhotoHint")}
                   </p>
                 </div>
               </div>
-              <p className="muted">
-                Posts: {posts.length}
-              </p>
+              <p className="muted">{t("pages.profile.postsCount", { count: posts.length })}</p>
             </>
           ) : null}
         </div>
       </section>
 
       <section className="card">
-        <h2 className="card__title">Your posts</h2>
+        <h2 className="card__title">{t("pages.profile.yourPosts")}</h2>
         <div className="card__body">
           {posts.length === 0 && !loading ? (
-            <p className="muted">You have not posted yet.</p>
+            <p className="muted">{t("pages.profile.emptyPosts")}</p>
           ) : (
             <ul className="post-list">
               {posts.map((p) => (

@@ -47,13 +47,13 @@
 39. Backup System
 40. Versioning System
 41. Testing System 🟡
-42. SEO Optimization
-43. Accessibility (A11Y)
-44. Localization (Languages)
+42. SEO Optimization 🟡
+43. Accessibility (A11Y) 🟡
+44. Localization (Languages) 🟡
 45. Email System (verification/reset)
 46. Push Notifications
 47. File Storage System
-48. Rate Limiting System
+48. Rate Limiting System 🟡
 49. Anti-Spam System
 50. Future Features
 51. Legal / Privacy (Terms & Privacy)
@@ -126,6 +126,9 @@
 - **Media Upload (11) + File Storage (47) — baseline:** Supabase Storage `post-images`, `posts.image_url`, `PostForm` სურათი, feed/admin `PostCard` / Moderation; პოსტის წაშლისას Storage cleanup (საუკეთესო ძალისხმევა).
 - **Avatar (4) — baseline:** `profiles.avatar_url`, bucket `avatars` (2 MiB), **Settings** → Profile photo, **Profile** + feed **PostCard** — `Avatar` კომპონენტი; ძველი სურათის წაშლა ახალი ატვირთვისას / Remove.
 - **GitHub CI:** `.github/workflows/ci.yml` — `main`/`master`-ზე push/PR: `npm ci` → `npm test` → `npm run build` (იხილე **`README.md` → „GitHub Actions (CI)“**). **Vercel** დეპლოი რჩება რეპოდან იმპორტით, როგორც ადრე.
+- **ანგარიშის წაშლა (სერვერული ფლოუ):** **`supabase/functions/delete-account/`** — Edge Function: JWT → Storage (`avatars/`, `post-images/`) წაშლა → `auth.admin.deleteUser`. **`src/lib/deleteAccount.ts`** — `POST /functions/v1/delete-account` (ტაიმაუტი, 404-ზე დეპლოის მინიშნება). **`SettingsPage`** — დადასტურება `DELETE`, `queryClient.clear`, sign out. **Deno/IDE:** `supabase/functions/deno.json` (import map), `tsconfig.json` + `deno-env.d.ts` — `@supabase/supabase-js` ტიპები `node_modules`-იდან. **ცოცხალი Supabase:** საჭიროა **`supabase functions deploy delete-account`** (იხილე **`README.md`** + **`supabase/ACCOUNT_DELETION_DESIGN.md`**).
+- **ნავიგაცია (ადმინი):** **`Layout`** — ადმინის ქვემენიუ ერთ **`details`** ჩამოსაშლელში (ჰედერი აღარ „იშლება“ ბევრი ბმულით). **`translate="no"`** ჰედერზე — ბრაუზერის ავტოთარგმანი არ ურევს ნავიგაციის ტექსტს.
+- **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security სრულად `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
 
 **შენიშვნა:** **Database Structure (29)** — `supabase/SCHEMA.md`, `verify_schema.sql`; ახალი migration-ის შემდეგ ამ ფაილებიც განაახლე.
 
@@ -152,9 +155,11 @@
 |-------------|-------------------|---------|------------------|
 | 1 | **11. Media Upload System** (+ **47. File Storage** როგორც ტექნიკური ფუძე) | ✅ baseline | სურათი პოსტზე; cleanup წაშლისას; ვიდეო არა (MVP) — იხილე §11 |
 | 2 | **4. Avatar** — `profiles.avatar_url`, bucket `avatars`, Settings upload, feed `PostCard` | ✅ baseline | სურვილისამებრ: სხვა გვერდებზე Avatar |
-| 3 | **მომდევნო (აირჩიე):** SEO **(42)**, Rate limit **(48)**, A11Y **(43)** … | ⬜ | **Email (45)** — მოგვიანებით (არა სავალდებულო ახლა) |
-| 4 | | ⬜ | |
-| 5 | | ⬜ | |
+| 3 | **42. SEO** — `src/lib/seo.ts`, `RouteSeo`, `index.html` defaults; public routes indexable, auth/admin noindex | ✅ baseline | **Email (45)** — მოგვიანებით |
+| 4 | **43. A11Y** — skip link, `#main-content`, brand; **`RouteAnnouncer`** (`aria-live`, `getRouteAnnouncement`) | ✅ baseline | full audit — v3 |
+| 5 | **48. Rate limiting** — DB triggers on `posts` / `comments` / `chat_messages` / `reports` (see `SCHEMA.md`) | ✅ baseline | Edge/API limits — v2 |
+| 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security | ✅ baseline v3 | Legal article body ინგლისურად; დანარჩენი გვერდები სურვილისამებრ |
+| 7 | **Account deletion** — Edge `delete-account`, `src/lib/deleteAccount.ts`, Settings UI | ✅ კოდი | **დეპლოი:** `supabase functions deploy delete-account` (იხილე `README` / `ACCOUNT_DELETION_DESIGN.md`) |
 
 **იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Friends (5)**, **Video (10)**, **Rate limiting (48)**, **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + თითო ფიჩის **FEATURE BREAKDOWN** ქვეთავი. **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
 
@@ -828,7 +833,7 @@ Notes:
 #### 🛠️ Notes
 
 - **SEO (42)** და **Email (45)** პარალელურად მნიშვნელოვანია production-ისთვის, მაგრამ **Media** უშუალოდ უმატებს retention-ს feed-ში.
-- **Rate limiting (48) / Anti-spam (49)** — ატვირთვის ფრიქვენცია მომავალში შეიზღუდოს.
+- **Rate limiting (48):** პოსტები/კომენტარები/ჩატი/რეპორტები — DB ტრიგერები (`SCHEMA.md`); **Storage** ატვირთვის სიხშირე — მომავალში. **Anti-spam (49)** — მომავალში.
 
 ---
 
@@ -2275,7 +2280,7 @@ Notes:
 
 ---
 
-### 42. SEO Optimization ❌
+### 42. SEO Optimization 🟡
 
 #### 📌 Description
 Improve search engine visibility.
@@ -2283,17 +2288,19 @@ Improve search engine visibility.
 ---
 
 #### ✅ v1 (MVP)
-- basic meta tags
+- **`index.html`:** default `description`, `og:*`, `twitter:card`
+- **`src/lib/seo.ts`:** `getSeoForPath`, `applyPageSeo` (title, description, robots, OG, canonical)
+- **`RouteSeo`** (`Layout`): updates head on client navigation — public routes `index,follow`; login, profile, settings, messages, notifications, admin, banned → `noindex,nofollow`
 
 ---
 
 #### 🚀 Future (v2+)
-- advanced SEO
+- advanced SEO (sitemap, structured data, per-post OG images)
 
 ---
 
 #### ⚙️ Logic
-- optimize pages
+- Route map + `matchPath`; canonical / `og:url` = `origin + pathname`
 
 ---
 
@@ -2303,21 +2310,21 @@ Improve search engine visibility.
 ---
 
 #### 🛠️ Notes
-- later improvement
+- SPA: crawlers that execute JS see updated tags; static shell in `index.html` for first paint
 
 ---
 
 #### 🧱 Implementation (42. SEO Optimization)
 
 Frontend:
-- basic meta tags
+- `src/lib/seo.ts`, `src/lib/seo.test.ts`, `src/components/RouteSeo.tsx`, `Layout.tsx`, `index.html`
 
 Notes:
-- simple SEO
+- baseline done; v2+ optional
 
 ---
 
-### 43. Accessibility (A11Y) ❌
+### 43. Accessibility (A11Y) 🟡
 
 #### 📌 Description
 Make app usable for all users.
@@ -2325,17 +2332,22 @@ Make app usable for all users.
 ---
 
 #### ✅ v1 (MVP)
-- basic accessibility
+- **Skip link** (`.skip-link`) → `#main-content` (WCAG 2.4.1)
+- **`<main id="main-content" tabIndex={-1}>`** — fragment focus after skip
+- **Brand** — `Link` to `/` + `aria-label="REZIIZI home"`
+- **`RouteAnnouncer`** — `role="status"` + `aria-live="polite"`; copy from `getRouteAnnouncement()` in `seo.ts` (SPA navigation)
+- **`.sr-only`** — visually hidden live region
+- Existing: `nav` `aria-label`, theme `radiogroup`, `:focus-visible`, `prefers-reduced-motion`, touch targets (`--touch-min`)
 
 ---
 
 #### 🚀 Future (v2+)
-- full accessibility support
+- full accessibility audit; per-post OG already separate (SEO)
 
 ---
 
 #### ⚙️ Logic
-- accessible UI
+- keyboard + screen reader baseline; no backend
 
 ---
 
@@ -2345,21 +2357,21 @@ Make app usable for all users.
 ---
 
 #### 🛠️ Notes
-- improve later
+- Route announcements: see `RouteAnnouncer`
 
 ---
 
 #### 🧱 Implementation (43. Accessibility)
 
 Frontend:
-- semantic HTML
+- `Layout.tsx`, `styles.css`, `RouteAnnouncer.tsx`, `seo.ts` (`getRouteAnnouncement`)
 
 Notes:
-- basic accessibility
+- baseline + live region done; audit optional later
 
 ---
 
-### 44. Localization (Languages) ❌
+### 44. Localization (Languages) 🟡
 
 #### 📌 Description
 Support multiple languages.
@@ -2367,37 +2379,42 @@ Support multiple languages.
 ---
 
 #### ✅ v1 (MVP)
-- not included
+- **`src/i18n/`:** `messages` (`en`, `ka`, `ru`), `resolveMessage` + `interpolate`, `locale` helpers
+- **`messages.seo`:** route titles/descriptions + `announcer` template; **`seo.ts`** reads by `Locale`; **`RouteSeo` / `RouteAnnouncer`** use `useI18n().locale`
+- **`I18nProvider` / `useI18n().t()`** — `document.documentElement.lang` (`en` \| `ka` \| `ru`), `localStorage` (`reziizi-locale`)
+- **Settings:** language `<select>` (first card)
+- **Translated UI:** `Layout`, `ThemePreferenceControls`, `SettingsPage`; **`pages`:** `HomePage`, `LoginPage`, `SearchPage`, `PostForm` (`en` / `ka` / `ru`)
+- **Not yet:** Admin, Profile, PostCard/Comment, Legal/Security, messaging pages — incremental
 
 ---
 
 #### 🚀 Future (v2+)
-- multi-language support
+- translate remaining pages/components; optional DB-backed copy; SEO per locale
 
 ---
 
 #### ⚙️ Logic
-- switch language
+- Dot-path keys (e.g. `layout.nav.home`); `{placeholder}` interpolation
 
 ---
 
 #### 🗄️ Database (planned)
-translations
+- optional for CMS-style copy; not required for MVP
 
 ---
 
 #### 🛠️ Notes
-- later
+- API / Supabase error strings remain English
 
 ---
 
 #### 🧱 Implementation (44. Localization)
 
 Frontend:
-- none (v1)
+- `src/contexts/I18nContext.tsx`, `src/main.tsx`, `Layout.tsx`, `ThemePreferenceControls.tsx`, `SettingsPage.tsx`, `src/i18n/*`
 
 Notes:
-- later
+- baseline done; expand coverage incrementally
 
 ---
 
@@ -2537,7 +2554,7 @@ Notes:
 
 ---
 
-### 48. Rate Limiting System ❌
+### 48. Rate Limiting System 🟡
 
 #### 📌 Description
 Prevent spam requests.
@@ -2545,40 +2562,41 @@ Prevent spam requests.
 ---
 
 #### ✅ v1 (MVP)
-- not included
+- PostgreSQL BEFORE INSERT triggers + rolling-window counts (`SECURITY DEFINER`)
+- See: `supabase/migrations/20260401310000_add_rate_limit_triggers.sql`, `supabase/SCHEMA.md` → **Rate limits**
 
 ---
 
 #### 🚀 Future (v2+)
-- request limits
+- Edge/API rate limits; Supabase Storage upload throttling; reaction limits if needed
 
 ---
 
 #### ⚙️ Logic
-- limit user actions
+- Enforced on insert; client shows PostgREST error message via `errorMessage()`
 
 ---
 
 #### 🗄️ Database (planned)
--
+- Implemented: indexes on `(user_id, created_at)` / `(sender_id, created_at)` for fast counts
 
 ---
 
 #### 🛠️ Notes
-- security feature
+- Tuning: change thresholds in migration SQL
 
 ---
 
 #### 🧱 Implementation (48. Rate Limiting System)
 
 Frontend:
-- none
+- none (errors from Supabase)
 
 Backend:
-- none
+- `posts` / `comments` / `chat_messages` / `reports` triggers
 
 Notes:
-- later
+- MVP baseline
 
 ---
 
