@@ -111,6 +111,8 @@ Password sign-in needs a correct **Site URL**; magic links / OAuth need **Redire
 
 Hosted Edge Functions receive `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` automatically. If deletion fails with **404**, the function is missing or the URL is wrong.
 
+The Edge Function must return **`Access-Control-Allow-Methods`** (and related CORS headers) or the browser shows **“Failed to fetch”** on the deployed site. After changing the function, run **`supabase functions deploy delete-account`** again.
+
 See `supabase/ACCOUNT_DELETION_DESIGN.md` for behavior (Storage + `auth.users`).
 
 ## Repo

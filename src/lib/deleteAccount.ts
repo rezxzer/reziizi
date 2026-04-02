@@ -1,3 +1,8 @@
+import {
+  FunctionsFetchError,
+  FunctionsHttpError,
+  FunctionsRelayError,
+} from "@supabase/supabase-js";
 import { supabase } from "./supabaseClient.ts";
 
 /**
@@ -5,12 +10,6 @@ import { supabase } from "./supabaseClient.ts";
  * Requires `supabase functions deploy delete-account` on the linked Supabase project.
  */
 export async function deleteAccountViaEdgeFunction(): Promise<void> {
-  const url: string | undefined = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey: string | undefined = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) {
-    throw new Error("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY");
-  }
-
   const {
     data: { session },
     error: sessionErr,
@@ -19,34 +18,38 @@ export async function deleteAccountViaEdgeFunction(): Promise<void> {
     throw new Error("Not signed in");
   }
 
-  const endpoint = `${url.replace(/\/$/, "")}/functions/v1/delete-account`;
-  let res: Response;
-  try {
-    res = await fetch(endpoint, {
+  const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>(
+    "delete-account",
+    {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        apikey: anonKey,
-        "Content-Type": "application/json",
-      },
-      signal: AbortSignal.timeout(120_000),
-    });
-  } catch (e: unknown) {
-    if (e instanceof Error && e.name === "AbortError") {
-      throw new Error("Request timed out. Check your connection and try again.");
+      timeout: 120_000,
+    },
+  );
+
+  if (error) {
+    if (error instanceof FunctionsHttpError) {
+      const body: unknown = await error.context.json().catch(() => ({}));
+      let msg: string =
+        typeof body === "object" && body !== null && "error" in body && typeof (body as { error: unknown }).error === "string"
+          ? (body as { error: string }).error
+          : error.context.statusText;
+      if (error.context.status === 404) {
+        msg = `${msg} Deploy the Edge Function: supabase functions deploy delete-account (see README).`;
+      }
+      throw new Error(msg);
     }
-    throw e;
+    if (error instanceof FunctionsRelayError) {
+      throw new Error(error.message);
+    }
+    if (error instanceof FunctionsFetchError) {
+      throw new Error(
+        `Network error (${error.message}). If the function is deployed, check browser extensions/ad blockers. Otherwise: supabase functions deploy delete-account`,
+      );
+    }
+    throw new Error(error instanceof Error ? error.message : "Edge Function error");
   }
 
-  const body: unknown = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    let msg: string =
-      typeof body === "object" && body !== null && "error" in body && typeof (body as { error: unknown }).error === "string"
-        ? (body as { error: string }).error
-        : res.statusText;
-    if (res.status === 404) {
-      msg = `${msg} Deploy the Edge Function: supabase functions deploy delete-account (see README).`;
-    }
-    throw new Error(msg);
+  if (data && typeof data === "object" && "error" in data && typeof (data as { error: unknown }).error === "string") {
+    throw new Error((data as { error: string }).error);
   }
 }

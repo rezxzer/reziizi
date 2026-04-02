@@ -5,9 +5,11 @@
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+/** Matches `@supabase/supabase-js/cors` — `Access-Control-Allow-Methods` required or browser preflight fails ("Failed to fetch"). */
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
 };
 
 const AVATARS_BUCKET = "avatars";
