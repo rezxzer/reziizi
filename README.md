@@ -69,10 +69,13 @@ Before or after the first deploy, open **Settings** → **Environment Variables*
 |------|--------|
 | `VITE_SUPABASE_URL` | Supabase Project URL |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase **service_role** key (Dashboard → Settings → API). **Server-only** — never `VITE_*`. Required for **Settings → Delete account** via `/api/delete-account`. |
 
 Enable them for **Production** and **Preview** (recommended so PR previews work).
 
 `VITE_*` variables are read at **build time**. After changing them, trigger a **Redeploy**.
+
+`SUPABASE_SERVICE_ROLE_KEY` is read at **runtime** by the Vercel serverless route `api/delete-account.ts` (not bundled into the browser). Add it and redeploy after changing it.
 
 ### 4. Deploy
 
@@ -101,9 +104,11 @@ Password sign-in needs a correct **Site URL**; magic links / OAuth need **Redire
 
 `vercel.json` sets SPA **rewrites** (all routes → `index.html`) and security headers so React Router deep links and refresh work on Vercel.
 
-### Supabase Edge Function — account deletion
+### Account deletion (Vercel + optional Edge Function)
 
-**Settings → Delete account** calls `POST /functions/v1/delete-account`. That function is **not** deployed by Vercel; deploy it to your Supabase project once:
+**Production (recommended):** **Settings → Delete account** uses same-origin **`POST /api/delete-account`** (see `api/delete-account.ts`). Set **`SUPABASE_SERVICE_ROLE_KEY`** in Vercel (see env table above) and redeploy. `vercel.json` excludes `/api/*` from the SPA rewrite so the route is not served as `index.html`.
+
+**Optional / dev fallback:** **`POST /functions/v1/delete-account`** (Supabase Edge Function). Deploy it to your Supabase project if you rely on this path (e.g. local dev or when `/api` returns 404):
 
 1. Install [Supabase CLI](https://supabase.com/docs/guides/cli) and log in (`supabase login`).
 2. Link the project: `supabase link --project-ref YOUR_PROJECT_REF`.
