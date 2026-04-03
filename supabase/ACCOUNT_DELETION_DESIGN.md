@@ -10,7 +10,7 @@ This document is the implementation blueprint. UI copy and legal text belong in 
 
 - **`auth.users`** rows can only be removed with **Admin** privileges (`service_role` / Auth Admin API or Dashboard). The anon key cannot delete the auth user.
 - **`public.*`** data: many FKs already use **`ON DELETE CASCADE`** from `auth.users` (see §2). After a successful auth user delete, Postgres removes dependent rows automatically.
-- **Storage** (`storage.objects`) is **not** wired to `auth.users` with a FK. Deleting `auth.users` does **not** delete files in `avatars` / `post-images`. You must **explicitly delete** (or batch-delete by prefix) objects in those buckets.
+- **Storage** (`storage.objects`) is **not** wired to `auth.users` with a FK. Deleting `auth.users` does **not** delete files in `avatars` / `post-images` / `post-videos`. You must **explicitly delete** (or batch-delete by prefix) objects in those buckets.
 
 ---
 
@@ -45,6 +45,7 @@ When `auth.users.id = u` is **deleted**, PostgreSQL cascades as follows (summary
 3. **Storage cleanup** (service role), before or bundled with auth delete in one trusted server path:
    - **Bucket `avatars`:** delete all objects under prefix `avatars/{user_id}/` (or derive paths from `profiles.avatar_url` if you prefer explicit list).
    - **Bucket `post-images`:** delete all objects under prefix `posts/{user_id}/` (matches migration path pattern).
+   - **Bucket `post-videos`:** same prefix `posts/{user_id}/` (video files for posts).
 4. **Delete auth user** via **Admin API**: `auth.admin.deleteUser(user_id)` — same `user_id` as JWT `sub`.
 5. **Client:** sign out locally (`supabase.auth.signOut()`), clear caches, redirect to home/login.
 

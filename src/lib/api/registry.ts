@@ -15,6 +15,7 @@ export const TABLE = {
   chat_messages: "chat_messages",
   reports: "reports",
   ad_slots: "ad_slots",
+  follows: "follows",
 } as const;
 
 export type TableName = (typeof TABLE)[keyof typeof TABLE];

@@ -21,6 +21,30 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Friends (5): `follows` + `/u/:userId`
+
+- **Migration:** `20260401330000_add_follows.sql` — `public.follows`, RLS, self-follow CHECK.
+- **App:** `follows.ts`, `profileView.ts`, `UserProfilePage` (`/u/:userId`, lazy); `PostCard` / `SearchPage` / `ProfilePage`; `queryKeys.follow`; `registry` `follows`.
+- **Docs:** `SCHEMA.md`, `verify_schema.sql`, `project.md` §5, `reziizi.mdc` #22. **Supabase:** გაუშვი migration.
+
+### 2026-04-03 — Avatar (4): სხვა გვერდებზე
+
+- **CommentSection:** `profiles.avatar_url` კომენტარის ავტორზე; `CommentWithAuthor.authorAvatarUrl`; TanStack `profile.display` ახალი კომენტარის ოპტიმისტურ ჩანაწერზე.
+- **ChatThreadPage / MessagesPage:** თრედის ჰედერი და საუბრების სია — `Avatar` (`peer_avatar_url`, `ConversationWithPeer`).
+- **NotificationsPage:** `actorAvatarUrl` (`fetchNotifications`).
+- **SearchPage:** მომხმარებლის შედეგების ხაზზე `Avatar`.
+
+### 2026-04-03 — Video (10): დადასტურება (Supabase + აპი)
+
+- **Migration:** `20260401320000_add_post_videos_storage_and_video_url.sql` — **გაშვებულია** ცოცხალ Supabase-ზე; bucket `post-videos` + `posts.video_url` + CHECK მუშაობს.
+- **აპი:** ვიდეოს გამოქვეყნება და feed-ში დაკვრა **დადასტურებულია** (ლოკალურად `localhost`, იგივე პროექტის env-ით Supabase-თან).
+
+### 2026-04-03 — Video (10): Storage + `posts.video_url` + UI
+
+- **Migration:** `20260401320000_add_post_videos_storage_and_video_url.sql` — bucket `post-videos` (MP4/WebM, 50 MiB), `posts.video_url`, CHECK `posts_one_media_type`.
+- **App:** `postVideoStorage.ts`, `PostForm` / `PostCard` / admin moderation; i18n `addMedia` / `removeMedia`; account deletion + Edge `delete-account` წაშლის `post-videos` პრეფიქსს.
+- **Docs:** `project.md` §10/§11, `SCHEMA.md`, `ACCOUNT_DELETION_DESIGN.md`.
+
 ### 2026-04-01 — ანგარიშის წაშლა: სტატუსი „მოგვიანებით“
 
 - **Production:** ანგარიშის წაშლის სისტემა **ამ ეტაპზე სტაბილურად არ მუშაობს** — **მოგვიანებით დაბრუნება** (დიაგნოსტიკა/დეპლოი დასრულებული არა).

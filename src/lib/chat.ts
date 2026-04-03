@@ -13,6 +13,7 @@ export function isValidUuid(raw: string): boolean {
 export type ConversationWithPeer = ConversationRow & {
   other_user_id: string;
   peer_email: string | null;
+  peer_avatar_url: string | null;
 };
 
 export async function getOrCreateConversation(otherUserId: string): Promise<string> {
@@ -51,9 +52,7 @@ export async function fetchMyConversations(me: string): Promise<ConversationWith
   const peerIds: string[] = rows.map((r) => otherParticipant(r, me));
   const { data: profs, error: profError } = await supabase
     .from("profiles")
-    .select(
-      "id, email, avatar_url, created_at, is_admin, is_banned, ban_reason, banned_at, premium_until, searchable",
-    )
+    .select("id, email, avatar_url")
     .in("id", peerIds);
 
   if (profError) {
@@ -61,15 +60,21 @@ export async function fetchMyConversations(me: string): Promise<ConversationWith
   }
 
   const emailById = new Map<string, string | null>();
-  for (const p of (profs ?? []) as ProfileRow[]) {
+  const avatarById = new Map<string, string | null>();
+  for (const p of (profs ?? []) as Pick<ProfileRow, "id" | "email" | "avatar_url">[]) {
     emailById.set(p.id, p.email);
+    avatarById.set(p.id, p.avatar_url ?? null);
   }
 
-  return rows.map((r) => ({
-    ...r,
-    other_user_id: otherParticipant(r, me),
-    peer_email: emailById.get(otherParticipant(r, me)) ?? null,
-  }));
+  return rows.map((r) => {
+    const oid: string = otherParticipant(r, me);
+    return {
+      ...r,
+      other_user_id: oid,
+      peer_email: emailById.get(oid) ?? null,
+      peer_avatar_url: avatarById.get(oid) ?? null,
+    };
+  });
 }
 
 export async function fetchMessages(conversationId: string): Promise<ChatMessageRow[]> {

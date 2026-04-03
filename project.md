@@ -16,7 +16,7 @@
 8. Reactions System
 9. Comments System
 10. Video System
-11. Media Upload System (images/videos)
+11. Media Upload System (images; optional short video — §10)
 12. Notifications
 13. Chat / Messaging System
 14. Search
@@ -124,6 +124,8 @@
 - **v3:** Admin, moderation, reports, ban, stats, ads, premium, settings+privacy, security, API catalog, DB docs (`SCHEMA.md`, `verify_schema`), **Caching (30)** TanStack Query, **Error Handling (32)**, **Logging (31)**, **Performance (36)** lazy routes, **Deployment (37)** Vercel + `vercel.json` + **`README.md` deployment გზამკვლევი**, **Testing (41)** Vitest — **baseline დასრულებული** კოდში.
 - **Production:** აპი **ატვირთულია Vercel-ზე** (GitHub დაკავშირება, `VITE_*` env, Supabase Auth URL-ები — იხილე **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**).
 - **Media Upload (11) + File Storage (47) — baseline:** Supabase Storage `post-images`, `posts.image_url`, `PostForm` სურათი, feed/admin `PostCard` / Moderation; პოსტის წაშლისას Storage cleanup (საუკეთესო ძალისხმევა).
+- **Video (10) — baseline:** Storage `post-videos` (MP4/WebM, 50 MiB), `posts.video_url`, CHECK ერთ მედიაზე; `PostForm` / `PostCard` / admin; account deletion იშლის `post-videos` პრეფიქსს; **ტრანსკოდინგი არა** (იხილე §10).
+- **Friends (5) — baseline:** `follows` + RLS; `/u/:userId`; Follow/Unfollow; ლინკები `PostCard` / Search; საკუთარ პროფილზე follower/following რაოდენობა (იხილე §5).
 - **Avatar (4) — baseline:** `profiles.avatar_url`, bucket `avatars` (2 MiB), **Settings** → Profile photo, **Profile** + feed **PostCard** — `Avatar` კომპონენტი; ძველი სურათის წაშლა ახალი ატვირთვისას / Remove.
 - **GitHub CI:** `.github/workflows/ci.yml` — `main`/`master`-ზე push/PR: `npm ci` → `npm test` → `npm run build` (იხილე **`README.md` → „GitHub Actions (CI)“**). **Vercel** დეპლოი რჩება რეპოდან იმპორტით, როგორც ადრე.
 - **ანგარიშის წაშლა (სერვერული ფლოუ):** **`supabase/functions/delete-account/`** — Edge Function: JWT → Storage (`avatars/`, `post-images/`) წაშლა → `auth.admin.deleteUser`. **`api/delete-account.ts`** (Vercel) + **`src/lib/deleteAccount.ts`** — same-origin `/api/delete-account`, fallback Edge. **`SettingsPage`** — დადასტურება `DELETE`, `queryClient.clear`, sign out. **Deno/IDE:** `supabase/functions/deno.json` (import map), `tsconfig.json` + `deno-env.d.ts` — `@supabase/supabase-js` ტიპები `node_modules`-იდან. **ცოცხალი Supabase:** საჭიროა **`supabase functions deploy delete-account`** (იხილე **`README.md`** + **`supabase/ACCOUNT_DELETION_DESIGN.md`**).
@@ -154,7 +156,7 @@
 
 | პრიორიტეტი | ფიჩა (MASTER #) | სტატუსი | ვადა / შენიშვნა |
 |-------------|-------------------|---------|------------------|
-| 1 | **11. Media Upload System** (+ **47. File Storage** როგორც ტექნიკური ფუძე) | ✅ baseline | სურათი პოსტზე; cleanup წაშლისას; ვიდეო არა (MVP) — იხილე §11 |
+| 1 | **11. Media Upload System** (+ **47. File Storage**) | ✅ baseline | სურათი ან მოკლე ვიდეო პოსტზე (ორი ერთად არა); იხილე §10 / §11 |
 | 2 | **4. Avatar** — `profiles.avatar_url`, bucket `avatars`, Settings upload, feed `PostCard` | ✅ baseline | სურვილისამებრ: სხვა გვერდებზე Avatar |
 | 3 | **42. SEO** — `src/lib/seo.ts`, `RouteSeo`, `index.html` defaults; public routes indexable, auth/admin noindex | ✅ baseline | **Email (45)** — მოგვიანებით |
 | 4 | **43. A11Y** — skip link, `#main-content`, brand; **`RouteAnnouncer`** (`aria-live`, `getRouteAnnouncement`) | ✅ baseline | full audit — v3 |
@@ -162,7 +164,7 @@
 | 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security | ✅ baseline v3 | Legal article body ინგლისურად; დანარჩენი გვერდები სურვილისამებრ |
 | 7 | **Account deletion** — Edge `delete-account`, `api/delete-account`, `src/lib/deleteAccount.ts`, Settings UI | 🔄 მოგვიანებით (production) | **Production არ არის სტაბილური** — დაბრუნება დაგეგმილია. კოდი რეპოშია; იხილე `README`, `CURRENT WORK` ზემოთ |
 
-**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Friends (5)**, **Video (10)**, **Rate limiting (48)**, **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + თითო ფიჩის **FEATURE BREAKDOWN** ქვეთავი. **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
+**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება), **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + **FEATURE BREAKDOWN**. **Friends (5)** — baseline §5 (სიები მომავალში). **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
 
 **სადაც „მომავალია“:** თითოეულ ფიჩას აქვს **🚀 Future** ან **Notes** `FEATURE BREAKDOWN`-ში; ახალი ფიჩა: ჯერ აქ გეგმა/სტატუსი, მერე კოდი (`reziizi.mdc`).
 
@@ -413,52 +415,44 @@ UI:
 
 ---
 
-### 5. Friends / Following System ❌
+### 5. Friends / Following System 🟡 — baseline (follow / counts / `/u/:userId`)
 
 #### 📌 Description
-Users can follow other users.
+Users can follow other users; follower and following counts are visible on profiles.
 
 ---
 
-#### ✅ v1 (MVP)
-- not included
+#### ✅ Baseline (implemented)
+- **Table:** `follows` — `(follower_id, following_id)` PK, FK → `auth.users` CASCADE, CHECK no self-follow.
+- **RLS:** SELECT public; INSERT/DELETE own rows (`follower_id = auth.uid()`).
+- **App:** `src/lib/follows.ts` — counts, is-following, follow, unfollow; `src/lib/profileView.ts` — public profile + email visibility (`searchable`).
+- **UI:** `/u/:userId` (`UserProfilePage`) — other user’s profile, posts, Follow/Unfollow; own `/profile` shows follow stats; **PostCard** author → `/u/...`; **Search** — Profile + Message.
+- **Migration:** `20260401330000_add_follows.sql`
 
 ---
 
-#### 🚀 Future (v2+)
-- follow/unfollow
-- followers list
+#### 🚀 Future
+- Followers / following lists (paged), mutual follows, notifications on new follower
 
 ---
 
 #### ⚙️ Logic
-- user A follows user B
+- user A follows user B; at most one row per pair (PK)
 
 ---
 
-#### 🗄️ Database (planned)
-follows table
-
----
-
-#### 🛠️ Notes
-- skip in MVP
+#### 🗄️ Database
+- See migration above; `src/types/db.ts` — `FollowRow`
 
 ---
 
 #### 🧱 Implementation (5. Friends / Following System)
 
 Frontend:
-- none (v1)
+- `UserProfilePage`, `PostCard`, `SearchPage`, `ProfilePage` (counts)
 
 Backend:
-- none
-
-Files:
-- none
-
-Notes:
-- skip for MVP
+- `public.follows` + RLS
 
 ---
 
@@ -674,68 +668,65 @@ Notes:
 
 ---
 
-### 10. Video System ❌
+### 10. Video System 🟡 — baseline (MP4/WebM, no transcoding)
+
+> **ტერმინი „v2+“ აქ** = **post–v2 / შემდეგი ტალღა** (არა „ოფიციალური v2 milestone“ — v2 core baseline უკვე დასრულებულია ვიდეოს გარეშე).
 
 #### 📌 Description
-Users can upload videos.
+Users can attach a short video to a post; playback in the feed via HTML5 `<video>` (public Storage URL).
 
 ---
 
-#### ✅ v1 (MVP)
-- not included
+#### ✅ Baseline (implemented)
+- **Formats:** `video/mp4`, `video/webm` — **50 MiB** max per file (bucket limit; client validation mirrors).
+- **Storage:** dedicated bucket **`post-videos`**, same path pattern as images: `posts/{user_id}/{post_id}/{filename}`; RLS like `post-images`.
+- **Database:** `posts.video_url` (nullable text); **CHECK** `posts_one_media_type`: **not both** `image_url` and `video_url` set.
+- **UI:** `PostForm` — one attachment slot (image **or** video); `PostCard` / admin moderation — `<video controls playsInline>`.
+- **Cleanup:** owner delete + admin delete + account deletion remove objects from **`post-videos`** (same prefix `posts/{user_id}/` as images).
 
 ---
 
-#### 🚀 Future (v2+)
-- upload video
-- play video
+#### 🚀 Future (optional)
+- **Transcoding / adaptive streaming** (HLS, Mux, Cloudflare Stream, or Edge FFmpeg) if files exceed practical mobile playback or need watermarking.
+- **Poster image**, duration metadata column, gallery of clips per post.
+- **Separate `post_media` table** if multiple assets per post.
 
 ---
 
 #### ⚙️ Logic
-- video linked to post
+- At most **one** visual attachment per post: **image XOR video** (enforced in DB + UI).
 
 ---
 
-#### 🗄️ Database (planned)
-media table
-
----
-
-#### 🛠️ Notes
-- skip for now
+#### 🗄️ Database
+- Migration: `20260401320000_add_post_videos_storage_and_video_url.sql` (`post-videos` bucket + `posts.video_url` + `posts_one_media_type`).
 
 ---
 
 #### 🧱 Implementation (10. Video System)
 
 Frontend:
-- none (v1)
+- `PostForm`, `PostCard`, `AdminModerationPage`; `src/lib/postVideoStorage.ts`
 
 Backend:
-- none
-
-Notes:
-- later
+- Supabase Storage `post-videos` + policies; column `posts.video_url`
 
 ---
 
-### 11. Media Upload System 🟡 — სრული breakdown (baseline: სურათი პოსტზე ✅)
+### 11. Media Upload System 🟡 — სრული breakdown (baseline: სურათი ან ვიდეო პოსტზე ✅)
 
-> **დამოკიდებულება:** **47. File Storage System** — Supabase Storage bucket(ები), პოლიტიკები (public read ან signed URL), ფაილის ზომის/ტიპის ლიმიტები. **10. Video System** — MVP-ში ვიდეო არა; ფოტო/გიფი პირველ რიგში. **4. Avatar System** — იგივე საცავის ხელშეკრულება შეიძლება გამოიყენოს პროფილის სურათისთვის მოგვიანებით.
+> **დამოკიდებულება:** **47. File Storage System** — Supabase Storage bucket(ები), პოლიტიკები (public read ან signed URL), ფაილის ზომის/ტიპის ლიმიტები. **10. Video System** — მოკლე ვიდეო (MP4/WebM) **ან** სურათი ერთ პოსტზე (ორი ერთად არა); იხილე §10. **4. Avatar System** — ცალკე bucket `avatars`.
 
 ---
 
-#### ❗ Media type შეზღუდვა (MVP — Cursor)
-
-**ერთ ტალღაში არ უნდა გაკეთდეს ყველაფერი ერთად** — MVP-ის მინიმუმი:
+#### ❗ Media type (Cursor — ერთი ჩანართი პოსტზე)
 
 | | |
 |--|--|
-| **დაშვებული** | **მხოლოდ სურათის** ატვირთვა: `image/*` whitelist (მაგ. JPEG, PNG, WebP); GIF — მხოლოდ თუ პროდუქტულად დაუშვებ და ზომის ლიმიტით. |
-| **აკრძალული (ახლა)** | **ვიდეო** — არა ატვირთვა, არა პლეერი, არა `video/*` MIME; **§10 Video System** — მომავალ ეტაპზე. |
+| **დაშვებული** | **სურათი** — JPEG, PNG, WebP, GIF (`post-images`, 5 MiB). **ან ვიდეო** — MP4, WebM (`post-videos`, 50 MiB). **ერთდროულად ერთი** ფაილი (სურათი **ან** ვიდეო). |
+| **აკრძალული** | სხვა MIME (მაგ. `video/quicktime`), ორი ვიზუალური ერთ პოსტზე, ან ორივე სვეტი DB-ში — **CHECK** + UI. |
 
-- იმპლემენტაციაში: `<input type="file" accept="image/...">`, კლიენტური + Storage-ის ტიპის შემოწმება; ვიდეო ფაილები უარყოფილია მკაფიო შეტყობინებით.
+- იმპლემენტაცია: `accept` სურათისა და ვიდეოს MIME-ებზე; კლიენტური ვალიდაცია + Storage `allowed_mime_types`.
 
 ---
 
@@ -747,21 +738,21 @@ Notes:
 
 #### MVP Scope
 
-- **მედიის ტიპი:** იხილე ზემოთ **«❗ Media type შეზღუდვა (MVP — Cursor)»** — **მხოლოდ image**, **არა ვიდეო**.
-- **ერთი სურათი პოსტზე** (ან მაქს. 1–4 — გადაწყვეტა იმპლემენტაციისას; დოკუმენტში MVP = მინიმუმ 1 სურათი).
+- **მედიის ტიპი:** იხილე **«❗ Media type»** ზემოთ — **სურათი ან მოკლე ვიდეო** (ორი ერთად არა).
+- **ერთი ვიზუალური ფაილი პოსტზე** (სურათი **ან** ვიდეო; მრავალი სურათი/კარუსელი — Future Scope).
 - **ფორმატები (სურათი):** JPEG, PNG, WebP (სურვილისამებრ GIF — თუ ზომა/სპამი კონტროლდება).
 - **ატვირთვა:** მხოლოდ ავტორიზებული მომხმარებელი; **banned** მომხმარებელს არ ეშვება (იგივე წესი რაც `PostForm`-ში ტექსტისთვის).
 - **საცავი:** Supabase Storage bucket + RLS/პოლიტიკები (წაკითხვა feed-ისთვის — public object ან short-lived signed URL).
-- **ბაზა:** `posts` ცხრილის გაფართოება (`media` jsonb მასივი ან `post_media` ცხრილი — იმპლემენტაციის არჩევანი) ან მინიმალური სვეტი `image_url` / `media_paths` — ერთიანი წყარო feed query-სთვის.
-- **UI:** ატვირთვის ღილაკი/დროპზონა `PostForm`-ში, პრევიუ, პროგრესი, შეცდომის შეტყობინება; `PostCard`-ში სურათის ჩვენება (responsive, `loading="lazy"`).
-- **არ შედის MVP-ში:** ვიდეო, გალერეა 10+ ფოტოთი, რედაქტირი, ფილტრები.
+- **ბაზა:** `posts.image_url`, `posts.video_url` (ორი nullable; ურთიერთდაუშვებელი CHECK-ით); feed select ორივეს იღებს.
+- **UI:** `PostForm` — პრევიუ; `PostCard` — სურათი ან `<video>` (responsive).
+- **არ შედის MVP-ში:** გალერეა 10+ ფოტოთი, რედაქტირი, ფილტრები, ტრანსკოდინგი.
 
 ---
 
 #### Future Scope
 
 - რამდენიმე სურათი პოსტზე, კარუსელი, ზუმი/lightbox.
-- ვიდეო (ჯერ **§10 Video System** + transcoding თუ საჭიროა).
+- **§10** — transcoding / streaming თუ საჭიროა მასშტაბისთვის.
 - ავატარის ატვირთვა (**§4**) იგივე bucket-ის სუბფოლდერით `avatars/{user_id}`.
 - ოპტიმიზაცია: thumbnail-ები (Edge Function ან client resize), WebP კონვერტი.
 - მოდერაცია: NSFW scan, admin-ისთვის მედიის წაშლა (არსებული admin delete post უკვე ფარავს პოსტს მთლიანად).
@@ -2787,23 +2778,15 @@ Includes:
 
 ---
 
-## დოკუმენტის ბოლო განახლება (2026-04-01)
+## დოკუმენტის ბოლო განახლება (2026-04-03)
 
-**✔ რა დაემატა ფაილში**
+**✔ რა შეიცვალა ბოლოს**
 
-- **`## CURRENT WORK` → „შემდეგი განვითარების გეგმა“** ცხრილის პირველი რიგი: პრიორიტეტი **1** = **11. Media Upload System** + მითითება **47. File Storage**-ზე როგორც ტექნიკურ ფუძეზე; სტატუსი **⬜ დაგეგმილი**; შენიშვნა breakdown-ის მიმართ.
-- **`FEATURE BREAKDOWN` → §11** სრულად გადაკეთდა: **Description, MVP Scope, Future Scope, Logic, Implementation (Frontend / Backend / Files), Flow, UI**, პლუს **Database (planned)** და **Notes**; დამატებულია **დამოკიდებულების** ბლოკი (47, 10, 4).
-- **§11 — `#### ❗ Media type შეზღუდვა (MVP — Cursor)`:** ცხრილი/წესები — **მხოლოდ image upload**; **ვიდეო არა** (ჯერ); „ერთ ტალღაში არა ყველაფერი ერთად“. **MVP Scope**-ში პირველი პუნქტი უკავშირდება ამ ბლოკს.
+- **§10 Video System** — სრული სპეკი + **baseline** სტატუსი (MP4/WebM, `post-videos`, `posts.video_url`, ტრანსკოდინგი მომავალში).
+- **§11 Media Upload** — „Media type“ ცხრილი განახლებულია: სურათი **ან** ვიდეო ერთ პოსტზე; **MASTER** სიაში `11` — სახელები ურთიერთდაუშვებელი მედიის მიხედვით.
+- **`## CURRENT WORK`**, **`შემდეგი განვითარების გეგმა`**, **იდეების ინდექსი** — Video (10) baseline-ზე მიბმული.
 
-**✔ რა შეიცვალა ვიზუალურად დოკუმენტში**
+**✔ როგორ შევამოწმო**
 
-- ცხრილში პირველი სვეტი აღარაა ცარიელი — ჩანს ერთი შევსებული პრიორიტეტი მწვანე/ბოლდ გამოკვეთით (**11** + **47**).
-- §11 სათაური: `### 11. Media Upload System 🟡 — სრული breakdown (baseline: სურათი პოსტზე ✅)` (განახლებული სტატუსის შემდეგ).
-
-**✔ როგორ შევამოწმო რომ სწორად ჩაიწერა**
-
-1. `project.md`-ში ძებნა: `სრული breakdown` — უნდა მოხვდე §11-ის დასაწყისში.
-2. ძებნა: **`Media type შეზღუდვა`** ან **`არა ვიდეო`** — უნდა გამოჩნდეს ცალკე ქვეთავი §11-ში (image-only MVP).
-3. დარწმუნდი რომ **`#### MVP Scope`** და **`#### Implementation`** ორივე არსებობს ერთი §11-ის ფარგლებში.
-4. **`## დოკუმენტის ბოლო განახლება`** უნდა იყოს ფაილის ბოლოში **`## FIRST STEP`**-ის შემდეგ.
-5. **`შემდეგი განვითარების გეგმა`** ცხრილში პირველი სტრიქონი შეიცავს **Media Upload** და **File Storage** მითითებას.
+1. §10 და §11 — ერთნაირი წესები (ერთი ვიზუალური ფაილი: სურათი XOR ვიდეო).
+2. **Migration** `20260401320000_add_post_videos_storage_and_video_url.sql` რეპოში + `reziizi.mdc` ცხრილის განახლება (#20 rate limits, #21 video).

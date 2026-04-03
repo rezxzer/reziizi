@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const AVATARS_BUCKET: string = "avatars";
 const POST_IMAGES_BUCKET: string = "post-images";
+const POST_VIDEOS_BUCKET: string = "post-videos";
 const REMOVE_CHUNK: number = 50;
 
 function isFolder(item: { metadata: Record<string, unknown> | null }): boolean {
@@ -65,8 +66,10 @@ export async function deleteUserStorage(admin: SupabaseClient, userId: string): 
   const postPrefix = `posts/${userId}`;
   const avatarPaths = await collectFilePaths(admin, AVATARS_BUCKET, avatarPrefix);
   await removePaths(admin, AVATARS_BUCKET, avatarPaths);
-  const postPaths = await collectFilePaths(admin, POST_IMAGES_BUCKET, postPrefix);
-  await removePaths(admin, POST_IMAGES_BUCKET, postPaths);
+  const postImagePaths = await collectFilePaths(admin, POST_IMAGES_BUCKET, postPrefix);
+  await removePaths(admin, POST_IMAGES_BUCKET, postImagePaths);
+  const postVideoPaths = await collectFilePaths(admin, POST_VIDEOS_BUCKET, postPrefix);
+  await removePaths(admin, POST_VIDEOS_BUCKET, postVideoPaths);
 }
 
 export async function deleteAuthUser(admin: SupabaseClient, userId: string): Promise<void> {

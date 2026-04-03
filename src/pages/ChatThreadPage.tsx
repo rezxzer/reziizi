@@ -2,6 +2,7 @@ import type { FormEvent, ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { Avatar } from "../components/Avatar.tsx";
 import {
   fetchMessages,
   getOrCreateConversation,
@@ -18,6 +19,7 @@ export function ChatThreadPage(): ReactElement {
   const { user } = useAuth();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [peerEmail, setPeerEmail] = useState<string | null>(null);
+  const [peerAvatarUrl, setPeerAvatarUrl] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessageRow[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
@@ -54,17 +56,20 @@ export function ChatThreadPage(): ReactElement {
       setError(null);
       setConversationId(null);
       setMessages([]);
+      setPeerAvatarUrl(null);
       try {
         const { data: prof, error: profError } = await supabase
           .from("profiles")
-          .select("email")
+          .select("email, avatar_url")
           .eq("id", peer)
           .maybeSingle();
         if (profError) {
           throw profError;
         }
         if (!cancelled) {
-          setPeerEmail(prof?.email ?? null);
+          const pr = prof as { email: string | null; avatar_url: string | null } | null;
+          setPeerEmail(pr?.email ?? null);
+          setPeerAvatarUrl(pr?.avatar_url ?? null);
         }
 
         const cid: string = await getOrCreateConversation(peer);
@@ -148,7 +153,10 @@ export function ChatThreadPage(): ReactElement {
     <div className="stack chat-page">
       <section className="card chat-thread">
         <div className="chat-thread__head">
-          <h1 className="card__title chat-thread__title">{title}</h1>
+          <div className="chat-thread__title-row">
+            <Avatar imageUrl={peerAvatarUrl} label={title} size="md" />
+            <h1 className="card__title chat-thread__title">{title}</h1>
+          </div>
           <Link to="/messages" className="btn btn--small">
             All threads
           </Link>

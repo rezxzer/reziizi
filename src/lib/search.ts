@@ -28,7 +28,7 @@ export async function searchPostsByBody(query: string): Promise<FeedPost[]> {
 
   const { data, error } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
     .ilike("body", `%${pattern}%`)
     .order("created_at", { ascending: false })
     .limit(RESULT_LIMIT);

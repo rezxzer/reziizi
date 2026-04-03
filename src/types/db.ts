@@ -18,8 +18,10 @@ export type PostRow = {
   id: string;
   user_id: string;
   body: string;
-  /** Public URL from Storage (`post-images`); null if text-only post. */
+  /** Public URL from Storage (`post-images`); null if no image. Mutually exclusive with `video_url`. */
   image_url: string | null;
+  /** Public URL from Storage (`post-videos`); null if no video. Mutually exclusive with `image_url`. */
+  video_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -81,6 +83,12 @@ export type ReportRow = {
   reporter_id: string;
   post_id: string;
   reason: string;
+  created_at: string;
+};
+
+export type FollowRow = {
+  follower_id: string;
+  following_id: string;
   created_at: string;
 };
 

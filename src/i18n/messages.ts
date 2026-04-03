@@ -11,6 +11,9 @@ type SeoRoutes = {
   messages: SeoPage;
   notifications: SeoPage;
   profile: SeoPage;
+  userProfile: SeoPage;
+  userFollowers: SeoPage;
+  userFollowing: SeoPage;
   settings: SeoPage;
   login: SeoPage;
   banned: SeoPage;
@@ -58,6 +61,7 @@ type PagesBundle = {
     usersPrivacyNote: string;
     noProfiles: string;
     message: string;
+    viewProfile: string;
     postsWithCount: string;
     noPosts: string;
   };
@@ -70,8 +74,9 @@ type PagesBundle = {
     label: string;
     placeholder: string;
     attachAria: string;
-    addImage: string;
-    removeImage: string;
+    addMedia: string;
+    removeMedia: string;
+    mediaInvalidType: string;
     previewAlt: string;
     tagsLabel: string;
     tagsPlaceholder: string;
@@ -92,6 +97,30 @@ type PagesBundle = {
     yourPosts: string;
     emptyPosts: string;
     avatarLabel: string;
+  };
+  userProfile: {
+    invalidTitle: string;
+    invalidBody: string;
+    backHome: string;
+    title: string;
+    notFound: string;
+    bannedNotice: string;
+    emailHidden: string;
+    followStats: string;
+    follow: string;
+    unfollow: string;
+    signInToFollow: string;
+    theirPosts: string;
+    postsHiddenBanned: string;
+  };
+  followList: {
+    followersHeading: string;
+    followingHeading: string;
+    backToProfile: string;
+    emptyFollowers: string;
+    emptyFollowing: string;
+    loadMore: string;
+    restricted: string;
   };
   postCard: {
     deleteConfirm: string;
@@ -351,6 +380,7 @@ const en: Bundle = {
         "Users who disabled email search discovery in Settings → Privacy won't appear here (except to themselves).",
       noProfiles: "No matching profiles.",
       message: "Message",
+      viewProfile: "Profile",
       postsWithCount: "Posts ({count})",
       noPosts: "No matching posts.",
     },
@@ -362,10 +392,11 @@ const en: Bundle = {
       createFailed: "Could not create post",
       label: "New post",
       placeholder: "Write something…",
-      attachAria: "Attach image",
-      addImage: "Add image",
-      removeImage: "Remove image",
-      previewAlt: "Selected image preview",
+      attachAria: "Attach image or video",
+      addMedia: "Add image or video",
+      removeMedia: "Remove attachment",
+      mediaInvalidType: "Choose an image (JPEG, PNG, WebP, GIF) or a video (MP4, WebM).",
+      previewAlt: "Selected attachment preview",
       tagsLabel: "Tags (optional)",
       tagsPlaceholder: "e.g. news, dev, release-notes",
       tagsHint: "Comma-separated. Lowercase letters, numbers, hyphens. Up to 8 tags.",
@@ -387,6 +418,30 @@ const en: Bundle = {
       yourPosts: "Your posts",
       emptyPosts: "You have not posted yet.",
       avatarLabel: "Profile",
+    },
+    userProfile: {
+      invalidTitle: "Profile",
+      invalidBody: "This user link is not valid.",
+      backHome: "Back to feed",
+      title: "Member profile",
+      notFound: "No profile found for this user.",
+      bannedNotice: "This account is restricted.",
+      emailHidden: "Hidden",
+      followStats: "Followers: {followers} · Following: {following}",
+      follow: "Follow",
+      unfollow: "Unfollow",
+      signInToFollow: "Sign in to follow this user.",
+      theirPosts: "Posts",
+      postsHiddenBanned: "Posts are hidden for restricted accounts.",
+    },
+    followList: {
+      followersHeading: "Followers",
+      followingHeading: "Following",
+      backToProfile: "← Back to profile",
+      emptyFollowers: "No followers yet.",
+      emptyFollowing: "Not following anyone yet.",
+      loadMore: "Load more ({pageSize} per page)",
+      restricted: "Restricted",
     },
     postCard: {
       deleteConfirm: "Delete this post?",
@@ -480,6 +535,18 @@ const en: Bundle = {
       profile: {
         title: "Profile",
         description: "Your profile and posts on REZIIZI.",
+      },
+      userProfile: {
+        title: "Member profile",
+        description: "User profile and posts on REZIIZI.",
+      },
+      userFollowers: {
+        title: "Followers",
+        description: "Accounts that follow this user on REZIIZI.",
+      },
+      userFollowing: {
+        title: "Following",
+        description: "Accounts this user follows on REZIIZI.",
       },
       settings: {
         title: "Settings",
@@ -626,6 +693,7 @@ const ka: Bundle = {
         "ვინც პარამეტრებში გამორთა ელფოსტით ძიება, აქ არ ჩანს (გარდა საკუთარი თავისა).",
       noProfiles: "შესაბამისი პროფილები არ მოიძებნა.",
       message: "მესიჯი",
+      viewProfile: "პროფილი",
       postsWithCount: "პოსტები ({count})",
       noPosts: "შესაბამისი პოსტები არ არის.",
     },
@@ -637,10 +705,11 @@ const ka: Bundle = {
       createFailed: "პოსტის შექმნა ვერ მოხერხდა",
       label: "ახალი პოსტი",
       placeholder: "დაწერეთ…",
-      attachAria: "სურათის მიმაგრება",
-      addImage: "სურათი",
-      removeImage: "სურათის მოშორება",
-      previewAlt: "არჩეული სურათის გადახედვა",
+      attachAria: "სურათი ან ვიდეო",
+      addMedia: "სურათი ან ვიდეო",
+      removeMedia: "მიმაგრების მოშორება",
+      mediaInvalidType: "აირჩიეთ სურათი (JPEG, PNG, WebP, GIF) ან ვიდეო (MP4, WebM).",
+      previewAlt: "არჩეული ფაილის გადახედვა",
       tagsLabel: "თეგები (არასავალდებულო)",
       tagsPlaceholder: "მაგ. news, dev, release-notes",
       tagsHint: "მძიმით გამოყოფილი. პატარა ასოები, ციფრები, ტირე. მაქს. 8 თეგი.",
@@ -662,6 +731,30 @@ const ka: Bundle = {
       yourPosts: "თქვენი პოსტები",
       emptyPosts: "ჯერ პოსტი არ გაქვთ.",
       avatarLabel: "პროფილი",
+    },
+    userProfile: {
+      invalidTitle: "პროფილი",
+      invalidBody: "ბმული არასწორია.",
+      backHome: "← ლენტა",
+      title: "მომხმარებლის პროფილი",
+      notFound: "პროფილი ვერ მოიძებნა.",
+      bannedNotice: "ანგარიში შეზღუდულია.",
+      emailHidden: "დამალული",
+      followStats: "გამომწერები: {followers} · გამოწერები: {following}",
+      follow: "გამოწერა",
+      unfollow: "გამოწერის მოშორება",
+      signInToFollow: "გამოსაწერად შედით.",
+      theirPosts: "პოსტები",
+      postsHiddenBanned: "შეზღუდული ანგარიშის პოსტები დამალულია.",
+    },
+    followList: {
+      followersHeading: "გამომწერები",
+      followingHeading: "გამოწერები",
+      backToProfile: "← პროფილზე",
+      emptyFollowers: "გამომწერები ჯერ არაა.",
+      emptyFollowing: "ჯერ არავისთვის არ გაქვთ გამოწერა.",
+      loadMore: "კიდევ ({pageSize} ერთ გვერდზე)",
+      restricted: "შეზღუდული",
     },
     postCard: {
       deleteConfirm: "წავშალოთ ეს პოსტი?",
@@ -755,6 +848,18 @@ const ka: Bundle = {
       profile: {
         title: "პროფილი",
         description: "თქვენი პროფილი და პოსტები REZIIZI-ზე.",
+      },
+      userProfile: {
+        title: "მომხმარებლის პროფილი",
+        description: "მომხმარებლის პროფილი და პოსტები REZIIZI-ზე.",
+      },
+      userFollowers: {
+        title: "გამომწერები",
+        description: "ვინ არის გამოწერილი ამ მომხმარებელზე REZIIZI-ზე.",
+      },
+      userFollowing: {
+        title: "გამოწერები",
+        description: "რომელ ანგარიშებს უწერს გამომწერებას ეს მომხმარებელი REZIIZI-ზე.",
       },
       settings: {
         title: "პარამეტრები",
@@ -901,6 +1006,7 @@ const ru: Bundle = {
         "Пользователи, отключившие поиск по email в Настройках → Конфиденциальность, здесь не отображаются (кроме себя).",
       noProfiles: "Подходящих профилей нет.",
       message: "Написать",
+      viewProfile: "Профиль",
       postsWithCount: "Посты ({count})",
       noPosts: "Подходящих постов нет.",
     },
@@ -912,10 +1018,11 @@ const ru: Bundle = {
       createFailed: "Не удалось создать пост",
       label: "Новый пост",
       placeholder: "Напишите что-нибудь…",
-      attachAria: "Прикрепить изображение",
-      addImage: "Добавить фото",
-      removeImage: "Убрать фото",
-      previewAlt: "Предпросмотр изображения",
+      attachAria: "Прикрепить фото или видео",
+      addMedia: "Добавить фото или видео",
+      removeMedia: "Убрать вложение",
+      mediaInvalidType: "Выберите изображение (JPEG, PNG, WebP, GIF) или видео (MP4, WebM).",
+      previewAlt: "Предпросмотр вложения",
       tagsLabel: "Теги (необязательно)",
       tagsPlaceholder: "напр. news, dev, release-notes",
       tagsHint: "Через запятую. Строчные буквы, цифры, дефис. До 8 тегов.",
@@ -937,6 +1044,30 @@ const ru: Bundle = {
       yourPosts: "Ваши посты",
       emptyPosts: "Вы ещё ничего не опубликовали.",
       avatarLabel: "Профиль",
+    },
+    userProfile: {
+      invalidTitle: "Профиль",
+      invalidBody: "Некорректная ссылка на пользователя.",
+      backHome: "← Лента",
+      title: "Профиль участника",
+      notFound: "Профиль не найден.",
+      bannedNotice: "Аккаунт ограничен.",
+      emailHidden: "Скрыто",
+      followStats: "Подписчики: {followers} · Подписки: {following}",
+      follow: "Подписаться",
+      unfollow: "Отписаться",
+      signInToFollow: "Войдите, чтобы подписаться.",
+      theirPosts: "Посты",
+      postsHiddenBanned: "Посты скрыты для ограниченных аккаунтов.",
+    },
+    followList: {
+      followersHeading: "Подписчики",
+      followingHeading: "Подписки",
+      backToProfile: "← К профилю",
+      emptyFollowers: "Подписчиков пока нет.",
+      emptyFollowing: "Пока ни на кого не подписаны.",
+      loadMore: "Загрузить ещё (по {pageSize})",
+      restricted: "Ограничен",
     },
     postCard: {
       deleteConfirm: "Удалить этот пост?",
@@ -1030,6 +1161,18 @@ const ru: Bundle = {
       profile: {
         title: "Профиль",
         description: "Ваш профиль и посты в REZIIZI.",
+      },
+      userProfile: {
+        title: "Профиль участника",
+        description: "Профиль пользователя и посты в REZIIZI.",
+      },
+      userFollowers: {
+        title: "Подписчики",
+        description: "Аккаунты, которые подписаны на этого пользователя в REZIIZI.",
+      },
+      userFollowing: {
+        title: "Подписки",
+        description: "Аккаунты, на которые подписан этот пользователь в REZIIZI.",
       },
       settings: {
         title: "Настройки",

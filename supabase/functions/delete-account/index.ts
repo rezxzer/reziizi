@@ -1,5 +1,5 @@
 /**
- * Deletes the authenticated user's Storage objects (avatars + post-images) and auth user.
+ * Deletes the authenticated user's Storage objects (avatars + post-images + post-videos) and auth user.
  * Requires deploy: `supabase functions deploy delete-account`
  * Env (auto on hosted Supabase): SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
  */
@@ -14,6 +14,7 @@ const corsHeaders: Record<string, string> = {
 
 const AVATARS_BUCKET = "avatars";
 const POST_IMAGES_BUCKET = "post-images";
+const POST_VIDEOS_BUCKET = "post-videos";
 const REMOVE_CHUNK = 50;
 
 /** Folders are prefix-only rows; files carry `metadata` (e.g. size). */
@@ -75,8 +76,10 @@ async function deleteUserStorage(admin: SupabaseClient, userId: string): Promise
   const postPrefix = `posts/${userId}`;
   const avatarPaths = await collectFilePaths(admin, AVATARS_BUCKET, avatarPrefix);
   await removePaths(admin, AVATARS_BUCKET, avatarPaths);
-  const postPaths = await collectFilePaths(admin, POST_IMAGES_BUCKET, postPrefix);
-  await removePaths(admin, POST_IMAGES_BUCKET, postPaths);
+  const postImagePaths = await collectFilePaths(admin, POST_IMAGES_BUCKET, postPrefix);
+  await removePaths(admin, POST_IMAGES_BUCKET, postImagePaths);
+  const postVideoPaths = await collectFilePaths(admin, POST_VIDEOS_BUCKET, postPrefix);
+  await removePaths(admin, POST_VIDEOS_BUCKET, postVideoPaths);
 }
 
 Deno.serve(async (req: Request) => {

@@ -53,3 +53,8 @@ export const NotificationsPage = lazy(async () => {
   const m = await import("../pages/NotificationsPage.tsx");
   return { default: m.NotificationsPage };
 });
+
+export const UserProfilePage = lazy(async () => {
+  const m = await import("../pages/UserProfilePage.tsx");
+  return { default: m.UserProfilePage };
+});

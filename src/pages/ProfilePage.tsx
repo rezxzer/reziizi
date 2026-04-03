@@ -9,6 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
+import { fetchFollowCounts } from "../lib/follows.ts";
 import { fetchUserPosts } from "../lib/feed";
 import { queryKeys } from "../lib/queryKeys.ts";
 import { supabase } from "../lib/supabaseClient";
@@ -45,6 +46,12 @@ export function ProfilePage(): ReactElement {
     enabled: Boolean(user),
   });
 
+  const followCountsQuery = useQuery({
+    queryKey: queryKeys.follow.counts(user?.id ?? "__none__"),
+    queryFn: () => fetchFollowCounts(user!.id),
+    enabled: Boolean(user),
+  });
+
   const displayEmail: string | null = profileDisplayQuery.data?.email ?? null;
   const avatarUrl: string | null = profileDisplayQuery.data?.avatar_url ?? null;
   const posts = postsQuery.data ?? [];
@@ -53,6 +60,7 @@ export function ProfilePage(): ReactElement {
   const errUnknown: unknown = profileDisplayQuery.error ?? postsQuery.error;
   const error: string | null =
     profileDisplayQuery.isError || postsQuery.isError ? errorMessage(errUnknown) : null;
+  const followCounts = followCountsQuery.data;
 
   const onPostChanged = useCallback((): void => {
     if (!user) {
@@ -96,6 +104,14 @@ export function ProfilePage(): ReactElement {
                 </div>
               </div>
               <p className="muted">{t("pages.profile.postsCount", { count: posts.length })}</p>
+              {followCounts != null ? (
+                <p className="muted">
+                  {t("pages.userProfile.followStats", {
+                    followers: followCounts.followers,
+                    following: followCounts.following,
+                  })}
+                </p>
+              ) : null}
             </>
           ) : null}
         </div>

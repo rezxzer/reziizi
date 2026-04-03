@@ -28,6 +28,12 @@ describe("getSeoForPath", () => {
     expect(getSeoForPath("/legal", "en").robots).toBe("index,follow");
   });
 
+  it("public member profile is indexable", () => {
+    const p = getSeoForPath("/u/550e8400-e29b-41d4-a716-446655440000", "en");
+    expect(p.title).toBe("Member profile");
+    expect(p.robots).toBe("index,follow");
+  });
+
   it("unknown path falls back to site default", () => {
     const p = getSeoForPath("/does-not-exist", "en");
     expect(p.title).toBe(SITE_NAME);

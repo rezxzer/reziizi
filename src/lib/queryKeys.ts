@@ -12,4 +12,8 @@ export const queryKeys = {
     /** Email + avatar_url for Profile / Settings. */
     display: (userId: string) => ["profile", userId, "display"] as const,
   },
+  follow: {
+    counts: (userId: string) => ["follow", "counts", userId] as const,
+    relation: (viewerId: string, targetId: string) => ["follow", "rel", viewerId, targetId] as const,
+  },
 } as const;

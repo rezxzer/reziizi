@@ -1,14 +1,17 @@
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { Avatar } from "./Avatar.tsx";
 import {
   fetchCommentsForPost,
   getCommentMaxLength,
   type CommentWithAuthor,
 } from "../lib/comments";
 import { errorMessage } from "../lib/errors.ts";
+import { queryKeys } from "../lib/queryKeys.ts";
 import { supabase } from "../lib/supabaseClient";
 
 type CommentSectionProps = {
@@ -18,6 +21,26 @@ type CommentSectionProps = {
 export function CommentSection({ postId }: CommentSectionProps): ReactElement {
   const { t } = useI18n();
   const { user } = useAuth();
+  const profileDisplayQuery = useQuery({
+    queryKey: queryKeys.profile.display(user?.id ?? "__none__"),
+    queryFn: async (): Promise<{ email: string | null; avatar_url: string | null }> => {
+      const { data: prof, error: profError } = await supabase
+        .from("profiles")
+        .select("email, avatar_url")
+        .eq("id", user!.id)
+        .maybeSingle();
+      if (profError) {
+        throw profError;
+      }
+      const r = prof as { email: string | null; avatar_url: string | null } | null;
+      return {
+        email: r?.email ?? user!.email ?? null,
+        avatar_url: r?.avatar_url ?? null,
+      };
+    },
+    enabled: Boolean(user),
+    staleTime: 60_000,
+  });
   const [open, setOpen] = useState(false);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [loading, setLoading] = useState(false);
@@ -81,6 +104,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       {
         ...data,
         authorEmail: user.email ?? null,
+        authorAvatarUrl: profileDisplayQuery.data?.avatar_url ?? null,
       },
     ]);
   }
@@ -135,22 +159,27 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
                 const time = new Date(c.created_at).toLocaleString();
                 return (
                   <li key={c.id} className="comment-list__item">
-                    <div className="comment-list__meta">
-                      <span className="comment-list__author">{label}</span>
-                      <time className="comment-list__time" dateTime={c.created_at}>
-                        {time}
-                      </time>
+                    <div className="comment-list__row">
+                      <Avatar imageUrl={c.authorAvatarUrl} label={label} size="sm" />
+                      <div className="comment-list__main">
+                        <div className="comment-list__meta">
+                          <span className="comment-list__author">{label}</span>
+                          <time className="comment-list__time" dateTime={c.created_at}>
+                            {time}
+                          </time>
+                        </div>
+                        <p className="comment-list__body">{c.body}</p>
+                        {isMine ? (
+                          <button
+                            type="button"
+                            className="btn btn--danger btn--small comment-list__delete"
+                            onClick={() => void handleDelete(c.id, c.user_id)}
+                          >
+                            {t("pages.comment.delete")}
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
-                    <p className="comment-list__body">{c.body}</p>
-                    {isMine ? (
-                      <button
-                        type="button"
-                        className="btn btn--danger btn--small comment-list__delete"
-                        onClick={() => void handleDelete(c.id, c.user_id)}
-                      >
-                        {t("pages.comment.delete")}
-                      </button>
-                    ) : null}
                   </li>
                 );
               })}

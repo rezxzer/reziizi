@@ -108,7 +108,18 @@ export function AdminModerationPage(): ReactElement {
                       {new Date(p.created_at).toLocaleString()}
                     </time>
                   </div>
-                  {p.image_url ? (
+                  {p.video_url ? (
+                    <div className="mod-list__media">
+                      <video
+                        className="mod-list__video"
+                        src={p.video_url}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        aria-label={postImageAltFromBody(p.body)}
+                      />
+                    </div>
+                  ) : p.image_url ? (
                     <div className="mod-list__media">
                       <img
                         className="mod-list__image"

@@ -8,6 +8,7 @@ import { supabase } from "../lib/supabaseClient.ts";
 import { Avatar } from "./Avatar.tsx";
 import { postImageAltFromBody } from "../lib/postImageAlt.ts";
 import { removeStoredPostImageByPublicUrl } from "../lib/postImageStorage.ts";
+import { removeStoredPostVideoByPublicUrl } from "../lib/postVideoStorage.ts";
 import type { FeedPost } from "../types/feed";
 import { CommentSection } from "./CommentSection";
 import { ReactionButtons } from "./ReactionButtons";
@@ -42,6 +43,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
       return;
     }
     void removeStoredPostImageByPublicUrl(post.image_url);
+    void removeStoredPostVideoByPublicUrl(post.video_url);
     onChanged();
   }
 
@@ -50,13 +52,26 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
       <header className="post-card__header">
         <div className="post-card__author-row">
           <Avatar imageUrl={post.authorAvatarUrl} label={display} size="sm" />
-          <span className="post-card__author">{display}</span>
+          <Link className="post-card__author-link" to={`/u/${post.user_id}`}>
+            <span className="post-card__author">{display}</span>
+          </Link>
         </div>
         <time className="post-card__time" dateTime={post.created_at}>
           {created}
         </time>
       </header>
-      {post.image_url ? (
+      {post.video_url ? (
+        <div className="post-card__media">
+          <video
+            className="post-card__video"
+            src={post.video_url}
+            controls
+            playsInline
+            preload="metadata"
+            aria-label={postImageAltFromBody(post.body)}
+          />
+        </div>
+      ) : post.image_url ? (
         <div className="post-card__media">
           <img
             className="post-card__image"

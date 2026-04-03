@@ -1,5 +1,6 @@
 import type { PostRow } from "../types/db";
 import { removeStoredPostImageByPublicUrl } from "./postImageStorage.ts";
+import { removeStoredPostVideoByPublicUrl } from "./postVideoStorage.ts";
 import { supabase } from "./supabaseClient";
 
 const LIST_LIMIT = 50;
@@ -36,7 +37,7 @@ async function emailsForUserIds(ids: string[]): Promise<Map<string, string | nul
 export async function fetchPostsForModeration(): Promise<ModerationPostRow[]> {
   const { data, error } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
     .order("created_at", { ascending: false })
     .limit(LIST_LIMIT);
 
@@ -78,7 +79,7 @@ export async function fetchCommentsForModeration(): Promise<ModerationCommentRow
 export async function deletePostAsModerator(postId: string): Promise<void> {
   const { data: row, error: selectError } = await supabase
     .from("posts")
-    .select("image_url")
+    .select("image_url, video_url")
     .eq("id", postId)
     .maybeSingle();
 
@@ -87,6 +88,7 @@ export async function deletePostAsModerator(postId: string): Promise<void> {
   }
 
   const imageUrl: string | null = (row as { image_url: string | null } | null)?.image_url ?? null;
+  const videoUrl: string | null = (row as { video_url: string | null } | null)?.video_url ?? null;
 
   const { error } = await supabase.from("posts").delete().eq("id", postId);
   if (error) {
@@ -94,6 +96,7 @@ export async function deletePostAsModerator(postId: string): Promise<void> {
   }
 
   await removeStoredPostImageByPublicUrl(imageUrl);
+  await removeStoredPostVideoByPublicUrl(videoUrl);
 }
 
 export async function deleteCommentAsModerator(commentId: string): Promise<void> {

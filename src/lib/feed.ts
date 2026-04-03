@@ -13,7 +13,7 @@ async function fetchPostsByIdsOrdered(ids: string[]): Promise<FeedPost[]> {
   }
   const { data: postRows, error: postsError } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
     .in("id", ids);
 
   if (postsError) {
@@ -141,7 +141,7 @@ export async function fetchFeedPage(
   const to = from + PAGE_SIZE - 1;
   const { data: postRows, error: postsError } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -157,7 +157,7 @@ export async function fetchFeedPage(
 export async function fetchUserPosts(userId: string): Promise<FeedPost[]> {
   const { data: postRows, error } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 

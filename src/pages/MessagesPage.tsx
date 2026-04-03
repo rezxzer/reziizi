@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { Avatar } from "../components/Avatar.tsx";
 import { fetchMyConversations, type ConversationWithPeer } from "../lib/chat.ts";
 import { errorMessage } from "../lib/errors.ts";
 
@@ -57,8 +58,15 @@ export function MessagesPage(): ReactElement {
               {items.map((c) => (
                 <li key={c.id}>
                   <Link className="conversation-list__link" to={`/messages/${c.other_user_id}`}>
-                    <span className="conversation-list__peer">
-                      {c.peer_email ?? c.other_user_id}
+                    <span className="conversation-list__row">
+                      <Avatar
+                        imageUrl={c.peer_avatar_url}
+                        label={c.peer_email ?? c.other_user_id}
+                        size="sm"
+                      />
+                      <span className="conversation-list__peer">
+                        {c.peer_email ?? c.other_user_id}
+                      </span>
                     </span>
                     <time className="conversation-list__time muted" dateTime={c.last_message_at}>
                       {new Date(c.last_message_at).toLocaleString()}

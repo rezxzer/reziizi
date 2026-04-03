@@ -74,6 +74,9 @@ alwaysApply: true
 | 17 | `20260401280000_add_storage_post_images.sql` (Storage bucket `post-images`, post image policies) |
 | 18 | `20260401290000_add_posts_image_url.sql` (`posts.image_url` nullable) |
 | 19 | `20260401300000_add_profiles_avatar_url_and_storage_avatars.sql` (`profiles.avatar_url`, bucket `avatars`) |
+| 20 | `20260401310000_add_rate_limit_triggers.sql` (DB rate limits: posts, comments, chat, reports) |
+| 21 | `20260401320000_add_post_videos_storage_and_video_url.sql` (bucket `post-videos`, `posts.video_url`, CHECK) |
+| 22 | `20260401330000_add_follows.sql` (`follows` table + RLS) |
 
 **შენიშვნა:** Security (27) — SQL migration არ არის; `vercel.json` Vercel-ისთვის (headers + SPA rewrites; **Deployment (37)**). **Production:** `README.md` → „Production (Vercel)“. API Layer (28) — `src/lib/api/` (migration არა; ახალი ცხრილი/RPC → `registry.ts`). Database Structure (29) — `supabase/SCHEMA.md` + `verify_schema.sql` განახლება. Performance (36) — კლიენტი: `src/lazy/chunks.ts`, `RouteFallback`, `App.tsx` Suspense (migration არა). Caching (30) — `@tanstack/react-query`, `queryClient.ts`, `queryKeys.ts` (migration არა). Error Handling (32) — `errorMessage` / `lib/errors.ts`, `InlineError` (migration არა). Logging (31) — `src/lib/logger.ts` (migration არა). Testing (41) — Vitest (`npm test`; migration არა). **GitHub CI** — `.github/workflows/ci.yml` (არა migration).
 

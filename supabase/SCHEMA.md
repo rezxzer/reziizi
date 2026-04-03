@@ -23,6 +23,7 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 | `chat_messages` | Messages in a conversation |
 | `reports` | User reports on posts |
 | `ad_slots` | Sponsored slots (e.g. `feed_top`) |
+| `follows` | User A follows user B (directed) |
 
 ### `profiles`
 
@@ -37,7 +38,12 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 
 ### `posts`
 
-- `id`, `user_id`, `body`, `image_url` (nullable; public Storage URL for post image), `created_at`, `updated_at`
+- `id`, `user_id`, `body`, `image_url` (nullable; bucket `post-images`), `video_url` (nullable; bucket `post-videos`) — **at most one** of `image_url` / `video_url` non-null (`posts_one_media_type` CHECK), `created_at`, `updated_at`
+
+### `follows`
+
+- `follower_id`, `following_id` (composite PK; both FK → `auth.users` ON DELETE CASCADE), `created_at`
+- CHECK `follower_id <> following_id`
 
 ### `reactions`
 
@@ -99,18 +105,19 @@ Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_pos
 
 ## Storage (Supabase)
 
-Not in `public`; configured in `storage.buckets` / policies on `storage.objects`. See migrations `20260401280000_add_storage_post_images.sql`, `20260401300000_add_profiles_avatar_url_and_storage_avatars.sql`.
+Not in `public`; configured in `storage.buckets` / policies on `storage.objects`. See migrations `20260401280000_add_storage_post_images.sql`, `20260401320000_add_post_videos_storage_and_video_url.sql`, `20260401300000_add_profiles_avatar_url_and_storage_avatars.sql`.
 
 | Bucket id | Public read | File limit | Allowed MIME | Object path pattern |
 |-----------|-------------|------------|--------------|---------------------|
 | `post-images` | yes | 5 MiB | `image/jpeg`, `image/png`, `image/webp`, `image/gif` | `posts/{user_id}/{post_id}/{filename}` |
+| `post-videos` | yes | 50 MiB | `video/mp4`, `video/webm` | `posts/{user_id}/{post_id}/{filename}` |
 | `avatars` | yes | 2 MiB | same image MIMEs | `avatars/{user_id}/{filename}` |
 
-Authenticated users may **insert/update/delete** post images only under `posts/{their_user_id}/...`, and avatars only under `avatars/{their_user_id}/...`.
+Authenticated users may **insert/update/delete** post images and post videos only under `posts/{their_user_id}/...`, and avatars only under `avatars/{their_user_id}/...`.
 
 ### Account deletion (Edge Function)
 
-User-initiated deletion is implemented by the **`delete-account`** Edge Function (not SQL-only): it removes objects under the two prefixes above for the user, then deletes the **`auth.users`** row (public rows cascade per FKs — see **`ACCOUNT_DELETION_DESIGN.md`**). Deploy: `supabase functions deploy delete-account`.
+User-initiated deletion is implemented by the **`delete-account`** Edge Function (not SQL-only): it removes objects under **`avatars/{user_id}/`**, **`post-images`** prefix `posts/{user_id}/`, and **`post-videos`** prefix `posts/{user_id}/`, then deletes the **`auth.users`** row (public rows cascade per FKs — see **`ACCOUNT_DELETION_DESIGN.md`**). Deploy: `supabase functions deploy delete-account`.
 
 ## RLS
 

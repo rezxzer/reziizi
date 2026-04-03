@@ -19,6 +19,7 @@ export type PageSeo = {
 type RouteKey = keyof Bundle["seo"]["routes"];
 
 const ROUTE_DEFS: readonly { pattern: string; key: RouteKey; robots: RobotsDirective }[] = [
+  { pattern: "/u/:userId", key: "userProfile", robots: "index,follow" },
   { pattern: "/messages/:peerId", key: "chatPeer", robots: "noindex,nofollow" },
   { pattern: "/messages", key: "messages", robots: "noindex,nofollow" },
   { pattern: "/notifications", key: "notifications", robots: "noindex,nofollow" },

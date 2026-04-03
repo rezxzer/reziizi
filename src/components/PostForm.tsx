@@ -10,6 +10,11 @@ import {
   uploadPostImage,
   validatePostImageFile,
 } from "../lib/postImageStorage.ts";
+import {
+  removePostVideoObject,
+  uploadPostVideo,
+  validatePostVideoFile,
+} from "../lib/postVideoStorage.ts";
 import { parseTagsFromInput } from "../lib/tagParse.ts";
 import { attachTagsToPost } from "../lib/tags.ts";
 import { supabase } from "../lib/supabaseClient.ts";
@@ -28,7 +33,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   const [tagsInput, setTagsInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const previewUrlRef = useRef<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -85,24 +90,34 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
 
   const userId: string = user.id;
 
-  function handleImagePick(e: ChangeEvent<HTMLInputElement>): void {
+  function validateMediaFile(file: File): string | null {
+    if (file.type.startsWith("image/")) {
+      return validatePostImageFile(file);
+    }
+    if (file.type.startsWith("video/")) {
+      return validatePostVideoFile(file);
+    }
+    return t("pages.postForm.mediaInvalidType");
+  }
+
+  function handleMediaPick(e: ChangeEvent<HTMLInputElement>): void {
     const file: File | undefined = e.target.files?.[0];
     if (!file) {
       return;
     }
-    const validationError: string | null = validatePostImageFile(file);
+    const validationError: string | null = validateMediaFile(file);
     if (validationError) {
       setError(validationError);
       e.target.value = "";
       return;
     }
     setError(null);
-    setImageFile(file);
+    setMediaFile(file);
     setPreviewFromFile(file);
   }
 
-  function handleRemoveImage(): void {
-    setImageFile(null);
+  function handleRemoveMedia(): void {
+    setMediaFile(null);
     setPreviewFromFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -134,21 +149,35 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
     }
 
     try {
-      if (imageFile) {
+      if (mediaFile) {
+        const isVideo: boolean = mediaFile.type.startsWith("video/");
         try {
-          const { publicUrl, path } = await uploadPostImage(imageFile, userId, post.id);
-          const { error: updateError } = await supabase
-            .from("posts")
-            .update({ image_url: publicUrl })
-            .eq("id", post.id)
-            .eq("user_id", userId);
-          if (updateError) {
-            await removePostImageObject(path);
-            throw updateError;
+          if (isVideo) {
+            const { publicUrl, path } = await uploadPostVideo(mediaFile, userId, post.id);
+            const { error: updateError } = await supabase
+              .from("posts")
+              .update({ video_url: publicUrl, image_url: null })
+              .eq("id", post.id)
+              .eq("user_id", userId);
+            if (updateError) {
+              await removePostVideoObject(path);
+              throw updateError;
+            }
+          } else {
+            const { publicUrl, path } = await uploadPostImage(mediaFile, userId, post.id);
+            const { error: updateError } = await supabase
+              .from("posts")
+              .update({ image_url: publicUrl, video_url: null })
+              .eq("id", post.id)
+              .eq("user_id", userId);
+            if (updateError) {
+              await removePostImageObject(path);
+              throw updateError;
+            }
           }
-        } catch (imgErr: unknown) {
+        } catch (mediaErr: unknown) {
           await supabase.from("posts").delete().eq("id", post.id).eq("user_id", userId);
-          throw imgErr;
+          throw mediaErr;
         }
       }
     } catch (err: unknown) {
@@ -170,7 +199,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
     setSubmitting(false);
     setBody("");
     setTagsInput("");
-    setImageFile(null);
+    setMediaFile(null);
     setPreviewFromFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -198,9 +227,9 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           ref={fileInputRef}
           className="post-form__file-input"
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
           aria-label={t("pages.postForm.attachAria")}
-          onChange={handleImagePick}
+          onChange={handleMediaPick}
           disabled={submitting}
         />
         <div className="post-form__image-actions">
@@ -210,27 +239,36 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
             disabled={submitting}
             onClick={() => fileInputRef.current?.click()}
           >
-            {t("pages.postForm.addImage")}
+            {t("pages.postForm.addMedia")}
           </button>
           {previewUrl ? (
             <button
               type="button"
               className="btn btn--small btn--danger"
               disabled={submitting}
-              onClick={handleRemoveImage}
+              onClick={handleRemoveMedia}
             >
-              {t("pages.postForm.removeImage")}
+              {t("pages.postForm.removeMedia")}
             </button>
           ) : null}
         </div>
-        {previewUrl ? (
+        {previewUrl && mediaFile ? (
           <div className="post-form__preview-wrap">
-            <img className="post-form__preview" src={previewUrl} alt={t("pages.postForm.previewAlt")} />
-            {imageFile ? (
-              <p className="muted post-form__file-name" title={imageFile.name}>
-                {imageFile.name}
-              </p>
-            ) : null}
+            {mediaFile.type.startsWith("video/") ? (
+              <video
+                className="post-form__preview"
+                src={previewUrl}
+                controls
+                playsInline
+                preload="metadata"
+                aria-label={t("pages.postForm.previewAlt")}
+              />
+            ) : (
+              <img className="post-form__preview" src={previewUrl} alt={t("pages.postForm.previewAlt")} />
+            )}
+            <p className="muted post-form__file-name" title={mediaFile.name}>
+              {mediaFile.name}
+            </p>
           </div>
         ) : null}
       </div>

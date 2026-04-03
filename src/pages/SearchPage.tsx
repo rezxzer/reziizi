@@ -1,6 +1,7 @@
 import type { FormEvent, ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { Avatar } from "../components/Avatar.tsx";
 import { PostCard } from "../components/PostCard";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
@@ -126,14 +127,20 @@ export function SearchPage(): ReactElement {
                   {profiles.map((p) => (
                     <li key={p.id} className="search-profile-list__item">
                       <div className="search-profile-list__row">
+                        <Avatar imageUrl={p.avatar_url} label={p.email ?? p.id} size="sm" />
                         <div className="search-profile-list__main">
                           <span className="search-profile-list__email">{p.email ?? "—"}</span>
                           <span className="muted search-profile-list__id">{p.id}</span>
                         </div>
                         {user && user.id !== p.id ? (
-                          <Link to={`/messages/${p.id}`} className="btn btn--small">
-                            {t("pages.search.message")}
-                          </Link>
+                          <span className="search-profile-list__actions">
+                            <Link to={`/u/${p.id}`} className="btn btn--small">
+                              {t("pages.search.viewProfile")}
+                            </Link>
+                            <Link to={`/messages/${p.id}`} className="btn btn--small">
+                              {t("pages.search.message")}
+                            </Link>
+                          </span>
                         ) : null}
                       </div>
                     </li>

@@ -71,4 +71,5 @@ UNION ALL SELECT 'post_tags', COUNT(*) FROM public.post_tags
 UNION ALL SELECT 'conversations', COUNT(*) FROM public.conversations
 UNION ALL SELECT 'chat_messages', COUNT(*) FROM public.chat_messages
 UNION ALL SELECT 'reports', COUNT(*) FROM public.reports
-UNION ALL SELECT 'ad_slots', COUNT(*) FROM public.ad_slots;
+UNION ALL SELECT 'ad_slots', COUNT(*) FROM public.ad_slots
+UNION ALL SELECT 'follows', COUNT(*) FROM public.follows;
