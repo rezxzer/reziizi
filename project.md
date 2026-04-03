@@ -121,7 +121,7 @@
 
 - **v1 (MVP):** Auth, პოსტები, feed, რეაქციები, პროფილი, settings, UI/მობილური, Legal — **დასრულებული** (ლოკალურად).
 - **v2:** კომენტარები, ძებნა, თემა, ნოტიფიკაციები, ტეგები, trending, chat, ranking UI — **baseline დასრულებული**.
-- **v3:** Admin, moderation, reports, ban, stats, ads, premium, settings+privacy, security, API catalog, DB docs (`SCHEMA.md`, `verify_schema`), **Caching (30)** TanStack Query, **Error Handling (32)**, **Logging (31)**, **Performance (36)** lazy routes, **Deployment (37)** Vercel + `vercel.json` + **`README.md` deployment გზამკვლევი**, **Testing (41)** Vitest — **baseline დასრულებული** კოდში.
+- **v3:** Admin, moderation, reports, ban, stats, ads, premium, settings+privacy, security, API catalog, DB docs (`SCHEMA.md`, `verify_schema`), **Caching (30)** TanStack Query, **Error Handling (32)** (toast, route-level `QueryErrorResetBoundary` + `RouteErrorBoundary`), **Logging (31)**, **Performance (36)** lazy routes, **Deployment (37)** Vercel + `vercel.json` + **`README.md` deployment გზამკვლევი**, **Testing (41)** Vitest — **baseline დასრულებული** კოდში.
 - **Production:** აპი **ატვირთულია Vercel-ზე** (GitHub დაკავშირება, `VITE_*` env, Supabase Auth URL-ები — იხილე **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**).
 - **Media Upload (11) + File Storage (47) — baseline:** Supabase Storage `post-images`, `posts.image_url`, `PostForm` სურათი, feed/admin `PostCard` / Moderation; პოსტის წაშლისას Storage cleanup (საუკეთესო ძალისხმევა).
 - **Video (10) — baseline:** Storage `post-videos` (MP4/WebM, 50 MiB), `posts.video_url`, CHECK ერთ მედიაზე; `PostForm` / `PostCard` / admin; account deletion იშლის `post-videos` პრეფიქსს; **ტრანსკოდინგი არა** (იხილე §10).
@@ -142,7 +142,7 @@
 | # | ფიჩა | რა გაკეთდა | მომავალი (სურვილისამებრ) |
 |---|------|------------|---------------------------|
 | 1 | **Caching (30)** | TanStack Query: feed, profile, `useProfileFlags`, **Search** (`queryKeys.search.results`), **Notifications** (`queryKeys.notifications.list`); `queryKeys` / `queryClient` | prefetch სურვილისამებრ |
-| 2 | **Error Handling (32)** | `errorMessage`, `InlineError`, ერთიანი `catch`, query cache dev log | toast, `QueryErrorResetBoundary` |
+| 2 | **Error Handling (32)** | `errorMessage`, `InlineError`, ერთიანი `catch`, query cache dev log; **Toast** (`ToastProvider` / `useToast`); **RouteErrorBoundary** + **`QueryErrorResetBoundary`** (`LayoutOutlet`); მუტაციის შეცდომა მაგ. `NotificationsPage`-ზე toast-ით | toast სხვა გვერდებზე სურვილისამებრ; `QueryErrorResetBoundary` + სრული `ErrorBoundary` ტესტები |
 | 3 | **Performance (36)** | `React.lazy` + `Suspense` admin/messaging | tuning, virtualization, სურათები |
 | 4 | **Deployment (37)** | Vercel, SPA rewrites, README; **GitHub Actions** — `.github/workflows/ci.yml` (`npm test` + `npm run build`) | E2E, coverage thresholds, preview env |
 | 5 | **Logging (31)** | `src/lib/logger.ts` | Sentry / სხვა remote |

@@ -21,6 +21,13 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Error Handling (32): toast + QueryErrorResetBoundary
+
+- **`ToastProvider` / `useToast`:** ფიქსირებული `toast-region`, ვარიანტები error/success/info, auto-dismiss; `layout.toastRegionAria` / `toastDismiss`; **`errors.*`** route შეცდომის ტექსტები.
+- **`LayoutOutlet`:** `QueryErrorResetBoundary` + **`RouteErrorBoundary`** (Try again → `reset`); **`Layout`** იყენებს `LayoutOutlet`-ს.
+- **`NotificationsPage`:** მუტაციის `onError` → `toast.error` (ინლაინი მუტაციის შეცდომა ამოღებული).
+- **`project.md`:** v3 Error Handling ხაზი განახლებული.
+
 ### 2026-04-03 — Caching + i18n: Notifications გვერდი
 
 - **`NotificationsPage`:** `useQuery` (`queryKeys.notifications.list`) + `useMutation` mark read / mark all; ინვალიდაცია სიაზე.

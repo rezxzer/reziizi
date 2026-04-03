@@ -6,6 +6,7 @@ import App from "./App.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import { I18nProvider } from "./contexts/I18nContext.tsx";
+import { ToastProvider } from "./contexts/ToastContext.tsx";
 import { ThemeProvider } from "./contexts/ThemeContext.tsx";
 import { queryClient } from "./lib/queryClient.ts";
 import "./styles.css";
@@ -20,13 +21,15 @@ createRoot(rootEl).render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <I18nProvider>
-          <ThemeProvider>
-            <AuthProvider>
-              <ErrorBoundary>
-                <App />
-              </ErrorBoundary>
-            </AuthProvider>
-          </ThemeProvider>
+          <ToastProvider>
+            <ThemeProvider>
+              <AuthProvider>
+                <ErrorBoundary>
+                  <App />
+                </ErrorBoundary>
+              </AuthProvider>
+            </ThemeProvider>
+          </ToastProvider>
         </I18nProvider>
       </BrowserRouter>
     </QueryClientProvider>

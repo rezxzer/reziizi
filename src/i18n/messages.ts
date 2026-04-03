@@ -225,6 +225,14 @@ export type Bundle = {
       legal: string;
     };
     unreadBadge: string;
+    toastRegionAria: string;
+    toastDismiss: string;
+  };
+  errors: {
+    routeTitle: string;
+    routeBody: string;
+    tryAgain: string;
+    homeLink: string;
   };
   theme: {
     auto: string;
@@ -306,6 +314,14 @@ const en: Bundle = {
       legal: "Legal",
     },
     unreadBadge: "{count} unread",
+    toastRegionAria: "Notifications",
+    toastDismiss: "Dismiss",
+  },
+  errors: {
+    routeTitle: "Something went wrong",
+    routeBody: "This part of the page hit an unexpected error. You can try again or go home.",
+    tryAgain: "Try again",
+    homeLink: "← Home",
   },
   theme: {
     auto: "Auto",
@@ -635,6 +651,14 @@ const ka: Bundle = {
       legal: "იურიდიული",
     },
     unreadBadge: "{count} წაუკითხავი",
+    toastRegionAria: "შეტყობინებები",
+    toastDismiss: "დახურვა",
+  },
+  errors: {
+    routeTitle: "შეცდომა",
+    routeBody: "ამ ნაწილმა მოულოდნელი შეცდომა გამოიწვია. სცადეთ ხელახლა ან დაბრუნდით მთავარზე.",
+    tryAgain: "ხელახლა",
+    homeLink: "← მთავარი",
   },
   theme: {
     auto: "ავტო",
@@ -964,6 +988,14 @@ const ru: Bundle = {
       legal: "Правовая информация",
     },
     unreadBadge: "{count} непрочитанных",
+    toastRegionAria: "Уведомления",
+    toastDismiss: "Закрыть",
+  },
+  errors: {
+    routeTitle: "Что-то пошло не так",
+    routeBody: "В этой части страницы произошла ошибка. Попробуйте снова или перейдите на главную.",
+    tryAgain: "Повторить",
+    homeLink: "← Главная",
   },
   theme: {
     auto: "Авто",

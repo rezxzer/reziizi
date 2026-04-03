@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
 import { Avatar } from "../components/Avatar.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import {
   fetchNotifications,
@@ -14,6 +15,7 @@ import { queryKeys } from "../lib/queryKeys.ts";
 
 export function NotificationsPage(): ReactElement {
   const { t } = useI18n();
+  const toast = useToast();
   const queryClient = useQueryClient();
 
   const listQuery = useQuery({
@@ -26,12 +28,18 @@ export function NotificationsPage(): ReactElement {
     onSuccess: (): void => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.list });
     },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
+    },
   });
 
   const markAllMut = useMutation({
     mutationFn: () => markAllNotificationsRead(),
     onSuccess: (): void => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.list });
+    },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
     },
   });
 
@@ -66,11 +74,6 @@ export function NotificationsPage(): ReactElement {
           {error ? (
             <p className="form__error" role="alert">
               {error}
-            </p>
-          ) : null}
-          {markReadMut.isError || markAllMut.isError ? (
-            <p className="form__error" role="alert">
-              {errorMessage(markReadMut.error ?? markAllMut.error)}
             </p>
           ) : null}
           {!loading && items.length === 0 && !error ? (

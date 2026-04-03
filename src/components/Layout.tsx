@@ -1,12 +1,13 @@
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
-import { Link, NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
+import { Link, NavLink, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useUnreadNotificationCount } from "../hooks/useUnreadNotificationCount.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { RouteAnnouncer } from "./RouteAnnouncer.tsx";
 import { RouteSeo } from "./RouteSeo.tsx";
+import { LayoutOutlet } from "./LayoutOutlet.tsx";
 import { ThemePreferenceControls } from "./ThemePreferenceControls.tsx";
 
 const ALLOWED_WHEN_BANNED: readonly string[] = ["/banned", "/login", "/legal"];
@@ -114,7 +115,7 @@ export function Layout(): ReactElement {
         </nav>
       </header>
       <main id="main-content" className="layout__main" tabIndex={-1}>
-        <Outlet />
+        <LayoutOutlet />
       </main>
     </div>
   );
