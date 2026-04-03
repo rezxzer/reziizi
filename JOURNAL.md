@@ -21,6 +21,13 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — სესია დასრულებული (დასვენება)
+
+- **სტატუსი:** `main` სინქი `origin/main`-თან; working tree სუფთა.
+- **დოკუმენტაცია:** `project.md` **`CURRENT WORK`** — v3 Error Handling ბულეტი დაზუსტებულია (toast + `LayoutOutlet` + `RouteErrorBoundary.test.tsx`); კომიტი `docs: clarify Error Handling (32) in CURRENT WORK v3 bullet`.
+- **მომავალი (არა სავალდებულო):** home feed UI polish — იდეები ჩატში (composer vs feed, ტიპო, მობილური); სრული სია — შეიძლება §33/§35 **Future** ან `CURRENT WORK` ცხრილი.
+- **გახსენება:** production **ანგარიშის წაშლა** — `project.md` + `README`; პრიორიტეტები — **`## CURRENT WORK`** / „შემდეგი განვითარების გეგმა“.
+
 ### 2026-04-03 — Toast: admin + messages + reactions; RouteErrorBoundary test
 
 - **`ReactionButtons`**, **`MessagesPage`** (ჩატვირთვის შეცდომა toast + `loadFailed` რომ „არაა საუბრები“ არ არის მცდარი), **`ChatThreadPage`** (`threadError` ინლაინში; გაგზავნის შეცდომა toast), **`AdminPage`**, **`AdminModerationPage`**, **`AdminUsersPage`**, **`AdminReportsPage`**, **`AdminAdsPage`**, **`AdminStatsPage`** — toast.
