@@ -21,6 +21,10 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Supabase: `20260401340000` live (დადასტურება)
+
+- Migration **`20260401340000_add_follow_notifications.sql`** გაშვებულია Supabase-ზე წარმატებით; `notifications` — `type` `follow`, `notify_followed_user_on_follow` + ტრიგერი `follows`-ზე ცოცხალ პროექტში მუშაობს.
+
 ### 2026-04-03 — Caching (30): Search გვერდი TanStack Query-ზე
 
 - **`SearchPage`:** `useQuery` + `queryKeys.search.results(pattern, viewerId)` — პოსტები/პროფილები; `onPostChanged` ინვალიდაცია search + feed.
@@ -30,7 +34,7 @@
 
 - **Migration:** `20260401340000_add_follow_notifications.sql` — `notifications.type` + `follow`, `post_id` nullable საჭიროებისამებრ; `notify_followed_user_on_follow` + ტრიგერი `follows` INSERT-ზე.
 - **აპი:** `NotificationType` / `NotificationRow`; `NotificationsPage` — ტექსტი + ლინკი პროფილზე; `SCHEMA.md`, `verify_schema.sql`, `reziizi.mdc` #23.
-- **Supabase:** გაუშვი migration production-ზე.
+- **Supabase:** migration production/live-ზე გაშვებულია (იხილე ჩანაწერი „`20260401340000` live (დადასტურება)“ ზემოთ).
 
 ### 2026-04-03 — Friends: გამომწერების / გამოწერების სიები (მარშრუტები)
 
