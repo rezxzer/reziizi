@@ -117,6 +117,8 @@
 
 ## CURRENT WORK
 
+**დაგეგმილი (კოდი ჯერ არა):** **Friends — mutual follows** — სპეკი §5 „Mutual follows — planned scope“, ცხრილი პრიორიტეტი **8** (`🔄 დაგეგმილი`). იმპლემენტაცია იწყება მხოლოდ ამ სკოპის დადასტურების შემდეგ.
+
 ### რა გაკეთდა (სტატუსი — ამ ეტაპზე)
 
 - **v1 (MVP):** Auth, პოსტები, feed, რეაქციები, პროფილი, settings, UI/მობილური, Legal — **დასრულებული** (ლოკალურად).
@@ -163,10 +165,11 @@
 | 5 | **48. Rate limiting** — DB triggers on `posts` / `comments` / `chat_messages` / `reports` (see `SCHEMA.md`) | ✅ baseline | Edge/API limits — v2 |
 | 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security | ✅ baseline v3 | Legal article body ინგლისურად; დანარჩენი გვერდები სურვილისამებრ |
 | 7 | **Account deletion** — Edge `delete-account`, `api/delete-account`, `src/lib/deleteAccount.ts`, Settings UI | 🔄 მოგვიანებით (production) | **Production არ არის სტაბილური** — დაბრუნება დაგეგმილია. კოდი რეპოშია; იხილე `README`, `CURRENT WORK` ზემოთ |
+| 8 | **5. Friends — mutual follows** (ორმხრივი გამოწერა, UI ინდიკატორი) | 🔄 დაგეგმილი | სრული სკოპი **§5** → „Mutual follows — planned scope“; **არა** ახალი migration (მხოლოდ `follows` + აპი) |
 
-**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება), **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + **FEATURE BREAKDOWN**. **Friends (5)** — baseline §5 (სიები გვერდზე; ნოტიფიკაცია ახალ გამომწერზე — migration `20260401340000_add_follow_notifications.sql`; **მომავალი:** mutual follows). **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
+**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება), **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + **FEATURE BREAKDOWN**. **Friends (5)** — baseline §5; ნოტიფიკაცია follow-ზე live; **შემდეგი დაგეგმილი ნაბიჯი:** mutual follows — იხილე §5 „Mutual follows — planned scope“ და ცხრილის **პრიორიტეტი 8**. **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
 
-**სადაც „მომავალია“:** თითოეულ ფიჩას აქვს **🚀 Future** ან **Notes** `FEATURE BREAKDOWN`-ში; ახალი ფიჩა: ჯერ აქ გეგმა/სტატუსი, მერე კოდი (`reziizi.mdc`).
+**სადაც „მომავალია“:** თითოეულ ფიჩას აქვს **🚀 Future** ან **Notes** `FEATURE BREAKDOWN`-ში; ახალი ფიჩა: **ჯერ** გეგმა/სკოპი აქ (`project.md`) და სტატუსი ცხრილში, **მერე** კოდი (`reziizi.mdc`).
 
 ---
 
@@ -432,7 +435,26 @@ Users can follow other users; follower and following counts are visible on profi
 ---
 
 #### 🚀 Future
-- Mutual follows
+- **Mutual follows** — დეტალები ქვემოთ („Mutual follows — planned scope“). სტატუსი: **დაგეგმილი** (იხილე **CURRENT WORK** ცხრილი, პრიორიტეტი **8**).
+
+---
+
+#### 📋 Mutual follows — planned scope (იმპლემენტაციამდე სპეკი)
+
+**განმარტება:** ორი მომხმარებელი „ორმხრივად გამოწერილია“, თუ **ორივე** მიმართულებით არსებობს `follows` ჩანაწერი: `A → B` და `B → A` (არსებული ცხრილი; **ახალი migration არა**).
+
+**MVP სკოპი (შემდეგი იმპლემენტაციის ფარგლები):**
+
+1. **`UserProfilePage`** (სხვისი პროფილი, ლოგინი, viewer ≠ target):
+   - თუ viewer უკვე follow-ს აკეთებს target-ს **და** target follow-ს აკეთებს viewer-ს — ერთი მოკლე ტექსტი/ბეიჯი (მაგ. „You follow each other“ / „Mutual“), `messages.ts` `en`/`ka`/`ru`.
+   - მონაცემები: ორი ბულეანი — უკვე არსებობს `fetchIsFollowing(viewer, target)`; დასჭირდება მეორე მიმართულება `fetchIsFollowing(target, viewer)` ან ერთი ჰელპერი `fetchMutualFollowState(viewerId, targetId)` → `{ viewerFollowsTarget, targetFollowsViewer }` (`Promise.all` / ერთი `useQuery` ორი `queryKey`-ით ან გაერთიანებული key).
+2. **არა ამ MVP-ში (მომავალი ტალღა, სურვილისამებრ):** ცალკე `/mutuals` მარშრუტი; ფილტრი „მხოლოდ ორმხრივები“ followers/following სიებზე; ცალკე ნოტიფიკაცია „გახდით ორმხრივად გამოწერილი“.
+
+**ტექნიკური შენიშვნები:**
+- `queryKeys.follow.relation` უკვე viewer→target; target→viewer-ისთვის ახალი სტაბილური key (მაგ. `queryKeys.follow.reverseRelation(viewerId, targetId)`) ან იგივე `relation(targetId, viewerId)` — თანმიმდევრულად `follows.ts`-ში.
+- RLS უცვლელი; Supabase RPC არაა სავალდებულო MVP-სთვის.
+
+**დასრულების კრიტერიუმი:** ლოგინით მომხმარებელი ხედავს mutual ინდიკატორს მხოლოდ როცა ორივე მიმართულება ჭეშმარიტია; ენები სამივე; `npm test` + `npm run build` წარმატებით.
 
 ---
 

@@ -21,6 +21,11 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Friends: mutual follows — სპეკი (იმპლემენტაციამდე)
+
+- **`project.md`:** ცხრილი პრიორიტეტი **8**; §5 „Mutual follows — planned scope“ — MVP მხოლოდ `UserProfilePage` ინდიკატორი + i18n; **არა** migration; out-of-scope: `/mutuals`, სიის ფილტრი, ცალკე ნოტიფიკაცია.
+- **შემდეგი ნაბიჯი:** დადასტურების შემდეგ იმპლემენტაცია იმავე სკოპით.
+
 ### 2026-04-03 — Supabase: `20260401340000` live (დადასტურება)
 
 - Migration **`20260401340000_add_follow_notifications.sql`** გაშვებულია Supabase-ზე წარმატებით; `notifications` — `type` `follow`, `notify_followed_user_on_follow` + ტრიგერი `follows`-ზე ცოცხალ პროექტში მუშაობს.
