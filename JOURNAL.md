@@ -21,6 +21,11 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Toast: Settings + Login
+
+- **`SettingsPage`:** პაროლის / privacy / ანგარიშის წაშლის შეცდომები `toast.error`-ით; ინლაინ `form__error` ამ სექციებში ამოღებული (წარმატების ტექსტები რჩება).
+- **`LoginPage`:** sign in / sign up / ვალიდაციის შეცდომები toast-ით; `error` state ამოღებული.
+
 ### 2026-04-03 — Error Handling (32): toast + QueryErrorResetBoundary
 
 - **`ToastProvider` / `useToast`:** ფიქსირებული `toast-region`, ვარიანტები error/success/info, auto-dismiss; `layout.toastRegionAria` / `toastDismiss`; **`errors.*`** route შეცდომის ტექსტები.

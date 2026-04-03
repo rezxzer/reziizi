@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from "../lib/passwordPolicy.ts";
 import { supabase } from "../lib/supabaseClient";
 
 export function LoginPage(): ReactElement {
   const { t } = useI18n();
+  const toast = useToast();
   const { user, loading } = useAuth();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? "/";
@@ -16,7 +18,6 @@ export function LoginPage(): ReactElement {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   if (!loading && user) {
@@ -25,9 +26,8 @@ export function LoginPage(): ReactElement {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
-    setError(null);
     if (mode === "signup" && !isPasswordLongEnough(password)) {
-      setError(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
+      toast.error(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
       return;
     }
     setSubmitting(true);
@@ -35,13 +35,13 @@ export function LoginPage(): ReactElement {
       if (mode === "signin") {
         const { error: signError } = await supabase.auth.signInWithPassword({ email, password });
         if (signError) {
-          setError(errorMessage(signError));
+          toast.error(errorMessage(signError));
           return;
         }
       } else {
         const { error: signError } = await supabase.auth.signUp({ email, password });
         if (signError) {
-          setError(errorMessage(signError));
+          toast.error(errorMessage(signError));
           return;
         }
       }
@@ -118,11 +118,6 @@ export function LoginPage(): ReactElement {
                   ? t("pages.login.submitSignIn")
                   : t("pages.login.submitSignUp")}
             </button>
-            {error ? (
-              <p className="form__error" role="alert">
-                {error}
-              </p>
-            ) : null}
           </form>
         </div>
       </section>

@@ -5,6 +5,7 @@ import { AvatarUploadSection } from "../components/AvatarUploadSection.tsx";
 import { ThemePreferenceControls } from "../components/ThemePreferenceControls.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { normalizeLocale } from "../i18n/locale.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
@@ -19,35 +20,32 @@ const DELETE_CONFIRM_PHRASE: string = "DELETE";
 
 export function SettingsPage(): ReactElement {
   const { t, locale, setLocale } = useI18n();
+  const toast = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isPremium, premiumUntil, loading: flagsLoading } = useProfileFlags();
   const [searchable, setSearchable] = useState<boolean>(true);
   const [privacyLoading, setPrivacyLoading] = useState<boolean>(true);
   const [privacyBusy, setPrivacyBusy] = useState<boolean>(false);
-  const [privacyError, setPrivacyError] = useState<string | null>(null);
   const [privacyMsg, setPrivacyMsg] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState<string>("");
   const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function handlePassword(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
-    setPasswordError(null);
     setPasswordMsg(null);
     if (!isPasswordLongEnough(newPassword)) {
-      setPasswordError(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
+      toast.error(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
       return;
     }
     setPasswordBusy(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setPasswordBusy(false);
     if (error) {
-      setPasswordError(errorMessage(error));
+      toast.error(errorMessage(error));
       return;
     }
     setNewPassword("");
@@ -62,7 +60,6 @@ export function SettingsPage(): ReactElement {
     if (!user || deleteConfirmText !== DELETE_CONFIRM_PHRASE) {
       return;
     }
-    setDeleteError(null);
     setDeleteBusy(true);
     try {
       await deleteAccountViaEdgeFunction();
@@ -70,7 +67,7 @@ export function SettingsPage(): ReactElement {
       await supabase.auth.signOut();
       navigate("/", { replace: true });
     } catch (err: unknown) {
-      setDeleteError(t("settings.deleteAccountFailed", { message: errorMessage(err) }));
+      toast.error(t("settings.deleteAccountFailed", { message: errorMessage(err) }));
     } finally {
       setDeleteBusy(false);
     }
@@ -109,14 +106,13 @@ export function SettingsPage(): ReactElement {
     if (!user) {
       return;
     }
-    setPrivacyError(null);
     setPrivacyMsg(null);
     setPrivacyBusy(true);
     try {
       await setProfileSearchable(user.id, searchable);
       setPrivacyMsg(t("settings.privacySaved"));
     } catch (err: unknown) {
-      setPrivacyError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setPrivacyBusy(false);
     }
@@ -208,11 +204,6 @@ export function SettingsPage(): ReactElement {
               <button type="submit" className="btn btn--primary" disabled={privacyBusy}>
                 {privacyBusy ? t("settings.privacySaving") : t("settings.privacySave")}
               </button>
-              {privacyError ? (
-                <p className="form__error" role="alert">
-                  {privacyError}
-                </p>
-              ) : null}
               {privacyMsg ? (
                 <p className="form__success" role="status">
                   {privacyMsg}
@@ -247,11 +238,6 @@ export function SettingsPage(): ReactElement {
             <button type="submit" className="btn btn--primary" disabled={passwordBusy}>
               {passwordBusy ? t("settings.updatingPassword") : t("settings.updatePassword")}
             </button>
-            {passwordError ? (
-              <p className="form__error" role="alert">
-                {passwordError}
-              </p>
-            ) : null}
             {passwordMsg ? (
               <p className="form__success" role="status">
                 {passwordMsg}
@@ -299,11 +285,6 @@ export function SettingsPage(): ReactElement {
               >
                 {deleteBusy ? t("settings.deleteAccountDeleting") : t("settings.deleteAccountSubmit")}
               </button>
-              {deleteError ? (
-                <p className="form__error" role="alert">
-                  {deleteError}
-                </p>
-              ) : null}
             </div>
           </div>
         </section>
