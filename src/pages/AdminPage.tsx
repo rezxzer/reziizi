@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { fetchPlatformMetrics } from "../lib/adminStats.ts";
 import { errorMessage } from "../lib/errors.ts";
 
@@ -12,13 +13,12 @@ type AdminStats = {
 };
 
 export function AdminPage(): ReactElement {
+  const toast = useToast();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
-    setError(null);
     try {
       const m = await fetchPlatformMetrics();
       setStats({
@@ -28,12 +28,12 @@ export function AdminPage(): ReactElement {
         reactions: m.reactions,
       });
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
       setStats(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     void load();
@@ -82,12 +82,7 @@ export function AdminPage(): ReactElement {
               Loading…
             </p>
           ) : null}
-          {error ? (
-            <p className="form__error" role="alert">
-              {error}
-            </p>
-          ) : null}
-          {!loading && !error && stats ? (
+          {!loading && stats ? (
             <ul className="admin-stats">
               <li className="admin-stats__item">
                 <span className="admin-stats__label">Profiles</span>
@@ -107,7 +102,7 @@ export function AdminPage(): ReactElement {
               </li>
             </ul>
           ) : null}
-          {!loading && !error ? (
+          {!loading ? (
             <button type="button" className="btn btn--small" onClick={() => void load()}>
               Refresh
             </button>

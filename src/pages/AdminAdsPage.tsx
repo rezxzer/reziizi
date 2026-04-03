@@ -1,11 +1,13 @@
 import type { FormEvent, ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { fetchFeedTopAdForAdmin, saveFeedTopAd } from "../lib/ads.ts";
 import { errorMessage } from "../lib/errors.ts";
 import type { AdSlotRow } from "../types/db.ts";
 
 export function AdminAdsPage(): ReactElement {
+  const toast = useToast();
   const [row, setRow] = useState<AdSlotRow | null>(null);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -13,12 +15,9 @@ export function AdminAdsPage(): ReactElement {
   const [isActive, setIsActive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [savedMsg, setSavedMsg] = useState<string | null>(null);
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
-    setError(null);
     try {
       const r = await fetchFeedTopAdForAdmin();
       setRow(r);
@@ -29,11 +28,11 @@ export function AdminAdsPage(): ReactElement {
         setIsActive(r.is_active);
       }
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     void load();
@@ -42,8 +41,6 @@ export function AdminAdsPage(): ReactElement {
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setSaving(true);
-    setError(null);
-    setSavedMsg(null);
     try {
       await saveFeedTopAd({
         title,
@@ -51,10 +48,10 @@ export function AdminAdsPage(): ReactElement {
         link_url: linkUrl.trim() || null,
         is_active: isActive,
       });
-      setSavedMsg("Saved.");
+      toast.success("Saved.");
       void load();
     } catch (err: unknown) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setSaving(false);
     }
@@ -75,18 +72,6 @@ export function AdminAdsPage(): ReactElement {
       {loading ? (
         <p className="page-loading" role="status">
           Loading…
-        </p>
-      ) : null}
-
-      {error ? (
-        <p className="form__error" role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      {savedMsg ? (
-        <p className="form__success" role="status">
-          {savedMsg}
         </p>
       ) : null}
 

@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import {
   deleteReportAsAdmin,
@@ -9,23 +10,22 @@ import {
 } from "../lib/reports.ts";
 
 export function AdminReportsPage(): ReactElement {
+  const toast = useToast();
   const [items, setItems] = useState<ReportWithReporterEmail[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
-    setError(null);
     try {
       const list = await fetchReportsForAdmin();
       setItems(list);
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     void load();
@@ -36,12 +36,11 @@ export function AdminReportsPage(): ReactElement {
       return;
     }
     setBusyId(id);
-    setError(null);
     try {
       await deleteReportAsAdmin(id);
       setItems((prev) => prev.filter((r) => r.id !== id));
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setBusyId(null);
     }
@@ -62,12 +61,6 @@ export function AdminReportsPage(): ReactElement {
       {loading ? (
         <p className="page-loading" role="status">
           Loading…
-        </p>
-      ) : null}
-
-      {error ? (
-        <p className="form__error" role="alert">
-          {error}
         </p>
       ) : null}
 

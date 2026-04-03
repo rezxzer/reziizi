@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { Avatar } from "../components/Avatar.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import {
   fetchMessages,
   getOrCreateConversation,
@@ -17,6 +18,7 @@ import type { ChatMessageRow } from "../types/db.ts";
 export function ChatThreadPage(): ReactElement {
   const { peerId } = useParams<{ peerId: string }>();
   const { user } = useAuth();
+  const toast = useToast();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [peerEmail, setPeerEmail] = useState<string | null>(null);
   const [peerAvatarUrl, setPeerAvatarUrl] = useState<string | null>(null);
@@ -24,7 +26,8 @@ export function ChatThreadPage(): ReactElement {
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  /** Blocks thread UI: invalid peer, load failure, or self-message. */
+  const [threadError, setThreadError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLLIElement | null>(null);
 
   const scrollToBottom = useCallback((): void => {
@@ -43,7 +46,7 @@ export function ChatThreadPage(): ReactElement {
     }
     const peer: string = peerId;
     if (peer === user.id) {
-      setError("You cannot message yourself.");
+      setThreadError("You cannot message yourself.");
       setLoading(false);
       return;
     }
@@ -53,7 +56,7 @@ export function ChatThreadPage(): ReactElement {
 
     async function run(): Promise<void> {
       setLoading(true);
-      setError(null);
+      setThreadError(null);
       setConversationId(null);
       setMessages([]);
       setPeerAvatarUrl(null);
@@ -94,7 +97,7 @@ export function ChatThreadPage(): ReactElement {
         });
       } catch (e: unknown) {
         if (!cancelled) {
-          setError(errorMessage(e));
+          setThreadError(errorMessage(e));
         }
       } finally {
         if (!cancelled) {
@@ -117,7 +120,6 @@ export function ChatThreadPage(): ReactElement {
       return;
     }
     setSending(true);
-    setError(null);
     try {
       const row = await sendMessage(conversationId, draft);
       setDraft("");
@@ -125,7 +127,7 @@ export function ChatThreadPage(): ReactElement {
         setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, row]));
       }
     } catch (err: unknown) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setSending(false);
     }
@@ -167,12 +169,12 @@ export function ChatThreadPage(): ReactElement {
               Loading…
             </p>
           ) : null}
-          {!loading && error ? (
+          {!loading && threadError ? (
             <p className="form__error" role="alert">
-              {error}
+              {threadError}
             </p>
           ) : null}
-          {!loading && !error && conversationId ? (
+          {!loading && !threadError && conversationId ? (
             <>
               <ul className="chat-thread__messages" aria-live="polite">
                 {messages.map((m) => {

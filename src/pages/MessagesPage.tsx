@@ -3,30 +3,33 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { Avatar } from "../components/Avatar.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { fetchMyConversations, type ConversationWithPeer } from "../lib/chat.ts";
 import { errorMessage } from "../lib/errors.ts";
 
 export function MessagesPage(): ReactElement {
   const { user } = useAuth();
+  const toast = useToast();
   const [items, setItems] = useState<ConversationWithPeer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const load = useCallback(async (): Promise<void> => {
     if (!user) {
       return;
     }
     setLoading(true);
-    setError(null);
     try {
       const list = await fetchMyConversations(user.id);
       setItems(list);
+      setLoadFailed(false);
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
+      setLoadFailed(true);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, toast]);
 
   useEffect(() => {
     void load();
@@ -45,15 +48,10 @@ export function MessagesPage(): ReactElement {
               Loading…
             </p>
           ) : null}
-          {error ? (
-            <p className="form__error" role="alert">
-              {error}
-            </p>
-          ) : null}
-          {!loading && !error && items.length === 0 ? (
+          {!loading && !loadFailed && items.length === 0 ? (
             <p className="muted">No conversations yet.</p>
           ) : null}
-          {!loading && !error && items.length > 0 ? (
+          {!loading && !loadFailed && items.length > 0 ? (
             <ul className="conversation-list">
               {items.map((c) => (
                 <li key={c.id}>

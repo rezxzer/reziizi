@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import { MAX_BAN_REASON_LENGTH } from "../lib/banReason.ts";
 import { extendPremiumIso, isPremiumActive } from "../lib/premium.ts";
@@ -24,9 +25,9 @@ function formatPremiumCell(premiumUntil: string | null): string {
 
 export function AdminUsersPage(): ReactElement {
   const { user } = useAuth();
+  const toast = useToast();
   const [rows, setRows] = useState<ProfileRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [banTarget, setBanTarget] = useState<ProfileRow | null>(null);
   const [banReasonDraft, setBanReasonDraft] = useState<string>("");
@@ -34,16 +35,15 @@ export function AdminUsersPage(): ReactElement {
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
-    setError(null);
     try {
       const list = await fetchProfilesForAdmin();
       setRows(list);
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     void load();
@@ -64,7 +64,6 @@ export function AdminUsersPage(): ReactElement {
       return;
     }
     setBusyId(targetId);
-    setError(null);
     try {
       const row: ProfileRow | undefined = rows.find((x) => x.id === targetId);
       const until: string = extendPremiumIso(row?.premium_until ?? null, days);
@@ -73,7 +72,7 @@ export function AdminUsersPage(): ReactElement {
         prev.map((r) => (r.id === targetId ? { ...r, premium_until: until } : r)),
       );
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setBusyId(null);
     }
@@ -87,21 +86,19 @@ export function AdminUsersPage(): ReactElement {
       return;
     }
     setBusyId(targetId);
-    setError(null);
     try {
       await setUserPremiumUntil(targetId, null);
       setRows((prev) =>
         prev.map((r) => (r.id === targetId ? { ...r, premium_until: null } : r)),
       );
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setBusyId(null);
     }
   }
 
   function openBanDialog(target: ProfileRow): void {
-    setError(null);
     setBanReasonDraft("");
     setBanTarget(target);
   }
@@ -117,12 +114,11 @@ export function AdminUsersPage(): ReactElement {
     }
     const trimmed: string = banReasonDraft.trim();
     if (trimmed.length > MAX_BAN_REASON_LENGTH) {
-      setError(`Reason must be at most ${MAX_BAN_REASON_LENGTH} characters.`);
+      toast.error(`Reason must be at most ${MAX_BAN_REASON_LENGTH} characters.`);
       return;
     }
     const targetId: string = banTarget.id;
     setBusyId(targetId);
-    setError(null);
     try {
       await setUserBanned(targetId, true, trimmed.length > 0 ? trimmed : null);
       const nowIso: string = new Date().toISOString();
@@ -140,7 +136,7 @@ export function AdminUsersPage(): ReactElement {
       );
       cancelBanDialog();
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setBusyId(null);
     }
@@ -154,7 +150,6 @@ export function AdminUsersPage(): ReactElement {
       return;
     }
     setBusyId(targetId);
-    setError(null);
     try {
       await setUserBanned(targetId, false);
       setRows((prev) =>
@@ -165,7 +160,7 @@ export function AdminUsersPage(): ReactElement {
         ),
       );
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setBusyId(null);
     }
@@ -202,12 +197,6 @@ export function AdminUsersPage(): ReactElement {
       {loading ? (
         <p className="page-loading" role="status">
           Loading…
-        </p>
-      ) : null}
-
-      {error ? (
-        <p className="form__error" role="alert">
-          {error}
         </p>
       ) : null}
 

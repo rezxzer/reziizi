@@ -142,7 +142,7 @@
 | # | ფიჩა | რა გაკეთდა | მომავალი (სურვილისამებრ) |
 |---|------|------------|---------------------------|
 | 1 | **Caching (30)** | TanStack Query: feed, profile, `useProfileFlags`, **Search** (`queryKeys.search.results`), **Notifications** (`queryKeys.notifications.list`); `queryKeys` / `queryClient` | prefetch სურვილისამებრ |
-| 2 | **Error Handling (32)** | `errorMessage`, `InlineError`, ერთიანი `catch`, query cache dev log; **Toast** (`ToastProvider` / `useToast`); **RouteErrorBoundary** + **`QueryErrorResetBoundary`** (`LayoutOutlet`); მუტაციის/ავთენტიკაციის შეცდომა toast-ით — `NotificationsPage`, **`SettingsPage`**, **`LoginPage`**, **`UserProfilePage`** (follow/unfollow), **`PostForm`**, **`CommentSection`** (submit/delete; კომენტარების ჩატვირთვა — ინლაინი), **`ReportPostControl`**, **`AvatarUploadSection`** | toast admin/chat სურვილისამებრ; `QueryErrorResetBoundary` + სრული `ErrorBoundary` ტესტები |
+| 2 | **Error Handling (32)** | `errorMessage`, `InlineError`, query cache dev log; **Toast** (`ToastProvider` / `useToast`); **RouteErrorBoundary** + **`QueryErrorResetBoundary`** (`LayoutOutlet`); მუტაცია/ავთენტიკაცია toast-ით (იხილე წინა სია + **`ReactionButtons`**, **`MessagesPage`**, **`ChatThreadPage`** გაგზავნა, **admin** გვერდები, **`AdminAdsPage`** save success); **`RouteErrorBoundary.test.tsx`** | დამატებითი ტესტები სურვილისამებრ |
 | 3 | **Performance (36)** | `React.lazy` + `Suspense` admin/messaging | tuning, virtualization, სურათები |
 | 4 | **Deployment (37)** | Vercel, SPA rewrites, README; **GitHub Actions** — `.github/workflows/ci.yml` (`npm test` + `npm run build`) | E2E, coverage thresholds, preview env |
 | 5 | **Logging (31)** | `src/lib/logger.ts` | Sentry / სხვა remote |

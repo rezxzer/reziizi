@@ -21,6 +21,11 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Toast: admin + messages + reactions; RouteErrorBoundary test
+
+- **`ReactionButtons`**, **`MessagesPage`** (ჩატვირთვის შეცდომა toast + `loadFailed` რომ „არაა საუბრები“ არ არის მცდარი), **`ChatThreadPage`** (`threadError` ინლაინში; გაგზავნის შეცდომა toast), **`AdminPage`**, **`AdminModerationPage`**, **`AdminUsersPage`**, **`AdminReportsPage`**, **`AdminAdsPage`**, **`AdminStatsPage`** — toast.
+- **`RouteErrorBoundary.test.tsx`:** Vitest — fallback + „Try again“ აღდგენა.
+
 ### 2026-04-03 — Toast: feed / profile / comments / report / avatar
 
 - **`UserProfilePage`:** follow/unfollow `onError` → `toast.error` (ინლაინი მოხსნილი).

@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useToast } from "../contexts/ToastContext.tsx";
 import {
   deleteCommentAsModerator,
   deletePostAsModerator,
@@ -13,25 +14,24 @@ import { errorMessage } from "../lib/errors.ts";
 import { postImageAltFromBody } from "../lib/postImageAlt.ts";
 
 export function AdminModerationPage(): ReactElement {
+  const toast = useToast();
   const [posts, setPosts] = useState<ModerationPostRow[]>([]);
   const [comments, setComments] = useState<ModerationCommentRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
-    setError(null);
     try {
       const [p, c] = await Promise.all([fetchPostsForModeration(), fetchCommentsForModeration()]);
       setPosts(p);
       setComments(c);
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     void load();
@@ -42,12 +42,11 @@ export function AdminModerationPage(): ReactElement {
       return;
     }
     setBusyId(id);
-    setError(null);
     try {
       await deletePostAsModerator(id);
       setPosts((prev) => prev.filter((x) => x.id !== id));
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setBusyId(null);
     }
@@ -58,12 +57,11 @@ export function AdminModerationPage(): ReactElement {
       return;
     }
     setBusyId(id);
-    setError(null);
     try {
       await deleteCommentAsModerator(id);
       setComments((prev) => prev.filter((x) => x.id !== id));
     } catch (e: unknown) {
-      setError(errorMessage(e));
+      toast.error(errorMessage(e));
     } finally {
       setBusyId(null);
     }
@@ -84,12 +82,6 @@ export function AdminModerationPage(): ReactElement {
       {loading ? (
         <p className="page-loading" role="status">
           Loading…
-        </p>
-      ) : null}
-
-      {error ? (
-        <p className="form__error" role="alert">
-          {error}
         </p>
       ) : null}
 

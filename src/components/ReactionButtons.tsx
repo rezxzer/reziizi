@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { errorMessage as formatError } from "../lib/errors.ts";
 import { supabase } from "../lib/supabaseClient";
 
@@ -21,16 +22,15 @@ export function ReactionButtons({
   onChanged,
 }: ReactionButtonsProps): ReactElement {
   const { t } = useI18n();
+  const toast = useToast();
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
-  const [reactionError, setReactionError] = useState<string | null>(null);
 
   async function apply(next: -1 | 1): Promise<void> {
     if (!user || busy) {
       return;
     }
     setBusy(true);
-    setReactionError(null);
     try {
       if (myReaction === next) {
         const { error } = await supabase
@@ -39,7 +39,7 @@ export function ReactionButtons({
           .eq("post_id", postId)
           .eq("user_id", user.id);
         if (error) {
-          setReactionError(formatError(error));
+          toast.error(formatError(error));
           return;
         }
       } else if (myReaction === null) {
@@ -49,7 +49,7 @@ export function ReactionButtons({
           value: next,
         });
         if (error) {
-          setReactionError(formatError(error));
+          toast.error(formatError(error));
           return;
         }
       } else {
@@ -59,7 +59,7 @@ export function ReactionButtons({
           .eq("post_id", postId)
           .eq("user_id", user.id);
         if (error) {
-          setReactionError(formatError(error));
+          toast.error(formatError(error));
           return;
         }
       }
@@ -93,11 +93,6 @@ export function ReactionButtons({
           👎 <span className="reactions__count">{thumbsDown}</span>
         </button>
       </div>
-      {reactionError ? (
-        <p className="reactions__error form__error" role="alert">
-          {reactionError}
-        </p>
-      ) : null}
     </div>
   );
 }
