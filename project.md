@@ -117,8 +117,6 @@
 
 ## CURRENT WORK
 
-**დაგეგმილი (კოდი ჯერ არა):** **Friends — mutual follows** — სპეკი §5 „Mutual follows — planned scope“, ცხრილი პრიორიტეტი **8** (`🔄 დაგეგმილი`). იმპლემენტაცია იწყება მხოლოდ ამ სკოპის დადასტურების შემდეგ.
-
 ### რა გაკეთდა (სტატუსი — ამ ეტაპზე)
 
 - **v1 (MVP):** Auth, პოსტები, feed, რეაქციები, პროფილი, settings, UI/მობილური, Legal — **დასრულებული** (ლოკალურად).
@@ -127,7 +125,7 @@
 - **Production:** აპი **ატვირთულია Vercel-ზე** (GitHub დაკავშირება, `VITE_*` env, Supabase Auth URL-ები — იხილე **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**).
 - **Media Upload (11) + File Storage (47) — baseline:** Supabase Storage `post-images`, `posts.image_url`, `PostForm` სურათი, feed/admin `PostCard` / Moderation; პოსტის წაშლისას Storage cleanup (საუკეთესო ძალისხმევა).
 - **Video (10) — baseline:** Storage `post-videos` (MP4/WebM, 50 MiB), `posts.video_url`, CHECK ერთ მედიაზე; `PostForm` / `PostCard` / admin; account deletion იშლის `post-videos` პრეფიქსს; **ტრანსკოდინგი არა** (იხილე §10).
-- **Friends (5) — baseline:** `follows` + RLS; `/u/:userId`; `/u/:userId/followers` · `/u/:userId/following` (`UserFollowListPage`, pagination); Follow/Unfollow; პროფილზე რაოდენობები ლინკებით; **ნოტიფიკაცია** ახალ გამომწერზე (`notifications.type` `follow`, migration `20260401340000` **live Supabase** — იხილე `JOURNAL.md`); ლინკები `PostCard` / Search (იხილე §5).
+- **Friends (5) — baseline:** `follows` + RLS; `/u/:userId`; `/u/:userId/followers` · `/u/:userId/following` (`UserFollowListPage`, pagination); Follow/Unfollow; პროფილზე რაოდენობები ლინკებით; **ორმხრივი გამოწერა** — `UserProfilePage`-ზე ბეიჯი `pages.userProfile.mutualFollowBadge` (ორი `queryKeys.follow.relation`); **ნოტიფიკაცია** ახალ გამომწერზე (`notifications.type` `follow`, migration `20260401340000` **live Supabase** — იხილე `JOURNAL.md`); ლინკები `PostCard` / Search (იხილე §5).
 - **Avatar (4) — baseline:** `profiles.avatar_url`, bucket `avatars` (2 MiB), **Settings** → Profile photo, **Profile** + feed **PostCard** — `Avatar` კომპონენტი; ძველი სურათის წაშლა ახალი ატვირთვისას / Remove.
 - **GitHub CI:** `.github/workflows/ci.yml` — `main`/`master`-ზე push/PR: `npm ci` → `npm test` → `npm run build` (იხილე **`README.md` → „GitHub Actions (CI)“**). **Vercel** დეპლოი რჩება რეპოდან იმპორტით, როგორც ადრე.
 - **ანგარიშის წაშლა (სერვერული ფლოუ):** **`supabase/functions/delete-account/`** — Edge Function: JWT → Storage (`avatars/`, `post-images/`) წაშლა → `auth.admin.deleteUser`. **`api/delete-account.ts`** (Vercel) + **`src/lib/deleteAccount.ts`** — same-origin `/api/delete-account`, fallback Edge. **`SettingsPage`** — დადასტურება `DELETE`, `queryClient.clear`, sign out. **Deno/IDE:** `supabase/functions/deno.json` (import map), `tsconfig.json` + `deno-env.d.ts` — `@supabase/supabase-js` ტიპები `node_modules`-იდან. **ცოცხალი Supabase:** საჭიროა **`supabase functions deploy delete-account`** (იხილე **`README.md`** + **`supabase/ACCOUNT_DELETION_DESIGN.md`**).
@@ -165,9 +163,9 @@
 | 5 | **48. Rate limiting** — DB triggers on `posts` / `comments` / `chat_messages` / `reports` (see `SCHEMA.md`) | ✅ baseline | Edge/API limits — v2 |
 | 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security | ✅ baseline v3 | Legal article body ინგლისურად; დანარჩენი გვერდები სურვილისამებრ |
 | 7 | **Account deletion** — Edge `delete-account`, `api/delete-account`, `src/lib/deleteAccount.ts`, Settings UI | 🔄 მოგვიანებით (production) | **Production არ არის სტაბილური** — დაბრუნება დაგეგმილია. კოდი რეპოშია; იხილე `README`, `CURRENT WORK` ზემოთ |
-| 8 | **5. Friends — mutual follows** (ორმხრივი გამოწერა, UI ინდიკატორი) | 🔄 დაგეგმილი | სრული სკოპი **§5** → „Mutual follows — planned scope“; **არა** ახალი migration (მხოლოდ `follows` + აპი) |
+| 8 | **5. Friends — mutual follows** (ორმხრივი გამოწერა, UI ინდიკატორი `UserProfilePage`) | ✅ baseline (MVP) | სრული სკოპი **§5**; „მომავალი ტალღა“ იხილე **`#### 🚀 Future`** mutual-ის ქვეშ |
 
-**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება), **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + **FEATURE BREAKDOWN**. **Friends (5)** — baseline §5; ნოტიფიკაცია follow-ზე live; **შემდეგი დაგეგმილი ნაბიჯი:** mutual follows — იხილე §5 „Mutual follows — planned scope“ და ცხრილის **პრიორიტეტი 8**. **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
+**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება), **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + **FEATURE BREAKDOWN**. **Friends (5)** — baseline §5 + mutual MVP; ნოტიფიკაცია follow-ზე live. **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
 
 **სადაც „მომავალია“:** თითოეულ ფიჩას აქვს **🚀 Future** ან **Notes** `FEATURE BREAKDOWN`-ში; ახალი ფიჩა: **ჯერ** გეგმა/სკოპი აქ (`project.md`) და სტატუსი ცხრილში, **მერე** კოდი (`reziizi.mdc`).
 
@@ -429,32 +427,23 @@ Users can follow other users; follower and following counts are visible on profi
 - **Table:** `follows` — `(follower_id, following_id)` PK, FK → `auth.users` CASCADE, CHECK no self-follow.
 - **RLS:** SELECT public; INSERT/DELETE own rows (`follower_id = auth.uid()`).
 - **App:** `src/lib/follows.ts` — counts, is-following, follow, unfollow; `src/lib/profileView.ts` — public profile + email visibility (`searchable`); **notifications** — `type` `follow` (გამომწერის ჩანაწერი `NotificationsPage`-ზე).
-- **UI:** `/u/:userId` (`UserProfilePage`) — other user’s profile, posts, Follow/Unfollow; `/u/:userId/followers` · `/u/:userId/following` (`UserFollowListPage`, infinite scroll); own `/profile` — რაოდენობები ლინკებით იმავე სიებზე; **PostCard** author → `/u/...`; **Search** — Profile + Message.
+- **UI:** `/u/:userId` (`UserProfilePage`) — other user’s profile, posts, Follow/Unfollow, **mutual-follow badge** when both directions follow; `/u/:userId/followers` · `/u/:userId/following` (`UserFollowListPage`, infinite scroll); own `/profile` — რაოდენობები ლინკებით იმავე სიებზე; **PostCard** author → `/u/...`; **Search** — Profile + Message.
 - **Migration:** `20260401330000_add_follows.sql`
 
 ---
 
 #### 🚀 Future
-- **Mutual follows** — დეტალები ქვემოთ („Mutual follows — planned scope“). სტატუსი: **დაგეგმილი** (იხილე **CURRENT WORK** ცხრილი, პრიორიტეტი **8**).
+- **Mutual follows — მომავალი ტალღა (არა MVP):** ცალკე `/mutuals` მარშრუტი; ფილტრი „მხოლოდ ორმხრივები“ followers/following სიებზე; ცალკე ნოტიფიკაცია „გახდით ორმხრივად გამოწერილი“.
 
 ---
 
-#### 📋 Mutual follows — planned scope (იმპლემენტაციამდე სპეკი)
+#### 📋 Mutual follows — სპეკი და MVP სტატუსი
 
 **განმარტება:** ორი მომხმარებელი „ორმხრივად გამოწერილია“, თუ **ორივე** მიმართულებით არსებობს `follows` ჩანაწერი: `A → B` და `B → A` (არსებული ცხრილი; **ახალი migration არა**).
 
-**MVP სკოპი (შემდეგი იმპლემენტაციის ფარგლები):**
+**MVP (✅ დასრულებული):** `UserProfilePage` — ორი `useQuery`: `fetchIsFollowing(viewer, target)` და `fetchIsFollowing(target, viewer)` (`queryKeys.follow.relation` ორივე მიმართულებით); ბეიჯი `pages.userProfile.mutualFollowBadge` (`en`/`ka`/`ru`); follow/unfollow ინვალიდაცია ორივე relation query-ზე; სტილი `.badge--mutual`.
 
-1. **`UserProfilePage`** (სხვისი პროფილი, ლოგინი, viewer ≠ target):
-   - თუ viewer უკვე follow-ს აკეთებს target-ს **და** target follow-ს აკეთებს viewer-ს — ერთი მოკლე ტექსტი/ბეიჯი (მაგ. „You follow each other“ / „Mutual“), `messages.ts` `en`/`ka`/`ru`.
-   - მონაცემები: ორი ბულეანი — უკვე არსებობს `fetchIsFollowing(viewer, target)`; დასჭირდება მეორე მიმართულება `fetchIsFollowing(target, viewer)` ან ერთი ჰელპერი `fetchMutualFollowState(viewerId, targetId)` → `{ viewerFollowsTarget, targetFollowsViewer }` (`Promise.all` / ერთი `useQuery` ორი `queryKey`-ით ან გაერთიანებული key).
-2. **არა ამ MVP-ში (მომავალი ტალღა, სურვილისამებრ):** ცალკე `/mutuals` მარშრუტი; ფილტრი „მხოლოდ ორმხრივები“ followers/following სიებზე; ცალკე ნოტიფიკაცია „გახდით ორმხრივად გამოწერილი“.
-
-**ტექნიკური შენიშვნები:**
-- `queryKeys.follow.relation` უკვე viewer→target; target→viewer-ისთვის ახალი სტაბილური key (მაგ. `queryKeys.follow.reverseRelation(viewerId, targetId)`) ან იგივე `relation(targetId, viewerId)` — თანმიმდევრულად `follows.ts`-ში.
-- RLS უცვლელი; Supabase RPC არაა სავალდებულო MVP-სთვის.
-
-**დასრულების კრიტერიუმი:** ლოგინით მომხმარებელი ხედავს mutual ინდიკატორს მხოლოდ როცა ორივე მიმართულება ჭეშმარიტია; ენები სამივე; `npm test` + `npm run build` წარმატებით.
+**დასრულების კრიტერიუმი (MVP):** ლოგინით მომხმარებელი ხედავს mutual ინდიკატორს მხოლოდ როცა ორივე მიმართულება ჭეშმარიტია; ენები სამივე; `npm test` + `npm run build` წარმატებით.
 
 ---
 

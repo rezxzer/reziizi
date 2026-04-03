@@ -110,6 +110,8 @@ type PagesBundle = {
     followingStat: string;
     follow: string;
     unfollow: string;
+    /** Shown when viewer and profile user follow each other. */
+    mutualFollowBadge: string;
     signInToFollow: string;
     theirPosts: string;
     postsHiddenBanned: string;
@@ -432,6 +434,7 @@ const en: Bundle = {
       followingStat: "Following: {count}",
       follow: "Follow",
       unfollow: "Unfollow",
+      mutualFollowBadge: "Mutual",
       signInToFollow: "Sign in to follow this user.",
       theirPosts: "Posts",
       postsHiddenBanned: "Posts are hidden for restricted accounts.",
@@ -746,6 +749,7 @@ const ka: Bundle = {
       followingStat: "გამოწერები: {count}",
       follow: "გამოწერა",
       unfollow: "გამოწერის მოშორება",
+      mutualFollowBadge: "ორმხრივი გამოწერა",
       signInToFollow: "გამოსაწერად შედით.",
       theirPosts: "პოსტები",
       postsHiddenBanned: "შეზღუდული ანგარიშის პოსტები დამალულია.",
@@ -1060,6 +1064,7 @@ const ru: Bundle = {
       followingStat: "Подписки: {count}",
       follow: "Подписаться",
       unfollow: "Отписаться",
+      mutualFollowBadge: "Взаимная подписка",
       signInToFollow: "Войдите, чтобы подписаться.",
       theirPosts: "Посты",
       postsHiddenBanned: "Посты скрыты для ограниченных аккаунтов.",

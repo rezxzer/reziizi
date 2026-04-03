@@ -21,10 +21,16 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Friends: mutual follows MVP (UserProfilePage)
+
+- **`UserProfilePage`:** მეორე `useQuery` — `fetchIsFollowing(targetId, viewerId)` (`queryKeys.follow.relation(targetId, viewerId)`); ბეიჯი `mutualFollowBadge`; follow/unfollow → reverse relation ინვალიდაცია.
+- **`messages.ts`:** `en` / `ka` / `ru`; **`styles.css`:** `.badge--mutual`, `.user-profile__mutual`.
+- **`project.md`:** პრიორიტეტი **8** ✅ MVP; §5 განახლებული.
+
 ### 2026-04-03 — Friends: mutual follows — სპეკი (იმპლემენტაციამდე)
 
 - **`project.md`:** ცხრილი პრიორიტეტი **8**; §5 „Mutual follows — planned scope“ — MVP მხოლოდ `UserProfilePage` ინდიკატორი + i18n; **არა** migration; out-of-scope: `/mutuals`, სიის ფილტრი, ცალკე ნოტიფიკაცია.
-- **შემდეგი ნაბიჯი:** დადასტურების შემდეგ იმპლემენტაცია იმავე სკოპით.
+- **შემდეგი ნაბიჯი:** დადასტურების შემდეგ იმპლემენტაცია იმავე სკოპით. *(შესრულებულია — იხილე ჩანაწერი „mutual follows MVP“ ზემოთ.)*
 
 ### 2026-04-03 — Supabase: `20260401340000` live (დადასტურება)
 

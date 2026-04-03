@@ -342,6 +342,18 @@ body {
   color: #1a1a1a;
 }
 
+.badge--mutual {
+  background: var(--surface-elevated, #ececec);
+  color: var(--text, #1a1a1a);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.75rem;
+}
+
+.user-profile__mutual {
+  margin: 0.35rem 0 0;
+}
+
 .muted {
   color: var(--muted);
   font-size: 0.9rem;

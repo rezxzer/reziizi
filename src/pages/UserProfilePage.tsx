@@ -49,6 +49,21 @@ export function UserProfilePage(): ReactElement {
     enabled: isValidUuid(targetId) && Boolean(viewerId) && viewerId !== targetId && Boolean(profileQuery.data),
   });
 
+  /** Target user follows viewer (for mutual-follow indicator). */
+  const targetFollowsViewerQuery = useQuery({
+    queryKey: queryKeys.follow.relation(targetId, viewerId ?? "__none__"),
+    queryFn: () => fetchIsFollowing(targetId, viewerId!),
+    enabled: isValidUuid(targetId) && Boolean(viewerId) && viewerId !== targetId && Boolean(profileQuery.data),
+  });
+
+  const showMutualFollow: boolean =
+    Boolean(viewerId) &&
+    viewerId !== targetId &&
+    followingQuery.data === true &&
+    targetFollowsViewerQuery.data === true &&
+    !followingQuery.isPending &&
+    !targetFollowsViewerQuery.isPending;
+
   const followMut = useMutation({
     mutationFn: async (): Promise<void> => {
       await followUser(targetId);
@@ -61,6 +76,7 @@ export function UserProfilePage(): ReactElement {
         void queryClient.invalidateQueries({ queryKey: ["followList", "following", viewerId] });
       }
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(viewerId ?? "", targetId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(targetId, viewerId ?? "") });
     },
   });
 
@@ -76,6 +92,7 @@ export function UserProfilePage(): ReactElement {
         void queryClient.invalidateQueries({ queryKey: ["followList", "following", viewerId] });
       }
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(viewerId ?? "", targetId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(targetId, viewerId ?? "") });
     },
   });
 
@@ -163,6 +180,11 @@ export function UserProfilePage(): ReactElement {
                       <Link className="inline-link" to={`/u/${targetId}/following`}>
                         {t("pages.userProfile.followingStat", { count: countsQuery.data.following })}
                       </Link>
+                    </p>
+                  ) : null}
+                  {showMutualFollow ? (
+                    <p className="user-profile__mutual" role="status">
+                      <span className="badge badge--mutual">{t("pages.userProfile.mutualFollowBadge")}</span>
                     </p>
                   ) : null}
                   {showFollowUi ? (
