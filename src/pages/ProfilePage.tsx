@@ -104,12 +104,15 @@ export function ProfilePage(): ReactElement {
                 </div>
               </div>
               <p className="muted">{t("pages.profile.postsCount", { count: posts.length })}</p>
-              {followCounts != null ? (
-                <p className="muted">
-                  {t("pages.userProfile.followStats", {
-                    followers: followCounts.followers,
-                    following: followCounts.following,
-                  })}
+              {followCounts != null && user ? (
+                <p className="muted profile-page__follow-stats">
+                  <Link className="inline-link" to={`/u/${user.id}/followers`}>
+                    {t("pages.userProfile.followersStat", { count: followCounts.followers })}
+                  </Link>
+                  {" · "}
+                  <Link className="inline-link" to={`/u/${user.id}/following`}>
+                    {t("pages.userProfile.followingStat", { count: followCounts.following })}
+                  </Link>
                 </p>
               ) : null}
             </>

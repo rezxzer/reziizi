@@ -21,6 +21,12 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Friends: გამომწერების / გამოწერების სიები (მარშრუტები)
+
+- **Routes:** `/u/:userId/followers`, `/u/:userId/following` → `UserFollowListPage` (`lazy/chunks`); უფრო სპეციფიკური მარშრუტები `/u/:userId`-მდე.
+- **SEO:** `seo.ts` `ROUTE_DEFS` — `userFollowers` / `userFollowing`; ტესტი `seo.test.ts`.
+- **UI:** `UserProfilePage` + `ProfilePage` — follower/following რაოდენობები `Link`-ებით; follow/unfollow ინვალიდაცია `followList` query-ზე.
+
 ### 2026-04-03 — Friends (5): `follows` + `/u/:userId`
 
 - **Migration:** `20260401330000_add_follows.sql` — `public.follows`, RLS, self-follow CHECK.

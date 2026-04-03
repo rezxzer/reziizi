@@ -106,7 +106,8 @@ type PagesBundle = {
     notFound: string;
     bannedNotice: string;
     emailHidden: string;
-    followStats: string;
+    followersStat: string;
+    followingStat: string;
     follow: string;
     unfollow: string;
     signInToFollow: string;
@@ -427,7 +428,8 @@ const en: Bundle = {
       notFound: "No profile found for this user.",
       bannedNotice: "This account is restricted.",
       emailHidden: "Hidden",
-      followStats: "Followers: {followers} · Following: {following}",
+      followersStat: "Followers: {count}",
+      followingStat: "Following: {count}",
       follow: "Follow",
       unfollow: "Unfollow",
       signInToFollow: "Sign in to follow this user.",
@@ -740,7 +742,8 @@ const ka: Bundle = {
       notFound: "პროფილი ვერ მოიძებნა.",
       bannedNotice: "ანგარიში შეზღუდულია.",
       emailHidden: "დამალული",
-      followStats: "გამომწერები: {followers} · გამოწერები: {following}",
+      followersStat: "გამომწერები: {count}",
+      followingStat: "გამოწერები: {count}",
       follow: "გამოწერა",
       unfollow: "გამოწერის მოშორება",
       signInToFollow: "გამოსაწერად შედით.",
@@ -1053,7 +1056,8 @@ const ru: Bundle = {
       notFound: "Профиль не найден.",
       bannedNotice: "Аккаунт ограничен.",
       emailHidden: "Скрыто",
-      followStats: "Подписчики: {followers} · Подписки: {following}",
+      followersStat: "Подписчики: {count}",
+      followingStat: "Подписки: {count}",
       follow: "Подписаться",
       unfollow: "Отписаться",
       signInToFollow: "Войдите, чтобы подписаться.",

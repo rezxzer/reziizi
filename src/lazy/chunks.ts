@@ -58,3 +58,8 @@ export const UserProfilePage = lazy(async () => {
   const m = await import("../pages/UserProfilePage.tsx");
   return { default: m.UserProfilePage };
 });
+
+export const UserFollowListPage = lazy(async () => {
+  const m = await import("../pages/UserFollowListPage.tsx");
+  return { default: m.UserFollowListPage };
+});

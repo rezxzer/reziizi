@@ -34,6 +34,16 @@ describe("getSeoForPath", () => {
     expect(p.robots).toBe("index,follow");
   });
 
+  it("public member followers and following lists are indexable", () => {
+    const id = "550e8400-e29b-41d4-a716-446655440000";
+    const f = getSeoForPath(`/u/${id}/followers`, "en");
+    expect(f.title).toBe("Followers");
+    expect(f.robots).toBe("index,follow");
+    const g = getSeoForPath(`/u/${id}/following`, "en");
+    expect(g.title).toBe("Following");
+    expect(g.robots).toBe("index,follow");
+  });
+
   it("unknown path falls back to site default", () => {
     const p = getSeoForPath("/does-not-exist", "en");
     expect(p.title).toBe(SITE_NAME);

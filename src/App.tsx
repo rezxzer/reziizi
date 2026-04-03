@@ -24,6 +24,7 @@ import {
   ChatThreadPage,
   MessagesPage,
   NotificationsPage,
+  UserFollowListPage,
   UserProfilePage,
 } from "./lazy/chunks.ts";
 
@@ -34,6 +35,8 @@ export default function App(): ReactElement {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/u/:userId/followers" element={<UserFollowListPage />} />
+          <Route path="/u/:userId/following" element={<UserFollowListPage />} />
           <Route path="/u/:userId" element={<UserProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route

@@ -57,6 +57,8 @@ export function UserProfilePage(): ReactElement {
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(targetId) });
       if (viewerId != null) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(viewerId) });
+        void queryClient.invalidateQueries({ queryKey: ["followList", "followers", targetId] });
+        void queryClient.invalidateQueries({ queryKey: ["followList", "following", viewerId] });
       }
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(viewerId ?? "", targetId) });
     },
@@ -70,6 +72,8 @@ export function UserProfilePage(): ReactElement {
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(targetId) });
       if (viewerId != null) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(viewerId) });
+        void queryClient.invalidateQueries({ queryKey: ["followList", "followers", targetId] });
+        void queryClient.invalidateQueries({ queryKey: ["followList", "following", viewerId] });
       }
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(viewerId ?? "", targetId) });
     },
@@ -151,11 +155,14 @@ export function UserProfilePage(): ReactElement {
                     {canShowEmail(profile, viewerId) ? profile.email ?? "—" : t("pages.userProfile.emailHidden")}
                   </p>
                   {countsQuery.data != null ? (
-                    <p className="muted">
-                      {t("pages.userProfile.followStats", {
-                        followers: countsQuery.data.followers,
-                        following: countsQuery.data.following,
-                      })}
+                    <p className="muted user-profile__follow-stats">
+                      <Link className="inline-link" to={`/u/${targetId}/followers`}>
+                        {t("pages.userProfile.followersStat", { count: countsQuery.data.followers })}
+                      </Link>
+                      {" · "}
+                      <Link className="inline-link" to={`/u/${targetId}/following`}>
+                        {t("pages.userProfile.followingStat", { count: countsQuery.data.following })}
+                      </Link>
                     </p>
                   ) : null}
                   {showFollowUi ? (
