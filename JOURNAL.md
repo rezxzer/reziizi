@@ -21,6 +21,12 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Caching + i18n: Notifications გვერდი
+
+- **`NotificationsPage`:** `useQuery` (`queryKeys.notifications.list`) + `useMutation` mark read / mark all; ინვალიდაცია სიაზე.
+- **`messages.ts`:** `pages.notifications.*` — `en` / `ka` / `ru` (სათაური, ცარიელი, ღილაკები, comment/reaction/follow შეტყობინების ტექსტები, post / პროფილი).
+- **`project.md`:** Caching (30) + Localization (44) განახლება.
+
 ### 2026-04-03 — Friends: mutual follows MVP (UserProfilePage)
 
 - **`UserProfilePage`:** მეორე `useQuery` — `fetchIsFollowing(targetId, viewerId)` (`queryKeys.follow.relation(targetId, viewerId)`); ბეიჯი `mutualFollowBadge`; follow/unfollow → reverse relation ინვალიდაცია.

@@ -125,6 +125,20 @@ type PagesBundle = {
     loadMore: string;
     restricted: string;
   };
+  notifications: {
+    title: string;
+    loading: string;
+    markAllRead: string;
+    markRead: string;
+    empty: string;
+    backToFeed: string;
+    /** Word before post id snippet, e.g. "post" */
+    postLabel: string;
+    viewProfile: string;
+    msgComment: string;
+    msgReaction: string;
+    msgFollow: string;
+  };
   postCard: {
     deleteConfirm: string;
     delete: string;
@@ -448,6 +462,20 @@ const en: Bundle = {
       loadMore: "Load more ({pageSize} per page)",
       restricted: "Restricted",
     },
+    notifications: {
+      title: "Notifications",
+      loading: "Loading…",
+      markAllRead: "Mark all read",
+      markRead: "Mark read",
+      empty:
+        "No notifications yet. Comments and reactions on your posts and new followers appear here.",
+      backToFeed: "Back to feed",
+      postLabel: "post",
+      viewProfile: "View profile",
+      msgComment: "{actor} commented on your post",
+      msgReaction: "{actor} reacted to your post",
+      msgFollow: "{actor} started following you",
+    },
     postCard: {
       deleteConfirm: "Delete this post?",
       delete: "Delete",
@@ -763,6 +791,20 @@ const ka: Bundle = {
       loadMore: "კიდევ ({pageSize} ერთ გვერდზე)",
       restricted: "შეზღუდული",
     },
+    notifications: {
+      title: "შეტყობინებები",
+      loading: "იტვირთება…",
+      markAllRead: "ყველა წავიკითხე",
+      markRead: "წავიკითხე",
+      empty:
+        "შეტყობინებები ჯერ არაა. თქვენი პოსტების კომენტარები, რეაქციები და ახალი გამომწერები აქ გამოჩნდება.",
+      backToFeed: "← ლენტა",
+      postLabel: "პოსტი",
+      viewProfile: "პროფილი",
+      msgComment: "{actor} დაკომენტარა თქვენს პოსტზე",
+      msgReaction: "{actor} რეაქცია აჩვენა თქვენს პოსტზე",
+      msgFollow: "{actor} გამოგიწერათ",
+    },
     postCard: {
       deleteConfirm: "წავშალოთ ეს პოსტი?",
       delete: "წაშლა",
@@ -1077,6 +1119,20 @@ const ru: Bundle = {
       emptyFollowing: "Пока ни на кого не подписаны.",
       loadMore: "Загрузить ещё (по {pageSize})",
       restricted: "Ограничен",
+    },
+    notifications: {
+      title: "Уведомления",
+      loading: "Загрузка…",
+      markAllRead: "Прочитать все",
+      markRead: "Прочитано",
+      empty:
+        "Пока нет уведомлений. Здесь появятся комментарии и реакции к вашим постам и новые подписчики.",
+      backToFeed: "← Лента",
+      postLabel: "пост",
+      viewProfile: "Профиль",
+      msgComment: "{actor} прокомментировал(а) ваш пост",
+      msgReaction: "{actor} отреагировал(а) на ваш пост",
+      msgFollow: "{actor} подписался(ась) на вас",
     },
     postCard: {
       deleteConfirm: "Удалить этот пост?",

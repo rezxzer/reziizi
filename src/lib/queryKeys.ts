@@ -22,4 +22,8 @@ export const queryKeys = {
     results: (pattern: string, viewerId: string | null) =>
       ["search", "results", pattern, viewerId ?? "__anon__"] as const,
   },
+  notifications: {
+    all: ["notifications"] as const,
+    list: ["notifications", "list"] as const,
+  },
 } as const;

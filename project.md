@@ -131,7 +131,7 @@
 - **ანგარიშის წაშლა (სერვერული ფლოუ):** **`supabase/functions/delete-account/`** — Edge Function: JWT → Storage (`avatars/`, `post-images/`) წაშლა → `auth.admin.deleteUser`. **`api/delete-account.ts`** (Vercel) + **`src/lib/deleteAccount.ts`** — same-origin `/api/delete-account`, fallback Edge. **`SettingsPage`** — დადასტურება `DELETE`, `queryClient.clear`, sign out. **Deno/IDE:** `supabase/functions/deno.json` (import map), `tsconfig.json` + `deno-env.d.ts` — `@supabase/supabase-js` ტიპები `node_modules`-იდან. **ცოცხალი Supabase:** საჭიროა **`supabase functions deploy delete-account`** (იხილე **`README.md`** + **`supabase/ACCOUNT_DELETION_DESIGN.md`**).
 - **ანგარიშის წაშლა (სტატუსი production):** **მოგვიანებით დაბრუნება.** სისტემა **ამ ეტაპზე სტაბილურად არ მუშაობს** (Vercel `/api/delete-account`, env, Edge — დიაგნოსტიკა/დეპლოი დასრულებული არა). იხილე **`README.md`** → Production deployment, **`vercel.json`**, **`api/delete-account.ts`**.
 - **ნავიგაცია (ადმინი):** **`Layout`** — ადმინის ქვემენიუ ერთ **`details`** ჩამოსაშლელში (ჰედერი აღარ „იშლება“ ბევრი ბმულით). **`translate="no"`** ჰედერზე — ბრაუზერის ავტოთარგმანი არ ურევს ნავიგაციის ტექსტს.
-- **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security სრულად `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
+- **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security, **Notifications** (`pages.notifications.*`) სრულად `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
 
 **შენიშვნა:** **Database Structure (29)** — `supabase/SCHEMA.md`, `verify_schema.sql`; ახალი migration-ის შემდეგ ამ ფაილებიც განაახლე.
 
@@ -141,7 +141,7 @@
 
 | # | ფიჩა | რა გაკეთდა | მომავალი (სურვილისამებრ) |
 |---|------|------------|---------------------------|
-| 1 | **Caching (30)** | TanStack Query: feed, profile, `useProfileFlags`, **Search** (`queryKeys.search.results`); `queryKeys` / `queryClient` | prefetch, სხვა გვერდები სურვილისამებრ |
+| 1 | **Caching (30)** | TanStack Query: feed, profile, `useProfileFlags`, **Search** (`queryKeys.search.results`), **Notifications** (`queryKeys.notifications.list`); `queryKeys` / `queryClient` | prefetch სურვილისამებრ |
 | 2 | **Error Handling (32)** | `errorMessage`, `InlineError`, ერთიანი `catch`, query cache dev log | toast, `QueryErrorResetBoundary` |
 | 3 | **Performance (36)** | `React.lazy` + `Suspense` admin/messaging | tuning, virtualization, სურათები |
 | 4 | **Deployment (37)** | Vercel, SPA rewrites, README; **GitHub Actions** — `.github/workflows/ci.yml` (`npm test` + `npm run build`) | E2E, coverage thresholds, preview env |
@@ -161,7 +161,7 @@
 | 3 | **42. SEO** — `src/lib/seo.ts`, `RouteSeo`, `index.html` defaults; public routes indexable, auth/admin noindex | ✅ baseline | **Email (45)** — მოგვიანებით |
 | 4 | **43. A11Y** — skip link, `#main-content`, brand; **`RouteAnnouncer`** (`aria-live`, `getRouteAnnouncement`) | ✅ baseline | full audit — v3 |
 | 5 | **48. Rate limiting** — DB triggers on `posts` / `comments` / `chat_messages` / `reports` (see `SCHEMA.md`) | ✅ baseline | Edge/API limits — v2 |
-| 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security | ✅ baseline v3 | Legal article body ინგლისურად; დანარჩენი გვერდები სურვილისამებრ |
+| 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security, **Notifications** | ✅ baseline v3 | Legal article body ინგლისურად; დანარჩენი გვერდები სურვილისამებრ |
 | 7 | **Account deletion** — Edge `delete-account`, `api/delete-account`, `src/lib/deleteAccount.ts`, Settings UI | 🔄 მოგვიანებით (production) | **Production არ არის სტაბილური** — დაბრუნება დაგეგმილია. კოდი რეპოშია; იხილე `README`, `CURRENT WORK` ზემოთ |
 | 8 | **5. Friends — mutual follows** (ორმხრივი გამოწერა, UI ინდიკატორი `UserProfilePage`) | ✅ baseline (MVP) | სრული სკოპი **§5**; „მომავალი ტალღა“ იხილე **`#### 🚀 Future`** mutual-ის ქვეშ |
 
