@@ -77,6 +77,7 @@ alwaysApply: true
 | 20 | `20260401310000_add_rate_limit_triggers.sql` (DB rate limits: posts, comments, chat, reports) |
 | 21 | `20260401320000_add_post_videos_storage_and_video_url.sql` (bucket `post-videos`, `posts.video_url`, CHECK) |
 | 22 | `20260401330000_add_follows.sql` (`follows` table + RLS) |
+| 23 | `20260401340000_add_follow_notifications.sql` (`follow` notification type + trigger on `follows`) |
 
 **შენიშვნა:** Security (27) — SQL migration არ არის; `vercel.json` Vercel-ისთვის (headers + SPA rewrites; **Deployment (37)**). **Production:** `README.md` → „Production (Vercel)“. API Layer (28) — `src/lib/api/` (migration არა; ახალი ცხრილი/RPC → `registry.ts`). Database Structure (29) — `supabase/SCHEMA.md` + `verify_schema.sql` განახლება. Performance (36) — კლიენტი: `src/lazy/chunks.ts`, `RouteFallback`, `App.tsx` Suspense (migration არა). Caching (30) — `@tanstack/react-query`, `queryClient.ts`, `queryKeys.ts` (migration არა). Error Handling (32) — `errorMessage` / `lib/errors.ts`, `InlineError` (migration არა). Logging (31) — `src/lib/logger.ts` (migration არა). Testing (41) — Vitest (`npm test`; migration არა). **GitHub CI** — `.github/workflows/ci.yml` (არა migration).
 

@@ -16,7 +16,7 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 | `posts` | Feed posts |
 | `reactions` | Post votes (−1 / +1), unique per (post, user) |
 | `comments` | Post comments |
-| `notifications` | Comment/reaction notifications for post owner |
+| `notifications` | Comment/reaction/follow notifications (recipient `user_id`) |
 | `tags` | Tag slugs |
 | `post_tags` | Post ↔ tag links |
 | `conversations` | Chat threads (pair of user ids) |
@@ -55,7 +55,8 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 
 ### `notifications`
 
-- `id`, `user_id` (recipient), `type` (`comment` \| `reaction`), `actor_id`, `post_id`, `comment_id`, `read_at`, `created_at`
+- `id`, `user_id` (recipient), `type` (`comment` \| `reaction` \| `follow`), `actor_id`, `post_id` (null for `follow`), `comment_id`, `read_at`, `created_at`
+- Triggers: new comment/reaction on a post → owner; new `follows` row → `following_id` receives `follow` (see `20260401340000_add_follow_notifications.sql`)
 
 ### `tags` / `post_tags`
 
@@ -101,7 +102,7 @@ Errors surface as PostgREST messages (e.g. `Too many posts. Wait a minute and tr
 | `admin_set_user_banned` | Admin ban/unban (+ reason) |
 | `admin_set_user_premium_until` | Admin premium window |
 
-Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_post_owner_on_*`, `enforce_*_rate_limit`); not called directly from the app.
+Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_post_owner_on_*`, `notify_followed_user_on_follow`, `enforce_*_rate_limit`); not called directly from the app.
 
 ## Storage (Supabase)
 

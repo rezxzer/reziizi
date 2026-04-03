@@ -36,6 +36,7 @@ WHERE n.nspname = 'public'
     'get_or_create_conversation',
     'notify_post_owner_on_comment',
     'notify_post_owner_on_reaction',
+    'notify_followed_user_on_follow',
     'touch_conversation_on_message',
     'admin_set_user_banned',
     'admin_set_user_premium_until',

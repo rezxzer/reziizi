@@ -21,6 +21,17 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Caching (30): Search გვერდი TanStack Query-ზე
+
+- **`SearchPage`:** `useQuery` + `queryKeys.search.results(pattern, viewerId)` — პოსტები/პროფილები; `onPostChanged` ინვალიდაცია search + feed.
+- **`queryKeys.search`:** `all`, `results`.
+
+### 2026-04-03 — Friends: ნოტიფიკაცია ახალ გამომწერზე
+
+- **Migration:** `20260401340000_add_follow_notifications.sql` — `notifications.type` + `follow`, `post_id` nullable საჭიროებისამებრ; `notify_followed_user_on_follow` + ტრიგერი `follows` INSERT-ზე.
+- **აპი:** `NotificationType` / `NotificationRow`; `NotificationsPage` — ტექსტი + ლინკი პროფილზე; `SCHEMA.md`, `verify_schema.sql`, `reziizi.mdc` #23.
+- **Supabase:** გაუშვი migration production-ზე.
+
 ### 2026-04-03 — Friends: გამომწერების / გამოწერების სიები (მარშრუტები)
 
 - **Routes:** `/u/:userId/followers`, `/u/:userId/following` → `UserFollowListPage` (`lazy/chunks`); უფრო სპეციფიკური მარშრუტები `/u/:userId`-მდე.

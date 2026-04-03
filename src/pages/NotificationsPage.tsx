@@ -85,7 +85,9 @@ export function NotificationsPage(): ReactElement {
             </p>
           ) : null}
           {!loading && items.length === 0 && !error ? (
-            <p className="muted">No notifications yet. Comments and reactions on your posts appear here.</p>
+            <p className="muted">
+              No notifications yet. Comments and reactions on your posts and new followers appear here.
+            </p>
           ) : null}
           {!loading && items.length > 0 ? (
             <ul className="notification-list">
@@ -123,7 +125,9 @@ function NotificationRowItem({ n, disabled, onRead }: RowProps): ReactElement {
   const text =
     n.type === "comment"
       ? `${actor} commented on your post`
-      : `${actor} reacted to your post`;
+      : n.type === "reaction"
+        ? `${actor} reacted to your post`
+        : `${actor} started following you`;
 
   return (
     <li className={`notification-list__item${unread ? " notification-list__item--unread" : ""}`}>
@@ -133,10 +137,20 @@ function NotificationRowItem({ n, disabled, onRead }: RowProps): ReactElement {
         <p className="notification-list__msg">{text}</p>
         <p className="notification-list__meta muted">
           <time dateTime={n.created_at}>{time}</time>
-          <span className="notification-list__ids">
-            {" "}
-            · post <code>{n.post_id.slice(0, 8)}…</code>
-          </span>
+          {n.post_id != null ? (
+            <span className="notification-list__ids">
+              {" "}
+              · post <code>{n.post_id.slice(0, 8)}…</code>
+            </span>
+          ) : n.type === "follow" ? (
+            <span className="notification-list__ids">
+              {" "}
+              ·{" "}
+              <Link className="inline-link" to={`/u/${n.actor_id}`}>
+                View profile
+              </Link>
+            </span>
+          ) : null}
         </p>
         </div>
       </div>

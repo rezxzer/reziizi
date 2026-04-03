@@ -125,7 +125,7 @@
 - **Production:** აპი **ატვირთულია Vercel-ზე** (GitHub დაკავშირება, `VITE_*` env, Supabase Auth URL-ები — იხილე **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**).
 - **Media Upload (11) + File Storage (47) — baseline:** Supabase Storage `post-images`, `posts.image_url`, `PostForm` სურათი, feed/admin `PostCard` / Moderation; პოსტის წაშლისას Storage cleanup (საუკეთესო ძალისხმევა).
 - **Video (10) — baseline:** Storage `post-videos` (MP4/WebM, 50 MiB), `posts.video_url`, CHECK ერთ მედიაზე; `PostForm` / `PostCard` / admin; account deletion იშლის `post-videos` პრეფიქსს; **ტრანსკოდინგი არა** (იხილე §10).
-- **Friends (5) — baseline:** `follows` + RLS; `/u/:userId`; `/u/:userId/followers` · `/u/:userId/following` (`UserFollowListPage`, pagination); Follow/Unfollow; პროფილზე რაოდენობები ლინკებით; ლინკები `PostCard` / Search (იხილე §5).
+- **Friends (5) — baseline:** `follows` + RLS; `/u/:userId`; `/u/:userId/followers` · `/u/:userId/following` (`UserFollowListPage`, pagination); Follow/Unfollow; პროფილზე რაოდენობები ლინკებით; **ნოტიფიკაცია** ახალ გამომწერზე (`notifications.type` `follow`, migration `20260401340000`); ლინკები `PostCard` / Search (იხილე §5).
 - **Avatar (4) — baseline:** `profiles.avatar_url`, bucket `avatars` (2 MiB), **Settings** → Profile photo, **Profile** + feed **PostCard** — `Avatar` კომპონენტი; ძველი სურათის წაშლა ახალი ატვირთვისას / Remove.
 - **GitHub CI:** `.github/workflows/ci.yml` — `main`/`master`-ზე push/PR: `npm ci` → `npm test` → `npm run build` (იხილე **`README.md` → „GitHub Actions (CI)“**). **Vercel** დეპლოი რჩება რეპოდან იმპორტით, როგორც ადრე.
 - **ანგარიშის წაშლა (სერვერული ფლოუ):** **`supabase/functions/delete-account/`** — Edge Function: JWT → Storage (`avatars/`, `post-images/`) წაშლა → `auth.admin.deleteUser`. **`api/delete-account.ts`** (Vercel) + **`src/lib/deleteAccount.ts`** — same-origin `/api/delete-account`, fallback Edge. **`SettingsPage`** — დადასტურება `DELETE`, `queryClient.clear`, sign out. **Deno/IDE:** `supabase/functions/deno.json` (import map), `tsconfig.json` + `deno-env.d.ts` — `@supabase/supabase-js` ტიპები `node_modules`-იდან. **ცოცხალი Supabase:** საჭიროა **`supabase functions deploy delete-account`** (იხილე **`README.md`** + **`supabase/ACCOUNT_DELETION_DESIGN.md`**).
@@ -141,7 +141,7 @@
 
 | # | ფიჩა | რა გაკეთდა | მომავალი (სურვილისამებრ) |
 |---|------|------------|---------------------------|
-| 1 | **Caching (30)** | TanStack Query: feed, profile, `useProfileFlags`; `queryKeys` / `queryClient` | Search/s სხვა გვერდები query-ზე, prefetch |
+| 1 | **Caching (30)** | TanStack Query: feed, profile, `useProfileFlags`, **Search** (`queryKeys.search.results`); `queryKeys` / `queryClient` | prefetch, სხვა გვერდები სურვილისამებრ |
 | 2 | **Error Handling (32)** | `errorMessage`, `InlineError`, ერთიანი `catch`, query cache dev log | toast, `QueryErrorResetBoundary` |
 | 3 | **Performance (36)** | `React.lazy` + `Suspense` admin/messaging | tuning, virtualization, სურათები |
 | 4 | **Deployment (37)** | Vercel, SPA rewrites, README; **GitHub Actions** — `.github/workflows/ci.yml` (`npm test` + `npm run build`) | E2E, coverage thresholds, preview env |
@@ -164,7 +164,7 @@
 | 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security | ✅ baseline v3 | Legal article body ინგლისურად; დანარჩენი გვერდები სურვილისამებრ |
 | 7 | **Account deletion** — Edge `delete-account`, `api/delete-account`, `src/lib/deleteAccount.ts`, Settings UI | 🔄 მოგვიანებით (production) | **Production არ არის სტაბილური** — დაბრუნება დაგეგმილია. კოდი რეპოშია; იხილე `README`, `CURRENT WORK` ზემოთ |
 
-**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება), **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + **FEATURE BREAKDOWN**. **Friends (5)** — baseline §5 (სიები გვერდზე; **მომავალი:** mutual follows, ნოტიფიკაცია ახალ გამომწერზე). **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
+**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება), **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + **FEATURE BREAKDOWN**. **Friends (5)** — baseline §5 (სიები გვერდზე; ნოტიფიკაცია ახალ გამომწერზე — migration `20260401340000_add_follow_notifications.sql`; **მომავალი:** mutual follows). **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
 
 **სადაც „მომავალია“:** თითოეულ ფიჩას აქვს **🚀 Future** ან **Notes** `FEATURE BREAKDOWN`-ში; ახალი ფიჩა: ჯერ აქ გეგმა/სტატუსი, მერე კოდი (`reziizi.mdc`).
 
@@ -425,14 +425,14 @@ Users can follow other users; follower and following counts are visible on profi
 #### ✅ Baseline (implemented)
 - **Table:** `follows` — `(follower_id, following_id)` PK, FK → `auth.users` CASCADE, CHECK no self-follow.
 - **RLS:** SELECT public; INSERT/DELETE own rows (`follower_id = auth.uid()`).
-- **App:** `src/lib/follows.ts` — counts, is-following, follow, unfollow; `src/lib/profileView.ts` — public profile + email visibility (`searchable`).
+- **App:** `src/lib/follows.ts` — counts, is-following, follow, unfollow; `src/lib/profileView.ts` — public profile + email visibility (`searchable`); **notifications** — `type` `follow` (გამომწერის ჩანაწერი `NotificationsPage`-ზე).
 - **UI:** `/u/:userId` (`UserProfilePage`) — other user’s profile, posts, Follow/Unfollow; `/u/:userId/followers` · `/u/:userId/following` (`UserFollowListPage`, infinite scroll); own `/profile` — რაოდენობები ლინკებით იმავე სიებზე; **PostCard** author → `/u/...`; **Search** — Profile + Message.
 - **Migration:** `20260401330000_add_follows.sql`
 
 ---
 
 #### 🚀 Future
-- Mutual follows, notifications on new follower
+- Mutual follows
 
 ---
 

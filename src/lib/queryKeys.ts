@@ -16,4 +16,10 @@ export const queryKeys = {
     counts: (userId: string) => ["follow", "counts", userId] as const,
     relation: (viewerId: string, targetId: string) => ["follow", "rel", viewerId, targetId] as const,
   },
+  /** Search results (posts + profiles); `viewerId` affects profile visibility (searchable). */
+  search: {
+    all: ["search"] as const,
+    results: (pattern: string, viewerId: string | null) =>
+      ["search", "results", pattern, viewerId ?? "__anon__"] as const,
+  },
 } as const;

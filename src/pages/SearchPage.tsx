@@ -1,11 +1,13 @@
 import type { FormEvent, ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar } from "../components/Avatar.tsx";
 import { PostCard } from "../components/PostCard";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
+import { queryKeys } from "../lib/queryKeys.ts";
 import {
   isSearchQueryValid,
   sanitizeSearchQuery,
@@ -18,44 +20,39 @@ import type { ProfileRow } from "../types/db";
 export function SearchPage(): ReactElement {
   const { t } = useI18n();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const qParam: string = searchParams.get("q") ?? "";
   const [input, setInput] = useState(qParam);
-  const [posts, setPosts] = useState<FeedPost[]>([]);
-  const [profiles, setProfiles] = useState<ProfileRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const runSearch = useCallback(async (raw: string): Promise<void> => {
-    const pattern: string = sanitizeSearchQuery(raw);
-    if (!isSearchQueryValid(pattern)) {
-      setPosts([]);
-      setProfiles([]);
-      setError(null);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const [p, u] = await Promise.all([
+  const pattern: string = sanitizeSearchQuery(qParam);
+  const viewerId: string | null = user?.id ?? null;
+
+  const searchQuery = useQuery({
+    queryKey: queryKeys.search.results(pattern, viewerId),
+    queryFn: async (): Promise<{ posts: FeedPost[]; profiles: ProfileRow[] }> => {
+      const [posts, profiles] = await Promise.all([
         searchPostsByBody(pattern),
-        searchProfilesByEmail(pattern, user?.id ?? null),
+        searchProfilesByEmail(pattern, viewerId),
       ]);
-      setPosts(p);
-      setProfiles(u);
-    } catch (e: unknown) {
-      setError(errorMessage(e));
-      setPosts([]);
-      setProfiles([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id]);
+      return { posts, profiles };
+    },
+    enabled: isSearchQueryValid(pattern),
+  });
+
+  const posts: FeedPost[] = searchQuery.data?.posts ?? [];
+  const profiles: ProfileRow[] = searchQuery.data?.profiles ?? [];
+  const loading: boolean = searchQuery.isPending;
+  const error: string | null = searchQuery.isError ? errorMessage(searchQuery.error) : null;
+
+  const onPostChanged = useCallback((): void => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.search.results(pattern, viewerId) });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.feed.all });
+  }, [queryClient, pattern, viewerId]);
 
   useEffect(() => {
     setInput(qParam);
-    void runSearch(qParam);
-  }, [qParam, runSearch]);
+  }, [qParam]);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault();
@@ -67,8 +64,8 @@ export function SearchPage(): ReactElement {
     setSearchParams({ q: next });
   }
 
-  const pattern: string = sanitizeSearchQuery(qParam);
-  const showHint: boolean = qParam.length > 0 && !isSearchQueryValid(pattern);
+  const patternForHint: string = sanitizeSearchQuery(qParam);
+  const showHint: boolean = qParam.length > 0 && !isSearchQueryValid(patternForHint);
 
   return (
     <div className="stack search-page">
@@ -161,7 +158,7 @@ export function SearchPage(): ReactElement {
                 <ul className="post-list">
                   {posts.map((post) => (
                     <li key={post.id}>
-                      <PostCard post={post} onChanged={() => void runSearch(qParam)} />
+                      <PostCard post={post} onChanged={onPostChanged} />
                     </li>
                   ))}
                 </ul>
