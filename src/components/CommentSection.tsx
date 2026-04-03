@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { Avatar } from "./Avatar.tsx";
 import {
   fetchCommentsForPost,
@@ -20,6 +21,7 @@ type CommentSectionProps = {
 
 export function CommentSection({ postId }: CommentSectionProps): ReactElement {
   const { t } = useI18n();
+  const toast = useToast();
   const { user } = useAuth();
   const profileDisplayQuery = useQuery({
     queryKey: queryKeys.profile.display(user?.id ?? "__none__"),
@@ -44,7 +46,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
   const [open, setOpen] = useState(false);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const maxLen = getCommentMaxLength();
@@ -55,7 +57,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
     }
     let cancelled = false;
     setLoading(true);
-    setError(null);
+    setLoadError(null);
     void fetchCommentsForPost(postId)
       .then((list) => {
         if (!cancelled) {
@@ -64,7 +66,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       })
       .catch((e: unknown) => {
         if (!cancelled) {
-          setError(errorMessage(e));
+          setLoadError(errorMessage(e));
         }
       })
       .finally(() => {
@@ -87,7 +89,6 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       return;
     }
     setSubmitting(true);
-    setError(null);
     const { data, error: insError } = await supabase
       .from("comments")
       .insert({ post_id: postId, user_id: user.id, body: trimmed })
@@ -95,7 +96,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       .single();
     setSubmitting(false);
     if (insError || !data) {
-      setError(insError != null ? errorMessage(insError) : t("pages.comment.commentFailed"));
+      toast.error(insError != null ? errorMessage(insError) : t("pages.comment.commentFailed"));
       return;
     }
     setBody("");
@@ -116,10 +117,9 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
     if (!window.confirm(t("pages.comment.deleteCommentConfirm"))) {
       return;
     }
-    setError(null);
     const { error: delError } = await supabase.from("comments").delete().eq("id", commentId).eq("user_id", user.id);
     if (delError) {
-      setError(errorMessage(delError));
+      toast.error(errorMessage(delError));
       return;
     }
     setComments((prev) => prev.filter((c) => c.id !== commentId));
@@ -145,9 +145,9 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
               {t("pages.comment.loading")}
             </p>
           ) : null}
-          {error ? (
+          {loadError ? (
             <p className="form__error" role="alert">
-              {error}
+              {loadError}
             </p>
           ) : null}
 

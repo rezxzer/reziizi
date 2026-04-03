@@ -7,6 +7,7 @@ import { InlineError } from "../components/InlineError.tsx";
 import { PostCard } from "../components/PostCard.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { fetchFollowCounts, fetchIsFollowing, followUser, unfollowUser } from "../lib/follows.ts";
@@ -17,6 +18,7 @@ import { queryKeys } from "../lib/queryKeys.ts";
 
 export function UserProfilePage(): ReactElement {
   const { t } = useI18n();
+  const toast = useToast();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { userId } = useParams<{ userId: string }>();
@@ -68,6 +70,9 @@ export function UserProfilePage(): ReactElement {
     mutationFn: async (): Promise<void> => {
       await followUser(targetId);
     },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
+    },
     onSuccess: (): void => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(targetId) });
       if (viewerId != null) {
@@ -83,6 +88,9 @@ export function UserProfilePage(): ReactElement {
   const unfollowMut = useMutation({
     mutationFn: async (): Promise<void> => {
       await unfollowUser(targetId);
+    },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
     },
     onSuccess: (): void => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(targetId) });
@@ -216,12 +224,6 @@ export function UserProfilePage(): ReactElement {
                         {t("pages.userProfile.signInToFollow")}
                       </Link>
                     </p>
-                  ) : null}
-                  {followMut.isError ? (
-                    <InlineError message={errorMessage(followMut.error)} />
-                  ) : null}
-                  {unfollowMut.isError ? (
-                    <InlineError message={errorMessage(unfollowMut.error)} />
                   ) : null}
                   {user && viewerId !== targetId ? (
                     <p className="muted user-profile__message-link">

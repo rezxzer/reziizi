@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
 import {
@@ -27,11 +28,11 @@ type PostFormProps = {
 
 export function PostForm({ onPosted }: PostFormProps): ReactElement {
   const { t } = useI18n();
+  const toast = useToast();
   const { user } = useAuth();
   const { isBanned, loading: flagsLoading } = useProfileFlags();
   const [body, setBody] = useState("");
   const [tagsInput, setTagsInput] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -107,11 +108,10 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
     }
     const validationError: string | null = validateMediaFile(file);
     if (validationError) {
-      setError(validationError);
+      toast.error(validationError);
       e.target.value = "";
       return;
     }
-    setError(null);
     setMediaFile(file);
     setPreviewFromFile(file);
   }
@@ -128,11 +128,10 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
     e.preventDefault();
     const trimmed = body.trim();
     if (trimmed.length < 1 || trimmed.length > MAX_LEN) {
-      setError(t("pages.postForm.bodyLength", { max: MAX_LEN }));
+      toast.error(t("pages.postForm.bodyLength", { max: MAX_LEN }));
       return;
     }
     const tagSlugs = parseTagsFromInput(tagsInput);
-    setError(null);
     setSubmitting(true);
     const { data: post, error: insertError } = await supabase
       .from("posts")
@@ -144,7 +143,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
       .single();
     if (insertError || !post) {
       setSubmitting(false);
-      setError(insertError != null ? errorMessage(insertError) : t("pages.postForm.createFailed"));
+      toast.error(insertError != null ? errorMessage(insertError) : t("pages.postForm.createFailed"));
       return;
     }
 
@@ -182,7 +181,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
       }
     } catch (err: unknown) {
       setSubmitting(false);
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
       return;
     }
 
@@ -192,7 +191,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
       }
     } catch (tagErr: unknown) {
       setSubmitting(false);
-      setError(errorMessage(tagErr));
+      toast.error(errorMessage(tagErr));
       onPosted();
       return;
     }
@@ -293,11 +292,6 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           {submitting ? t("pages.postForm.posting") : t("pages.postForm.post")}
         </button>
       </div>
-      {error ? (
-        <p className="form__error" role="alert">
-          {error}
-        </p>
-      ) : null}
     </form>
   );
 }

@@ -2,6 +2,7 @@ import type { ChangeEvent, ReactElement } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { Avatar } from "./Avatar.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import {
   removeStoredAvatarByPublicUrl,
   uploadAvatarImage,
@@ -17,10 +18,9 @@ type AvatarUploadSectionProps = {
 
 export function AvatarUploadSection({ userId }: AvatarUploadSectionProps): ReactElement {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
 
   const displayQuery = useQuery({
     queryKey: queryKeys.profile.display(userId),
@@ -58,12 +58,10 @@ export function AvatarUploadSection({ userId }: AvatarUploadSectionProps): React
     }
     const v = validateAvatarFile(file);
     if (v) {
-      setError(v);
+      toast.error(v);
       e.target.value = "";
       return;
     }
-    setError(null);
-    setMsg(null);
     setBusy(true);
     try {
       const previousUrl: string | null = avatarUrl;
@@ -79,10 +77,10 @@ export function AvatarUploadSection({ userId }: AvatarUploadSectionProps): React
       if (previousUrl && previousUrl !== publicUrl) {
         await removeStoredAvatarByPublicUrl(previousUrl);
       }
-      setMsg("Profile photo updated.");
+      toast.success("Profile photo updated.");
       await invalidateProfileAndFeed();
     } catch (err: unknown) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setBusy(false);
       e.target.value = "";
@@ -96,8 +94,6 @@ export function AvatarUploadSection({ userId }: AvatarUploadSectionProps): React
     if (!window.confirm("Remove your profile photo?")) {
       return;
     }
-    setError(null);
-    setMsg(null);
     setBusy(true);
     try {
       const toRemove: string = avatarUrl;
@@ -106,10 +102,10 @@ export function AvatarUploadSection({ userId }: AvatarUploadSectionProps): React
         throw upError;
       }
       await removeStoredAvatarByPublicUrl(toRemove);
-      setMsg("Profile photo removed.");
+      toast.success("Profile photo removed.");
       await invalidateProfileAndFeed();
     } catch (err: unknown) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -153,16 +149,6 @@ export function AvatarUploadSection({ userId }: AvatarUploadSectionProps): React
             </div>
           </div>
         )}
-        {error ? (
-          <p className="form__error" role="alert">
-            {error}
-          </p>
-        ) : null}
-        {msg ? (
-          <p className="form__success" role="status">
-            {msg}
-          </p>
-        ) : null}
       </div>
     </section>
   );

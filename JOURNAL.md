@@ -21,6 +21,12 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Toast: feed / profile / comments / report / avatar
+
+- **`UserProfilePage`:** follow/unfollow `onError` → `toast.error` (ინლაინი მოხსნილი).
+- **`PostForm`**, **`ReportPostControl`**, **`AvatarUploadSection`:** შეცდომები და წარმატება (report, avatar) toast-ით; ინლაინი `form__error` / success ამ ბლოკებში მოხსნილი სადაც toast ჩაანაცვლებს.
+- **`CommentSection`:** ჩატვირთვის შეცდომა — `loadError` ინლაინში; კომენტარის დამატება/წაშლა — `toast.error`.
+
 ### 2026-04-03 — Toast: Settings + Login
 
 - **`SettingsPage`:** პაროლის / privacy / ანგარიშის წაშლის შეცდომები `toast.error`-ით; ინლაინ `form__error` ამ სექციებში ამოღებული (წარმატების ტექსტები რჩება).

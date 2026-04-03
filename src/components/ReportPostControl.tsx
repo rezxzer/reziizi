@@ -2,6 +2,7 @@ import type { FormEvent, ReactElement } from "react";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import { submitPostReport } from "../lib/reports.ts";
 
@@ -12,12 +13,11 @@ type ReportPostControlProps = {
 
 export function ReportPostControl({ postId, isOwner }: ReportPostControlProps): ReactElement | null {
   const { t } = useI18n();
+  const toast = useToast();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   if (!user || isOwner) {
     return null;
@@ -25,16 +25,14 @@ export function ReportPostControl({ postId, isOwner }: ReportPostControlProps): 
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
-    setError(null);
-    setMessage(null);
     setBusy(true);
     try {
       await submitPostReport(postId, reason);
-      setMessage(t("pages.report.success"));
+      toast.success(t("pages.report.success"));
       setReason("");
       setOpen(false);
     } catch (err: unknown) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -72,25 +70,14 @@ export function ReportPostControl({ postId, isOwner }: ReportPostControlProps): 
               disabled={busy}
               onClick={() => {
                 setOpen(false);
-                setError(null);
                 setReason("");
               }}
             >
               {t("pages.report.cancel")}
             </button>
           </div>
-          {error ? (
-            <p className="form__error" role="alert">
-              {error}
-            </p>
-          ) : null}
         </form>
       )}
-      {message ? (
-        <p className="form__success report-post__msg" role="status">
-          {message}
-        </p>
-      ) : null}
     </div>
   );
 }
