@@ -21,6 +21,12 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — i18n: Messages + Chat; sticky feed tabs
+
+- **`messages.ts`:** `pages.messages.*`, `pages.chat.*` — `en` / `ka` / `ru`.
+- **`MessagesPage`**, **`ChatThreadPage`:** `useI18n` / `t()`; თვითშეტყობინება — `t` `useEffect`-ში.
+- **`HomePage`:** `home-feed-toolbar--sticky` + **`styles.css`** (sticky, ჩრდილი, სრული სიგანე card-ის შიგნით).
+
 ### 2026-04-03 — Home feed UI polish (composer vs feed)
 
 - **`HomePage`:** `home-feed-toolbar` + **`home-composer`** (`PostForm` ცალკე ზონაში).

@@ -80,7 +80,7 @@ export function HomePage(): ReactElement {
       <section className="card">
         <h2 className="card__title">{t("pages.home.title")}</h2>
         <div className="card__body">
-          <div className="home-feed-toolbar">
+          <div className="home-feed-toolbar home-feed-toolbar--sticky">
             <div className="feed-sort" role="tablist" aria-label={t("pages.home.feedSortAria")}>
               <Link
                 to={latestHref}

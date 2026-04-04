@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { Avatar } from "../components/Avatar.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import {
   fetchMessages,
@@ -18,6 +19,7 @@ import type { ChatMessageRow } from "../types/db.ts";
 export function ChatThreadPage(): ReactElement {
   const { peerId } = useParams<{ peerId: string }>();
   const { user } = useAuth();
+  const { t } = useI18n();
   const toast = useToast();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [peerEmail, setPeerEmail] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export function ChatThreadPage(): ReactElement {
     }
     const peer: string = peerId;
     if (peer === user.id) {
-      setThreadError("You cannot message yourself.");
+      setThreadError(t("pages.chat.cannotMessageSelf"));
       setLoading(false);
       return;
     }
@@ -112,7 +114,7 @@ export function ChatThreadPage(): ReactElement {
       cancelled = true;
       unsub?.();
     };
-  }, [peerId, user]);
+  }, [peerId, user, t]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -137,12 +139,12 @@ export function ChatThreadPage(): ReactElement {
     return (
       <div className="stack">
         <section className="card">
-          <h1 className="card__title">Chat</h1>
+          <h1 className="card__title">{t("pages.chat.chatHeading")}</h1>
           <div className="card__body">
             <p className="form__error" role="alert">
-              Invalid user id.
+              {t("pages.chat.invalidPeerId")}
             </p>
-            <Link to="/messages">Back to messages</Link>
+            <Link to="/messages">{t("pages.chat.backToMessages")}</Link>
           </div>
         </section>
       </div>
@@ -160,13 +162,13 @@ export function ChatThreadPage(): ReactElement {
             <h1 className="card__title chat-thread__title">{title}</h1>
           </div>
           <Link to="/messages" className="btn btn--small">
-            All threads
+            {t("pages.chat.allThreads")}
           </Link>
         </div>
         <div className="card__body">
           {loading ? (
             <p className="page-loading" role="status">
-              Loading…
+              {t("pages.common.loading")}
             </p>
           ) : null}
           {!loading && threadError ? (
@@ -195,7 +197,7 @@ export function ChatThreadPage(): ReactElement {
               </ul>
               <form className="chat-thread__form form" onSubmit={(e) => void handleSubmit(e)}>
                 <label className="form__label chat-thread__label" htmlFor="chat-body">
-                  Message
+                  {t("pages.chat.messageLabel")}
                 </label>
                 <textarea
                   id="chat-body"
@@ -203,7 +205,7 @@ export function ChatThreadPage(): ReactElement {
                   rows={3}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  placeholder="Write a message…"
+                  placeholder={t("pages.chat.messagePlaceholder")}
                   disabled={sending}
                 />
                 <button
@@ -211,7 +213,7 @@ export function ChatThreadPage(): ReactElement {
                   className="btn btn--primary"
                   disabled={sending || !draft.trim()}
                 >
-                  {sending ? "Sending…" : "Send"}
+                  {sending ? t("pages.chat.sending") : t("pages.chat.send")}
                 </button>
               </form>
             </>

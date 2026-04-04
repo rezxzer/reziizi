@@ -530,6 +530,20 @@ code {
   margin: 0;
 }
 
+.home-feed-toolbar--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin-left: calc(-1 * var(--space-lg));
+  margin-right: calc(-1 * var(--space-lg));
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--text) 6%, transparent);
+}
+
 .home-composer {
   margin-top: var(--space-sm);
   padding: var(--space-md);

@@ -3,11 +3,13 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { Avatar } from "../components/Avatar.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { fetchMyConversations, type ConversationWithPeer } from "../lib/chat.ts";
 import { errorMessage } from "../lib/errors.ts";
 
 export function MessagesPage(): ReactElement {
+  const { t } = useI18n();
   const { user } = useAuth();
   const toast = useToast();
   const [items, setItems] = useState<ConversationWithPeer[]>([]);
@@ -38,18 +40,20 @@ export function MessagesPage(): ReactElement {
   return (
     <div className="stack">
       <section className="card">
-        <h1 className="card__title">Messages</h1>
+        <h1 className="card__title">{t("pages.messages.title")}</h1>
         <div className="card__body">
           <p className="muted">
-            Open a chat from <Link to="/search">Search</Link> (user results) or pick a thread below.
+            {t("pages.messages.introBefore")}
+            <Link to="/search">{t("pages.search.title")}</Link>
+            {t("pages.messages.introAfter")}
           </p>
           {loading ? (
             <p className="page-loading" role="status">
-              Loading…
+              {t("pages.common.loading")}
             </p>
           ) : null}
           {!loading && !loadFailed && items.length === 0 ? (
-            <p className="muted">No conversations yet.</p>
+            <p className="muted">{t("pages.messages.empty")}</p>
           ) : null}
           {!loading && !loadFailed && items.length > 0 ? (
             <ul className="conversation-list">

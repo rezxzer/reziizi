@@ -116,16 +116,33 @@ type PagesBundle = {
     theirPosts: string;
     postsHiddenBanned: string;
   };
-  followList: {
-    followersHeading: string;
-    followingHeading: string;
-    backToProfile: string;
-    emptyFollowers: string;
-    emptyFollowing: string;
-    loadMore: string;
-    restricted: string;
-  };
-  notifications: {
+    followList: {
+      followersHeading: string;
+      followingHeading: string;
+      backToProfile: string;
+      emptyFollowers: string;
+      emptyFollowing: string;
+      loadMore: string;
+      restricted: string;
+    };
+    messages: {
+      title: string;
+      introBefore: string;
+      introAfter: string;
+      empty: string;
+    };
+    chat: {
+      chatHeading: string;
+      invalidPeerId: string;
+      backToMessages: string;
+      allThreads: string;
+      messageLabel: string;
+      messagePlaceholder: string;
+      send: string;
+      sending: string;
+      cannotMessageSelf: string;
+    };
+    notifications: {
     title: string;
     loading: string;
     markAllRead: string;
@@ -478,6 +495,23 @@ const en: Bundle = {
       loadMore: "Load more ({pageSize} per page)",
       restricted: "Restricted",
     },
+    messages: {
+      title: "Messages",
+      introBefore: "Open a chat from ",
+      introAfter: " (user results) or pick a thread below.",
+      empty: "No conversations yet.",
+    },
+    chat: {
+      chatHeading: "Chat",
+      invalidPeerId: "Invalid user id.",
+      backToMessages: "Back to messages",
+      allThreads: "All threads",
+      messageLabel: "Message",
+      messagePlaceholder: "Write a message…",
+      send: "Send",
+      sending: "Sending…",
+      cannotMessageSelf: "You cannot message yourself.",
+    },
     notifications: {
       title: "Notifications",
       loading: "Loading…",
@@ -815,6 +849,23 @@ const ka: Bundle = {
       loadMore: "კიდევ ({pageSize} ერთ გვერდზე)",
       restricted: "შეზღუდული",
     },
+    messages: {
+      title: "მესიჯები",
+      introBefore: "ჩატი გახსენით ",
+      introAfter: " გვერდიდან (მომხმარებლის შედეგები) ან აირჩიეთ თრედი ქვემოთ.",
+      empty: "საუბრები ჯერ არაა.",
+    },
+    chat: {
+      chatHeading: "ჩატი",
+      invalidPeerId: "მომხმარებლის id არასწორია.",
+      backToMessages: "← მესიჯებზე",
+      allThreads: "ყველა თრედი",
+      messageLabel: "შეტყობინება",
+      messagePlaceholder: "დაწერეთ შეტყობინება…",
+      send: "გაგზავნა",
+      sending: "იგზავნება…",
+      cannotMessageSelf: "საკუთარ თავს ვერ მისწერეთ.",
+    },
     notifications: {
       title: "შეტყობინებები",
       loading: "იტვირთება…",
@@ -1151,6 +1202,23 @@ const ru: Bundle = {
       emptyFollowing: "Пока ни на кого не подписаны.",
       loadMore: "Загрузить ещё (по {pageSize})",
       restricted: "Ограничен",
+    },
+    messages: {
+      title: "Сообщения",
+      introBefore: "Откройте чат из ",
+      introAfter: " (результаты пользователей) или выберите диалог ниже.",
+      empty: "Пока нет переписок.",
+    },
+    chat: {
+      chatHeading: "Чат",
+      invalidPeerId: "Некорректный id пользователя.",
+      backToMessages: "← К сообщениям",
+      allThreads: "Все диалоги",
+      messageLabel: "Сообщение",
+      messagePlaceholder: "Напишите сообщение…",
+      send: "Отправить",
+      sending: "Отправка…",
+      cannotMessageSelf: "Нельзя написать самому себе.",
     },
     notifications: {
       title: "Уведомления",
