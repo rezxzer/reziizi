@@ -3,6 +3,7 @@
  * Edge Function (`supabase/functions/delete-account`) duplicates this for Deno deploy.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { errorMessage } from "./api/errors";
 
 const AVATARS_BUCKET: string = "avatars";
 const POST_IMAGES_BUCKET: string = "post-images";
@@ -64,12 +65,33 @@ async function removePaths(admin: SupabaseClient, bucket: string, paths: string[
 export async function deleteUserStorage(admin: SupabaseClient, userId: string): Promise<void> {
   const avatarPrefix = `avatars/${userId}`;
   const postPrefix = `posts/${userId}`;
-  const avatarPaths = await collectFilePaths(admin, AVATARS_BUCKET, avatarPrefix);
-  await removePaths(admin, AVATARS_BUCKET, avatarPaths);
-  const postImagePaths = await collectFilePaths(admin, POST_IMAGES_BUCKET, postPrefix);
-  await removePaths(admin, POST_IMAGES_BUCKET, postImagePaths);
-  const postVideoPaths = await collectFilePaths(admin, POST_VIDEOS_BUCKET, postPrefix);
-  await removePaths(admin, POST_VIDEOS_BUCKET, postVideoPaths);
+  /** Parallel per bucket — less wall time (helps Vercel Hobby ~10s cap). */
+  const results = await Promise.allSettled([
+    (async (): Promise<void> => {
+      const paths = await collectFilePaths(admin, AVATARS_BUCKET, avatarPrefix);
+      await removePaths(admin, AVATARS_BUCKET, paths);
+    })(),
+    (async (): Promise<void> => {
+      const paths = await collectFilePaths(admin, POST_IMAGES_BUCKET, postPrefix);
+      await removePaths(admin, POST_IMAGES_BUCKET, paths);
+    })(),
+    (async (): Promise<void> => {
+      const paths = await collectFilePaths(admin, POST_VIDEOS_BUCKET, postPrefix);
+      await removePaths(admin, POST_VIDEOS_BUCKET, paths);
+    })(),
+  ]);
+  const failures: string[] = [];
+  const labels = ["avatars", "post-images", "post-videos"] as const;
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    if (r.status === "rejected") {
+      const reason: unknown = r.reason;
+      failures.push(`${labels[i]}: ${errorMessage(reason)}`);
+    }
+  }
+  if (failures.length > 0) {
+    throw new Error(failures.join("; "));
+  }
 }
 
 export async function deleteAuthUser(admin: SupabaseClient, userId: string): Promise<void> {

@@ -5,6 +5,7 @@
  */
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { errorMessage } from "../src/lib/api/errors";
 import { deleteAuthUser, deleteUserStorage } from "./lib/accountDeletionBackend";
 
 /** Vercel Node serverless — allow long Storage cleanup + auth.admin.deleteUser. */
@@ -74,17 +75,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
   try {
     await deleteUserStorage(admin, userId);
-  } catch (e) {
+  } catch (e: unknown) {
+    const msg: string = errorMessage(e);
     console.error("delete-account api: storage", e);
-    json(res, 500, { error: (e as Error).message ?? "Storage cleanup failed" });
+    json(res, 500, { error: msg.length > 0 ? msg : "Storage cleanup failed" });
     return;
   }
 
   try {
     await deleteAuthUser(admin, userId);
-  } catch (e) {
+  } catch (e: unknown) {
+    const msg: string = errorMessage(e);
     console.error("delete-account api: auth.admin.deleteUser", e);
-    json(res, 500, { error: (e as Error).message ?? "Failed to delete user" });
+    json(res, 500, { error: msg.length > 0 ? msg : "Failed to delete user" });
     return;
   }
 

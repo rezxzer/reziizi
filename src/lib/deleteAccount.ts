@@ -45,14 +45,25 @@ export async function deleteAccountViaEdgeFunction(): Promise<void> {
     if (res.status === 404) {
       vercelApiReturned404 = true;
     } else {
-      const body: unknown = await res.json().catch(() => ({}));
+      const rawText: string = await res.text();
+      let body: unknown = {};
+      try {
+        body = rawText.length > 0 ? (JSON.parse(rawText) as unknown) : {};
+      } catch {
+        body = {};
+      }
       if (!res.ok) {
-        let msg: string =
-          typeof body === "object" && body !== null && "error" in body && typeof (body as { error: unknown }).error === "string"
-            ? (body as { error: string }).error
-            : res.statusText;
+        let msg: string = res.statusText;
+        if (typeof body === "object" && body !== null && "error" in body) {
+          const v: unknown = (body as { error: unknown }).error;
+          if (typeof v === "string" && v.trim().length > 0) {
+            msg = v.trim();
+          } else if (v != null) {
+            msg = typeof v === "object" ? JSON.stringify(v) : String(v);
+          }
+        }
         if (msg.trim().length === 0) {
-          msg = res.statusText.trim().length > 0 ? res.statusText : `Request failed (${res.status})`;
+          msg = rawText.trim().length > 0 ? rawText.trim() : `Request failed (${res.status})`;
         }
         if (res.status === 500 && msg === "Server misconfigured") {
           throw new Error(

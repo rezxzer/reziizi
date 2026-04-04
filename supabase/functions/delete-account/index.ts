@@ -71,15 +71,47 @@ async function removePaths(admin: SupabaseClient, bucket: string, paths: string[
   }
 }
 
+function storageErrMsg(e: unknown): string {
+  if (e instanceof Error && e.message.trim().length > 0) {
+    return e.message;
+  }
+  if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: unknown }).message === "string") {
+    const m = (e as { message: string }).message;
+    if (m.trim().length > 0) {
+      return m;
+    }
+  }
+  return String(e);
+}
+
 async function deleteUserStorage(admin: SupabaseClient, userId: string): Promise<void> {
   const avatarPrefix = `avatars/${userId}`;
   const postPrefix = `posts/${userId}`;
-  const avatarPaths = await collectFilePaths(admin, AVATARS_BUCKET, avatarPrefix);
-  await removePaths(admin, AVATARS_BUCKET, avatarPaths);
-  const postImagePaths = await collectFilePaths(admin, POST_IMAGES_BUCKET, postPrefix);
-  await removePaths(admin, POST_IMAGES_BUCKET, postImagePaths);
-  const postVideoPaths = await collectFilePaths(admin, POST_VIDEOS_BUCKET, postPrefix);
-  await removePaths(admin, POST_VIDEOS_BUCKET, postVideoPaths);
+  const labels = ["avatars", "post-images", "post-videos"] as const;
+  const results = await Promise.allSettled([
+    (async (): Promise<void> => {
+      const paths = await collectFilePaths(admin, AVATARS_BUCKET, avatarPrefix);
+      await removePaths(admin, AVATARS_BUCKET, paths);
+    })(),
+    (async (): Promise<void> => {
+      const paths = await collectFilePaths(admin, POST_IMAGES_BUCKET, postPrefix);
+      await removePaths(admin, POST_IMAGES_BUCKET, paths);
+    })(),
+    (async (): Promise<void> => {
+      const paths = await collectFilePaths(admin, POST_VIDEOS_BUCKET, postPrefix);
+      await removePaths(admin, POST_VIDEOS_BUCKET, paths);
+    })(),
+  ]);
+  const failures: string[] = [];
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    if (r.status === "rejected") {
+      failures.push(`${labels[i]}: ${storageErrMsg(r.reason)}`);
+    }
+  }
+  if (failures.length > 0) {
+    throw new Error(failures.join("; "));
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -138,10 +170,11 @@ Deno.serve(async (req: Request) => {
 
   try {
     await deleteUserStorage(admin, userId);
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("delete-account: storage cleanup", e);
+    const msg: string = storageErrMsg(e);
     return new Response(
-      JSON.stringify({ error: (e as Error).message ?? "Storage cleanup failed" }),
+      JSON.stringify({ error: msg.length > 0 ? msg : "Storage cleanup failed" }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

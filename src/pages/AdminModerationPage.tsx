@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import {
   deleteCommentAsModerator,
@@ -11,14 +12,13 @@ import {
   type ModerationPostRow,
 } from "../lib/adminModeration.ts";
 import { errorMessage } from "../lib/errors.ts";
-import { postImageAltFromBody } from "../lib/postImageAlt.ts";
 
 export function AdminModerationPage(): ReactElement {
+  const { t } = useI18n();
   const toast = useToast();
   const [posts, setPosts] = useState<ModerationPostRow[]>([]);
   const [comments, setComments] = useState<ModerationCommentRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -28,6 +28,8 @@ export function AdminModerationPage(): ReactElement {
       setComments(c);
     } catch (e: unknown) {
       toast.error(errorMessage(e));
+      setPosts([]);
+      setComments([]);
     } finally {
       setLoading(false);
     }
@@ -37,100 +39,82 @@ export function AdminModerationPage(): ReactElement {
     void load();
   }, [load]);
 
-  async function handleDeletePost(id: string): Promise<void> {
-    if (!window.confirm("Delete this post? (Comments will be removed with it.)")) {
+  async function onDeletePost(row: ModerationPostRow): Promise<void> {
+    if (!window.confirm(t("pages.admin.moderation.confirmDeletePost"))) {
       return;
     }
-    setBusyId(id);
     try {
-      await deletePostAsModerator(id);
-      setPosts((prev) => prev.filter((x) => x.id !== id));
+      await deletePostAsModerator(row.id);
+      setPosts((prev) => prev.filter((p) => p.id !== row.id));
     } catch (e: unknown) {
       toast.error(errorMessage(e));
-    } finally {
-      setBusyId(null);
     }
   }
 
-  async function handleDeleteComment(id: string): Promise<void> {
-    if (!window.confirm("Delete this comment?")) {
+  async function onDeleteComment(row: ModerationCommentRow): Promise<void> {
+    if (!window.confirm(t("pages.admin.moderation.confirmDeleteComment"))) {
       return;
     }
-    setBusyId(id);
     try {
-      await deleteCommentAsModerator(id);
-      setComments((prev) => prev.filter((x) => x.id !== id));
+      await deleteCommentAsModerator(row.id);
+      setComments((prev) => prev.filter((c) => c.id !== row.id));
     } catch (e: unknown) {
       toast.error(errorMessage(e));
-    } finally {
-      setBusyId(null);
     }
   }
 
   return (
-    <div className="stack admin-page">
+    <div className="stack admin-moderation-page">
       <section className="card">
-        <h1 className="card__title">Moderation</h1>
+        <h1 className="card__title">{t("pages.admin.moderation.title")}</h1>
         <div className="card__body">
-          <p className="muted">Delete posts or comments (admin only). Latest {posts.length > 0 ? "50" : ""} each.</p>
-          <p>
-            <Link to="/admin">← Admin overview</Link>
+          <p className="muted">
+            {t("pages.admin.moderation.hint")} {t("pages.admin.moderation.latest50")}
           </p>
+          <p>
+            <Link to="/admin">{t("pages.admin.backToOverview")}</Link>
+          </p>
+          <p>
+            <Link to="/">{t("pages.admin.backToHome")}</Link>
+          </p>
+          {loading ? (
+            <p className="page-loading" role="status">
+              {t("pages.common.loading")}
+            </p>
+          ) : null}
+          {!loading ? (
+            <button type="button" className="btn btn--small" onClick={() => void load()}>
+              {t("pages.admin.refreshLists")}
+            </button>
+          ) : null}
         </div>
       </section>
 
-      {loading ? (
-        <p className="page-loading" role="status">
-          Loading…
-        </p>
-      ) : null}
-
       <section className="card">
-        <h2 className="card__title">Posts</h2>
+        <h2 className="card__title">{t("pages.admin.moderation.postsHeading")}</h2>
         <div className="card__body">
           {posts.length === 0 ? (
-            <p className="muted">No posts.</p>
+            <p className="muted">{t("pages.admin.moderation.noPosts")}</p>
           ) : (
-            <ul className="mod-list">
+            <ul className="admin-moderation-list">
               {posts.map((p) => (
-                <li key={p.id} className="mod-list__item">
-                  <div className="mod-list__meta">
-                    <span className="mod-list__author">{p.authorEmail ?? p.user_id.slice(0, 8)}</span>
-                    <time className="muted" dateTime={p.created_at}>
-                      {new Date(p.created_at).toLocaleString()}
-                    </time>
+                <li key={p.id} className="admin-moderation-list__item">
+                  <div className="admin-moderation-list__meta">
+                    <span className="muted">{new Date(p.created_at).toLocaleString()}</span>
+                    {p.authorEmail ? (
+                      <span className="muted"> · {p.authorEmail}</span>
+                    ) : null}
                   </div>
-                  {p.video_url ? (
-                    <div className="mod-list__media">
-                      <video
-                        className="mod-list__video"
-                        src={p.video_url}
-                        controls
-                        playsInline
-                        preload="metadata"
-                        aria-label={postImageAltFromBody(p.body)}
-                      />
-                    </div>
-                  ) : p.image_url ? (
-                    <div className="mod-list__media">
-                      <img
-                        className="mod-list__image"
-                        src={p.image_url}
-                        alt={postImageAltFromBody(p.body)}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                  ) : null}
-                  <p className="mod-list__body">{p.body}</p>
-                  <button
-                    type="button"
-                    className="btn btn--danger btn--small"
-                    disabled={busyId !== null}
-                    onClick={() => void handleDeletePost(p.id)}
-                  >
-                    {busyId === p.id ? "…" : "Delete post"}
-                  </button>
+                  <div className="admin-moderation-list__body">{p.body}</div>
+                  <div className="admin-moderation-list__actions">
+                    <button
+                      type="button"
+                      className="btn btn--small btn--danger"
+                      onClick={() => void onDeletePost(p)}
+                    >
+                      {t("pages.admin.moderation.deletePost")}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -139,46 +123,39 @@ export function AdminModerationPage(): ReactElement {
       </section>
 
       <section className="card">
-        <h2 className="card__title">Comments</h2>
+        <h2 className="card__title">{t("pages.admin.moderation.commentsHeading")}</h2>
         <div className="card__body">
           {comments.length === 0 ? (
-            <p className="muted">No comments.</p>
+            <p className="muted">{t("pages.admin.moderation.noComments")}</p>
           ) : (
-            <ul className="mod-list">
+            <ul className="admin-moderation-list">
               {comments.map((c) => (
-                <li key={c.id} className="mod-list__item">
-                  <div className="mod-list__meta">
-                    <span className="mod-list__author">{c.authorEmail ?? c.user_id.slice(0, 8)}</span>
-                    <span className="muted mod-list__post-ref" title={c.post_id}>
-                      post {c.post_id.slice(0, 8)}…
+                <li key={c.id} className="admin-moderation-list__item">
+                  <div className="admin-moderation-list__meta">
+                    <span className="muted">{new Date(c.created_at).toLocaleString()}</span>
+                    {c.authorEmail ? (
+                      <span className="muted"> · {c.authorEmail}</span>
+                    ) : null}{" "}
+                    <span className="muted">
+                      · {t("pages.admin.moderation.postRefPrefix")} {c.post_id.slice(0, 8)}…
                     </span>
-                    <time className="muted" dateTime={c.created_at}>
-                      {new Date(c.created_at).toLocaleString()}
-                    </time>
                   </div>
-                  <p className="mod-list__body">{c.body}</p>
-                  <button
-                    type="button"
-                    className="btn btn--danger btn--small"
-                    disabled={busyId !== null}
-                    onClick={() => void handleDeleteComment(c.id)}
-                  >
-                    {busyId === c.id ? "…" : "Delete comment"}
-                  </button>
+                  <div className="admin-moderation-list__body">{c.body}</div>
+                  <div className="admin-moderation-list__actions">
+                    <button
+                      type="button"
+                      className="btn btn--small btn--danger"
+                      onClick={() => void onDeleteComment(c)}
+                    >
+                      {t("pages.admin.moderation.deleteComment")}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
       </section>
-
-      {!loading ? (
-        <p>
-          <button type="button" className="btn btn--small" onClick={() => void load()}>
-            Refresh lists
-          </button>
-        </p>
-      ) : null}
     </div>
   );
 }

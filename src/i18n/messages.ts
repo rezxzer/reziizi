@@ -142,6 +142,123 @@ type PagesBundle = {
       sending: string;
       cannotMessageSelf: string;
     };
+    admin: {
+      backToOverview: string;
+      backToHome: string;
+      refresh: string;
+      refreshLists: string;
+      overview: {
+        title: string;
+        promoteHintBefore: string;
+        linkModeration: string;
+        linkUsers: string;
+        linkReports: string;
+        linkStats: string;
+        linkAds: string;
+        linkApi: string;
+        countsTitle: string;
+        statProfiles: string;
+        statPosts: string;
+        statComments: string;
+        statReactions: string;
+      };
+      moderation: {
+        title: string;
+        hint: string;
+        latest50: string;
+        postsHeading: string;
+        commentsHeading: string;
+        noPosts: string;
+        noComments: string;
+        deletePost: string;
+        deleteComment: string;
+        confirmDeletePost: string;
+        confirmDeleteComment: string;
+        postRefPrefix: string;
+      };
+      reports: {
+        title: string;
+        intro: string;
+        empty: string;
+        dismiss: string;
+        confirmDismiss: string;
+        postIdPrefix: string;
+      };
+      ads: {
+        title: string;
+        intro: string;
+        feedTopTitle: string;
+        fieldTitle: string;
+        fieldBody: string;
+        fieldLinkUrl: string;
+        activeLabel: string;
+        phTitle: string;
+        phBody: string;
+        phUrl: string;
+        saving: string;
+        save: string;
+        savedToast: string;
+        noSlot: string;
+      };
+      stats: {
+        title: string;
+        intro: string;
+        metricsTitle: string;
+        metricProfiles: string;
+        metricPosts: string;
+        metricComments: string;
+        metricReactions: string;
+        metricReports: string;
+        metricTags: string;
+        metricPostTags: string;
+        metricConversations: string;
+        metricChatMessages: string;
+        metricNotifications: string;
+        metricAdSlots: string;
+      };
+      users: {
+        title: string;
+        introBefore: string;
+        introAfter: string;
+        banTitle: string;
+        reasonLabel: string;
+        reasonPlaceholder: string;
+        charCount: string;
+        confirmBan: string;
+        cancel: string;
+        colEmail: string;
+        colAdmin: string;
+        colBanned: string;
+        colReason: string;
+        colPremium: string;
+        colActions: string;
+        yes: string;
+        emDash: string;
+        labelModeration: string;
+        labelPremium: string;
+        unban: string;
+        ban: string;
+        clearPrem: string;
+        premiumExpired: string;
+        confirmClearPremium: string;
+        confirmUnban: string;
+        banReasonTooLong: string;
+        ariaBan: string;
+        ariaUnban: string;
+        ariaPrem30: string;
+        ariaPrem365: string;
+        ariaClearPrem: string;
+      };
+      api: {
+        title: string;
+        intro: string;
+        publicTables: string;
+        clientRpcs: string;
+        colTable: string;
+        colRpc: string;
+        footerNote: string;
+      };
+    };
     notifications: {
     title: string;
     loading: string;
@@ -512,6 +629,127 @@ const en: Bundle = {
       sending: "Sending…",
       cannotMessageSelf: "You cannot message yourself.",
     },
+    admin: {
+      backToOverview: "← Admin overview",
+      backToHome: "← Home",
+      refresh: "Refresh",
+      refreshLists: "Refresh lists",
+      overview: {
+        title: "Admin",
+        promoteHintBefore: "Promote admins in Supabase SQL Editor if needed:",
+        linkModeration: "Moderation — delete posts & comments",
+        linkUsers: "Users — ban / unban accounts",
+        linkReports: "Reports — user reports on posts",
+        linkStats: "Statistics — full platform counts",
+        linkAds: "Ads — feed top sponsored strip",
+        linkApi: "API catalog — tables & RPCs (Supabase)",
+        countsTitle: "Counts",
+        statProfiles: "Profiles",
+        statPosts: "Posts",
+        statComments: "Comments",
+        statReactions: "Reactions",
+      },
+      moderation: {
+        title: "Moderation",
+        hint: "Delete posts or comments (admin only).",
+        latest50: "Latest 50 each.",
+        postsHeading: "Posts",
+        commentsHeading: "Comments",
+        noPosts: "No posts.",
+        noComments: "No comments.",
+        deletePost: "Delete post",
+        deleteComment: "Delete comment",
+        confirmDeletePost: "Delete this post? (Comments will be removed with it.)",
+        confirmDeleteComment: "Delete this comment?",
+        postRefPrefix: "post",
+      },
+      reports: {
+        title: "Reports",
+        intro: "User-submitted reports on posts (newest first).",
+        empty: "No reports yet.",
+        dismiss: "Dismiss",
+        confirmDismiss: "Remove this report from the list?",
+        postIdPrefix: "post",
+      },
+      ads: {
+        title: "Advertisements",
+        intro: "Feed top strip on the home page. Plain text only (no HTML).",
+        feedTopTitle: "Feed top",
+        fieldTitle: "Title",
+        fieldBody: "Body",
+        fieldLinkUrl: "Link URL",
+        activeLabel: "Active (show on home feed)",
+        phTitle: "Optional headline",
+        phBody: "Short text",
+        phUrl: "https://…",
+        saving: "Saving…",
+        save: "Save",
+        savedToast: "Saved.",
+        noSlot: "No ad slot row (run migrations).",
+      },
+      stats: {
+        title: "Statistics",
+        intro: "Row counts across public tables (approximate platform size).",
+        metricsTitle: "Metrics",
+        metricProfiles: "Profiles",
+        metricPosts: "Posts",
+        metricComments: "Comments",
+        metricReactions: "Reactions",
+        metricReports: "Reports",
+        metricTags: "Tags",
+        metricPostTags: "Post–tag links",
+        metricConversations: "DM conversations",
+        metricChatMessages: "Chat messages",
+        metricNotifications: "Notifications",
+        metricAdSlots: "Ad slots",
+      },
+      users: {
+        title: "Users",
+        introBefore:
+          "Ban blocks posting, comments, reactions, and chat messages (read-only). Optional reason is shown to the user on ",
+        introAfter:
+          ". Premium is admin-granted until a date (payments not wired yet).",
+        banTitle: "Ban {name}",
+        reasonLabel: "Reason (optional, shown to user)",
+        reasonPlaceholder: "e.g. Spam, harassment, or a short note…",
+        charCount: "{current}/{max} characters",
+        confirmBan: "Confirm ban",
+        cancel: "Cancel",
+        colEmail: "Email",
+        colAdmin: "Admin",
+        colBanned: "Banned",
+        colReason: "Reason",
+        colPremium: "Premium",
+        colActions: "Actions",
+        yes: "yes",
+        emDash: "—",
+        labelModeration: "Moderation",
+        labelPremium: "Premium",
+        unban: "Unban",
+        ban: "Ban",
+        clearPrem: "Clear prem.",
+        premiumExpired: "expired",
+        confirmClearPremium: "Clear premium for this user?",
+        confirmUnban: "Unban this user?",
+        banReasonTooLong: "Reason must be at most {max} characters.",
+        ariaBan: "Ban {name}",
+        ariaUnban: "Unban {name}",
+        ariaPrem30: "Add 30 days premium for {name}",
+        ariaPrem365: "Add 365 days premium for {name}",
+        ariaClearPrem: "Clear premium for {name}",
+      },
+      api: {
+        title: "API catalog",
+        intro:
+          "REZIIZI talks to Supabase (PostgREST + Auth + Realtime). There is no custom HTTP API in this repo — the app uses @supabase/supabase-js with Row Level Security. Names below are the canonical registry (src/lib/api). Column-level notes and migration order: supabase/SCHEMA.md in the repo.",
+        publicTables: "Public tables",
+        clientRpcs: "Client RPCs",
+        colTable: "public.table",
+        colRpc: "public function (RPC)",
+        footerNote:
+          "Triggers and internal helpers (e.g. handle_new_user) are not listed here — see migrations.",
+      },
+    },
     notifications: {
       title: "Notifications",
       loading: "Loading…",
@@ -866,6 +1104,126 @@ const ka: Bundle = {
       sending: "იგზავნება…",
       cannotMessageSelf: "საკუთარ თავს ვერ მისწერეთ.",
     },
+    admin: {
+      backToOverview: "← ადმინის მიმოხილვა",
+      backToHome: "← მთავარი",
+      refresh: "განახლება",
+      refreshLists: "სიების განახლება",
+      overview: {
+        title: "ადმინი",
+        promoteHintBefore: "საჭიროების შემთხვევაში ადმინის მინიჭება Supabase SQL Editor-ში:",
+        linkModeration: "მოდერაცია — პოსტებისა და კომენტარების წაშლა",
+        linkUsers: "მომხმარებლები — ანგარიშის შეზღუდვა / მოხსნა",
+        linkReports: "რეპორტები — მომხმარებლის რეპორტები პოსტებზე",
+        linkStats: "სტატისტიკა — პლატფორმის სრული რაოდენობები",
+        linkAds: "რეკლამა — ლენტის ზედა ზოლი",
+        linkApi: "API კატალოგი — ცხრილები და RPC (Supabase)",
+        countsTitle: "რაოდენობები",
+        statProfiles: "პროფილები",
+        statPosts: "პოსტები",
+        statComments: "კომენტარები",
+        statReactions: "რეაქციები",
+      },
+      moderation: {
+        title: "მოდერაცია",
+        hint: "პოსტებისა და კომენტარების წაშლა (მხოლოდ ადმინი).",
+        latest50: "ბოლო 50 თითოეულიდან.",
+        postsHeading: "პოსტები",
+        commentsHeading: "კომენტარები",
+        noPosts: "პოსტები არაა.",
+        noComments: "კომენტარები არაა.",
+        deletePost: "პოსტის წაშლა",
+        deleteComment: "კომენტარის წაშლა",
+        confirmDeletePost: "წავშალოთ ეს პოსტი? (კომენტარებიც წაიშლება.)",
+        confirmDeleteComment: "წავშალოთ ეს კომენტარი?",
+        postRefPrefix: "პოსტი",
+      },
+      reports: {
+        title: "რეპორტები",
+        intro: "მომხმარებლის რეპორტები პოსტებზე (ახალი პირველი).",
+        empty: "რეპორტები ჯერ არაა.",
+        dismiss: "დახურვა",
+        confirmDismiss: "ამოვშალოთ ეს რეპორტი სიიდან?",
+        postIdPrefix: "პოსტი",
+      },
+      ads: {
+        title: "რეკლამა",
+        intro: "ლენტის ზედა ზოლი მთავარ გვერდზე. მხოლოდ ტექსტი (HTML არა).",
+        feedTopTitle: "ლენტის ზედა",
+        fieldTitle: "სათაური",
+        fieldBody: "ტექსტი",
+        fieldLinkUrl: "ბმულის URL",
+        activeLabel: "აქტიური (ლენტაზე ჩვენება)",
+        phTitle: "სათაური (არასავალდებულო)",
+        phBody: "მოკლე ტექსტი",
+        phUrl: "https://…",
+        saving: "ინახება…",
+        save: "შენახვა",
+        savedToast: "შენახულია.",
+        noSlot: "რეკლამის ჩანაწერი არაა (გაუშვით მიგრაციები).",
+      },
+      stats: {
+        title: "სტატისტიკა",
+        intro: "სტრიქონების რაოდენობა public ცხრილებში (დაახლოებითი).",
+        metricsTitle: "მეტრიკები",
+        metricProfiles: "პროფილები",
+        metricPosts: "პოსტები",
+        metricComments: "კომენტარები",
+        metricReactions: "რეაქციები",
+        metricReports: "რეპორტები",
+        metricTags: "თეგები",
+        metricPostTags: "პოსტი–თეგი",
+        metricConversations: "DM საუბრები",
+        metricChatMessages: "ჩატის შეტყობინებები",
+        metricNotifications: "შეტყობინებები",
+        metricAdSlots: "რეკლამის სლოტები",
+      },
+      users: {
+        title: "მომხმარებლები",
+        introBefore:
+          "შეზღუდვა ბლოკავს პოსტებს, კომენტარებს, რეაქციებს და ჩატს (მხოლოდ წაკითხვა). არჩევითი მიზეზი ჩანს მომხმარებელზე ",
+        introAfter:
+          ". Premium ადმინის მიერაა თარიღამდე (გადახდები ჯერ არაა მიბმული).",
+        banTitle: "შეზღუდვა {name}",
+        reasonLabel: "მიზეზი (არასავალდებულო, მომხმარებელს ეჩვენება)",
+        reasonPlaceholder: "მაგ. სპამი, შევიწროება…",
+        charCount: "{current}/{max} სიმბოლო",
+        confirmBan: "დადასტურება",
+        cancel: "გაუქმება",
+        colEmail: "ელფოსტა",
+        colAdmin: "ადმინი",
+        colBanned: "შეზღუდული",
+        colReason: "მიზეზი",
+        colPremium: "Premium",
+        colActions: "მოქმედებები",
+        yes: "კი",
+        emDash: "—",
+        labelModeration: "მოდერაცია",
+        labelPremium: "Premium",
+        unban: "მოხსნა",
+        ban: "შეზღუდვა",
+        clearPrem: "Premium გასუფთავება",
+        premiumExpired: "ვადაგასული",
+        confirmClearPremium: "გავასუფთავოთ Premium ამ მომხმარებლისთვის?",
+        confirmUnban: "მოვხსნათ შეზღუდვა ამ მომხმარებელს?",
+        banReasonTooLong: "მიზეზი არ უნდა აღემატებოდეს {max} სიმბოლოს.",
+        ariaBan: "შეზღუდვა {name}",
+        ariaUnban: "შეზღუდვის მოხსნა {name}",
+        ariaPrem30: "+30 დღე Premium — {name}",
+        ariaPrem365: "+365 დღე Premium — {name}",
+        ariaClearPrem: "Premium გასუფთავება — {name}",
+      },
+      api: {
+        title: "API კატალოგი",
+        intro:
+          "REZIIZI უკავშირდება Supabase-ს (PostgREST + Auth + Realtime). ამ რეპოში ცალკე HTTP API არაა — გამოიყენება @supabase/supabase-js RLS-ით. ქვემოთ სახელები არის რეესტრი (src/lib/api). სვეტები და მიგრაციის რიგი: supabase/SCHEMA.md.",
+        publicTables: "Public ცხრილები",
+        clientRpcs: "RPC ფუნქციები",
+        colTable: "public.table",
+        colRpc: "public function (RPC)",
+        footerNote: "ტრიგერები და შიდა ფუნქციები (მაგ. handle_new_user) აქ არაა — იხილეთ მიგრაციები.",
+      },
+    },
     notifications: {
       title: "შეტყობინებები",
       loading: "იტვირთება…",
@@ -1219,6 +1577,127 @@ const ru: Bundle = {
       send: "Отправить",
       sending: "Отправка…",
       cannotMessageSelf: "Нельзя написать самому себе.",
+    },
+    admin: {
+      backToOverview: "← К обзору админки",
+      backToHome: "← Главная",
+      refresh: "Обновить",
+      refreshLists: "Обновить списки",
+      overview: {
+        title: "Админка",
+        promoteHintBefore: "При необходимости назначьте админов в Supabase SQL Editor:",
+        linkModeration: "Модерация — удаление постов и комментариев",
+        linkUsers: "Пользователи — бан / разбан",
+        linkReports: "Жалобы — жалобы на посты",
+        linkStats: "Статистика — счётчики по платформе",
+        linkAds: "Реклама — верхняя полоса в ленте",
+        linkApi: "Каталог API — таблицы и RPC (Supabase)",
+        countsTitle: "Счётчики",
+        statProfiles: "Профили",
+        statPosts: "Посты",
+        statComments: "Комментарии",
+        statReactions: "Реакции",
+      },
+      moderation: {
+        title: "Модерация",
+        hint: "Удаление постов и комментариев (только админ).",
+        latest50: "По 50 последних каждого.",
+        postsHeading: "Посты",
+        commentsHeading: "Комментарии",
+        noPosts: "Нет постов.",
+        noComments: "Нет комментариев.",
+        deletePost: "Удалить пост",
+        deleteComment: "Удалить комментарий",
+        confirmDeletePost: "Удалить этот пост? (Комментарии будут удалены вместе с ним.)",
+        confirmDeleteComment: "Удалить этот комментарий?",
+        postRefPrefix: "пост",
+      },
+      reports: {
+        title: "Жалобы",
+        intro: "Жалобы пользователей на посты (сначала новые).",
+        empty: "Жалоб пока нет.",
+        dismiss: "Снять",
+        confirmDismiss: "Убрать эту жалобу из списка?",
+        postIdPrefix: "пост",
+      },
+      ads: {
+        title: "Реклама",
+        intro: "Верхняя полоса на главной ленте. Только текст (без HTML).",
+        feedTopTitle: "Верх ленты",
+        fieldTitle: "Заголовок",
+        fieldBody: "Текст",
+        fieldLinkUrl: "URL ссылки",
+        activeLabel: "Активно (показывать в ленте)",
+        phTitle: "Заголовок (необязательно)",
+        phBody: "Короткий текст",
+        phUrl: "https://…",
+        saving: "Сохранение…",
+        save: "Сохранить",
+        savedToast: "Сохранено.",
+        noSlot: "Нет строки слота (выполните миграции).",
+      },
+      stats: {
+        title: "Статистика",
+        intro: "Число строк в public-таблицах (приблизительный размер платформы).",
+        metricsTitle: "Метрики",
+        metricProfiles: "Профили",
+        metricPosts: "Посты",
+        metricComments: "Комментарии",
+        metricReactions: "Реакции",
+        metricReports: "Жалобы",
+        metricTags: "Теги",
+        metricPostTags: "Связи пост–тег",
+        metricConversations: "Диалоги DM",
+        metricChatMessages: "Сообщения чата",
+        metricNotifications: "Уведомления",
+        metricAdSlots: "Слоты рекламы",
+      },
+      users: {
+        title: "Пользователи",
+        introBefore:
+          "Бан блокирует посты, комментарии, реакции и чат (только чтение). Причина (по желанию) показывается пользователю на ",
+        introAfter:
+          ". Premium выдаётся админом до даты (оплаты пока не подключены).",
+        banTitle: "Бан {name}",
+        reasonLabel: "Причина (необязательно, видна пользователю)",
+        reasonPlaceholder: "например: спам, оскорбления…",
+        charCount: "{current}/{max} символов",
+        confirmBan: "Подтвердить бан",
+        cancel: "Отмена",
+        colEmail: "Email",
+        colAdmin: "Админ",
+        colBanned: "Бан",
+        colReason: "Причина",
+        colPremium: "Premium",
+        colActions: "Действия",
+        yes: "да",
+        emDash: "—",
+        labelModeration: "Модерация",
+        labelPremium: "Premium",
+        unban: "Разбан",
+        ban: "Бан",
+        clearPrem: "Сброс prem.",
+        premiumExpired: "истёк",
+        confirmClearPremium: "Сбросить Premium для этого пользователя?",
+        confirmUnban: "Разбанить этого пользователя?",
+        banReasonTooLong: "Причина не длиннее {max} символов.",
+        ariaBan: "Бан {name}",
+        ariaUnban: "Разбан {name}",
+        ariaPrem30: "+30 дней Premium для {name}",
+        ariaPrem365: "+365 дней Premium для {name}",
+        ariaClearPrem: "Сброс Premium для {name}",
+      },
+      api: {
+        title: "Каталог API",
+        intro:
+          "REZIIZI работает с Supabase (PostgREST + Auth + Realtime). Отдельного HTTP API в репозитории нет — используется @supabase/supabase-js с RLS. Ниже — реестр имён (src/lib/api). Колонки и порядок миграций: supabase/SCHEMA.md.",
+        publicTables: "Публичные таблицы",
+        clientRpcs: "RPC клиента",
+        colTable: "public.table",
+        colRpc: "public function (RPC)",
+        footerNote:
+          "Триггеры и внутренние функции (напр. handle_new_user) здесь не перечислены — см. миграции.",
+      },
     },
     notifications: {
       title: "Уведомления",

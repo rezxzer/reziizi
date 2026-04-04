@@ -131,7 +131,7 @@
 - **ანგარიშის წაშლა (სერვერული ფლოუ):** **`supabase/functions/delete-account/`** — Edge Function: JWT → Storage (`avatars/`, `post-images/`) წაშლა → `auth.admin.deleteUser`. **`api/delete-account.ts`** (Vercel) + **`src/lib/deleteAccount.ts`** — same-origin `/api/delete-account`, fallback Edge. **`SettingsPage`** — დადასტურება `DELETE`, `queryClient.clear`, sign out. **Deno/IDE:** `supabase/functions/deno.json` (import map), `tsconfig.json` + `deno-env.d.ts` — `@supabase/supabase-js` ტიპები `node_modules`-იდან. **ცოცხალი Supabase:** საჭიროა **`supabase functions deploy delete-account`** (იხილე **`README.md`** + **`supabase/ACCOUNT_DELETION_DESIGN.md`**).
 - **ანგარიშის წაშლა (სტატუსი production):** **მოგვიანებით დაბრუნება.** სისტემა **ამ ეტაპზე სტაბილურად არ მუშაობს** (Vercel `/api/delete-account`, env, Edge — დიაგნოსტიკა/დეპლოი დასრულებული არა). იხილე **`README.md`** → Production deployment, **`vercel.json`**, **`api/delete-account.ts`**.
 - **ნავიგაცია (ადმინი):** **`Layout`** — ადმინის ქვემენიუ ერთ **`details`** ჩამოსაშლელში (ჰედერი აღარ „იშლება“ ბევრი ბმულით). **`translate="no"`** ჰედერზე — ბრაუზერის ავტოთარგმანი არ ურევს ნავიგაციის ტექსტს.
-- **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security, **Notifications** (`pages.notifications.*`), **`MessagesPage` / `ChatThreadPage`** (`pages.messages.*`, `pages.chat.*`, `en`/`ka`/`ru`) სრულად `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
+- **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security, **Notifications** (`pages.notifications.*`), **`MessagesPage` / `ChatThreadPage`** (`pages.messages.*`, `pages.chat.*`, `en`/`ka`/`ru`) სრულად `t()`; **ადმინ გვერდები** — `pages.admin.*` (`AdminPage`, Moderation, Reports, Ads, Stats, Users, API catalog) `en`/`ka`/`ru` + `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
 - **Home feed UI (პირველი polish):** **`HomePage`** — `home-feed-toolbar` (სორტი/ფილტრი) და **`home-composer`** (`PostForm`) ვიზუალურად გამიჯნული; **`home-feed-toolbar--sticky`** — Latest/Trending ზოლი scroll-ზე „მიწებდება“; **`styles.css`** — `post-list` ინტერვალი, `post-card` მსუბუქი ჩრდილი, პოსტის ტექსტის `line-height` — დანარჩენი §33/§35 **Future** (სხვა გვერდები, სრული audit).
 
 **შენიშვნა:** **Database Structure (29)** — `supabase/SCHEMA.md`, `verify_schema.sql`; ახალი migration-ის შემდეგ ამ ფაილებიც განაახლე.
@@ -162,7 +162,7 @@
 | 3 | **42. SEO** — `src/lib/seo.ts`, `RouteSeo`, `index.html` defaults; public routes indexable, auth/admin noindex | ✅ baseline | **Email (45)** — მოგვიანებით |
 | 4 | **43. A11Y** — skip link, `#main-content`, brand; **`RouteAnnouncer`** (`aria-live`, `getRouteAnnouncement`) | ✅ baseline | full audit — v3 |
 | 5 | **48. Rate limiting** — DB triggers on `posts` / `comments` / `chat_messages` / `reports` (see `SCHEMA.md`) | ✅ baseline | Edge/API limits — v2 |
-| 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security, **Notifications**, **Messages / Chat** | ✅ baseline v3 | Legal article body ინგლისურად; admin / სხვა გვერდები სურვილისამებრ |
+| 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security, **Notifications**, **Messages / Chat**, **Admin** (`pages.admin.*`) | ✅ baseline v3 | Legal article body ინგლისურად; სხვა გვერდები/ტექსტები სურვილისამებრ |
 | 7 | **Account deletion** — Edge `delete-account`, `api/delete-account`, `src/lib/deleteAccount.ts`, Settings UI | 🔄 მოგვიანებით (production) | **Production არ არის სტაბილური** — დაბრუნება დაგეგმილია. კოდი რეპოშია; იხილე `README`, `CURRENT WORK` ზემოთ |
 | 8 | **5. Friends — mutual follows** (ორმხრივი გამოწერა, UI ინდიკატორი `UserProfilePage`) | ✅ baseline (MVP) | სრული სკოპი **§5**; „მომავალი ტალღა“ იხილე **`#### 🚀 Future`** mutual-ის ქვეშ |
 
@@ -2382,18 +2382,19 @@ Support multiple languages.
 
 ---
 
-#### ✅ v1 (MVP)
-- **`src/i18n/`:** `messages` (`en`, `ka`, `ru`), `resolveMessage` + `interpolate`, `locale` helpers
-- **`messages.seo`:** route titles/descriptions + `announcer` template; **`seo.ts`** reads by `Locale`; **`RouteSeo` / `RouteAnnouncer`** use `useI18n().locale`
-- **`I18nProvider` / `useI18n().t()`** — `document.documentElement.lang` (`en` \| `ka` \| `ru`), `localStorage` (`reziizi-locale`)
-- **Settings:** language `<select>` (first card)
-- **Translated UI:** `Layout`, `ThemePreferenceControls`, `SettingsPage`; **`pages`:** `HomePage`, `LoginPage`, `SearchPage`, `PostForm` (`en` / `ka` / `ru`)
-- **Not yet:** Admin, Profile, PostCard/Comment, Legal/Security, messaging pages — incremental
+#### ✅ Baseline (v3) — რა არის მიბმული
+- **`src/i18n/`:** `messages.ts` — `en` / `ka` / `ru`; `resolveMessage` + `interpolate`; `locale` helpers
+- **`messages.seo`:** route titles/descriptions + `announcer`; **`seo.ts`** by `Locale`; **`RouteSeo` / `RouteAnnouncer`**
+- **`I18nProvider` / `useI18n().t()`** — `document.documentElement.lang`, `localStorage` (`reziizi-locale`)
+- **Settings:** language `<select>`
+- **UI `t()`-ით:** `Layout`, `ThemePreferenceControls`, `SettingsPage`; **`HomePage`**, **`LoginPage`**, **`SearchPage`**, **`PostForm`**; **Profile**, **PostCard**, კომენტარები, reports, reactions; **Legal / Security** (გვერდის chrome — სათაურები/ნავი); **Notifications**; **Messages**; **Chat**; **Admin** — `pages.admin.*` (`AdminPage`, Moderation, Reports, Ads, Stats, Users, API catalog). სრული ჩამონათვალი და სტატუსი: **`## CURRENT WORK`** → **Localization (გაფართოება)**.
 
 ---
 
-#### 🚀 Future (v2+)
-- translate remaining pages/components; optional DB-backed copy; SEO per locale
+#### 🚀 Future (დარჩენილი / სურვილისამებრ)
+- **Legal:** სტატიის სრული შიგთავსი — ლოკალიზაცია (ახლა ტექსტი ძირითადად ინგლისურია)
+- **შეცდომები:** Supabase/API სერვერის შეტყობინებები ხშირად ინგლისურია — კლიენტზე `errorMessage` / toast
+- სხვა გვერდები ან სტრინგები — ინკრემენტულად; ოფციონალური DB-backed copy; SEO per locale სიღრმით
 
 ---
 
@@ -2408,17 +2409,18 @@ Support multiple languages.
 ---
 
 #### 🛠️ Notes
-- API / Supabase error strings remain English
+- სერვერიდან მოსული შეცდომის ტექსტები (PostgREST, Auth) ხშირად ინგლისურია — ეს არაა `messages.ts`-ის ბრალი; UI-ის საკუთარი სტრინგები — `t()`.
 
 ---
 
 #### 🧱 Implementation (44. Localization)
 
 Frontend:
-- `src/contexts/I18nContext.tsx`, `src/main.tsx`, `Layout.tsx`, `ThemePreferenceControls.tsx`, `SettingsPage.tsx`, `src/i18n/*`
+- `src/contexts/I18nContext.tsx`, `src/main.tsx`, `Layout.tsx`, `ThemePreferenceControls.tsx`, `SettingsPage.tsx`, `src/i18n/*` (`messages.ts`, `locale.ts`, `resolveMessage.ts`)
+- გვერდები/კომპონენტები `useI18n` / `t("pages.…")` — იხილე **`CURRENT WORK`** სია
 
 Notes:
-- baseline done; expand coverage incrementally
+- ახალი UI სტრინგი: დაამატე გასაღები სამივე ლოკალში `messages.ts`-ში (`en` / `ka` / `ru`), თორემ ტიპი/რეზოლვერი დაირღვევა
 
 ---
 

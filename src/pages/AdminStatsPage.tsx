@@ -1,28 +1,35 @@
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { fetchPlatformMetrics, type PlatformMetrics } from "../lib/adminStats.ts";
 import { errorMessage } from "../lib/errors.ts";
 
-const METRIC_LABELS: { key: keyof PlatformMetrics; label: string }[] = [
-  { key: "profiles", label: "Profiles" },
-  { key: "posts", label: "Posts" },
-  { key: "comments", label: "Comments" },
-  { key: "reactions", label: "Reactions" },
-  { key: "reports", label: "Reports" },
-  { key: "tags", label: "Tags" },
-  { key: "post_tags", label: "Post–tag links" },
-  { key: "conversations", label: "DM conversations" },
-  { key: "chat_messages", label: "Chat messages" },
-  { key: "notifications", label: "Notifications" },
-  { key: "ad_slots", label: "Ad slots" },
+const METRIC_CONFIG: { key: keyof PlatformMetrics; labelPath: string }[] = [
+  { key: "profiles", labelPath: "pages.admin.stats.metricProfiles" },
+  { key: "posts", labelPath: "pages.admin.stats.metricPosts" },
+  { key: "comments", labelPath: "pages.admin.stats.metricComments" },
+  { key: "reactions", labelPath: "pages.admin.stats.metricReactions" },
+  { key: "reports", labelPath: "pages.admin.stats.metricReports" },
+  { key: "tags", labelPath: "pages.admin.stats.metricTags" },
+  { key: "post_tags", labelPath: "pages.admin.stats.metricPostTags" },
+  { key: "conversations", labelPath: "pages.admin.stats.metricConversations" },
+  { key: "chat_messages", labelPath: "pages.admin.stats.metricChatMessages" },
+  { key: "notifications", labelPath: "pages.admin.stats.metricNotifications" },
+  { key: "ad_slots", labelPath: "pages.admin.stats.metricAdSlots" },
 ];
 
 export function AdminStatsPage(): ReactElement {
+  const { t } = useI18n();
   const toast = useToast();
   const [metrics, setMetrics] = useState<PlatformMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const rows = useMemo(
+    () => METRIC_CONFIG.map(({ key, labelPath }) => ({ key, label: t(labelPath) })),
+    [t],
+  );
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -44,26 +51,29 @@ export function AdminStatsPage(): ReactElement {
   return (
     <div className="stack admin-page">
       <section className="card">
-        <h1 className="card__title">Statistics</h1>
+        <h1 className="card__title">{t("pages.admin.stats.title")}</h1>
         <div className="card__body">
-          <p className="muted">Row counts across public tables (approximate platform size).</p>
+          <p className="muted">{t("pages.admin.stats.intro")}</p>
           <p>
-            <Link to="/admin">← Admin overview</Link>
+            <Link to="/admin">{t("pages.admin.backToOverview")}</Link>
+          </p>
+          <p>
+            <Link to="/">{t("pages.admin.backToHome")}</Link>
           </p>
         </div>
       </section>
 
       <section className="card">
-        <h2 className="card__title">Metrics</h2>
+        <h2 className="card__title">{t("pages.admin.stats.metricsTitle")}</h2>
         <div className="card__body">
           {loading ? (
             <p className="page-loading" role="status">
-              Loading…
+              {t("pages.common.loading")}
             </p>
           ) : null}
           {!loading && metrics ? (
             <ul className="admin-stats admin-stats--wide">
-              {METRIC_LABELS.map(({ key, label }) => (
+              {rows.map(({ key, label }) => (
                 <li key={key} className="admin-stats__item">
                   <span className="admin-stats__label">{label}</span>
                   <span className="admin-stats__value">{metrics[key]}</span>
@@ -73,7 +83,7 @@ export function AdminStatsPage(): ReactElement {
           ) : null}
           {!loading ? (
             <button type="button" className="btn btn--small" onClick={() => void load()}>
-              Refresh
+              {t("pages.admin.refresh")}
             </button>
           ) : null}
         </div>

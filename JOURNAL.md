@@ -21,6 +21,25 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Account deletion: 500 — შეცდომის ტექსტი + Storage სიჩქარე
+
+- **`api/delete-account.ts`:** `errorMessage()` Supabase/Storage შეცდომებისთვის (არა მხოლოდ `Error.message`).
+- **`accountDeletionBackend.ts`:** სამი bucket-ის წაშლა **პარალელურად** (`Promise.allSettled`) — ნაკლები wall time (Vercel Hobby ~10s).
+- **`deleteAccount.ts`:** Vercel პასუხის პარსინგი — `res.text()` + JSON, `error` არა-სტრინგიც.
+- **Edge `delete-account`:** იგივე პარალელური Storage + `storageErrMsg`.
+- **`README.md`:** Troubleshooting 500 (ლოგები, service role, Hobby timeout, Edge fallback).
+
+### 2026-04-03 — დოკი: §44 Localization + `AGENTS.md` — თანხვედრობა
+
+- **`project.md`:** §44 — ძველი „Not yet: Admin…“ მოხსნილი; **Baseline (v3)** სია + **Future** + **Implementation** გასწორებული `CURRENT WORK`-თან; Notes — სერვერის შეცდომები vs `messages.ts`.
+- **`AGENTS.md`:** Localization ერთი ხაზით „სად ვართ“; „კოდი vs UI ენა“ — უშუალო წინააღმდეგობის გარეშე (`messages.*`, `t()`).
+
+### 2026-04-03 — i18n: Admin pages + `ru` admin bundle
+
+- **`messages.ts`:** `pages.admin.*` — `ru` სრული ბლოკი; `reports.postIdPrefix` (`en`/`ka`/`ru`).
+- **`AdminPage`**, **`AdminModerationPage`**, **`AdminReportsPage`**, **`AdminAdsPage`**, **`AdminStatsPage`**, **`AdminUsersPage`**, **`AdminApiPage`:** `useI18n` / `t()`; მოდერაცია/რეპორტები — `adminModeration.ts` / `reports.ts` რეალური ექსპორტები.
+- **შემოწმება:** `npm test`, `npm run build` — OK.
+
 ### 2026-04-03 — i18n: Messages + Chat; sticky feed tabs
 
 - **`messages.ts`:** `pages.messages.*`, `pages.chat.*` — `en` / `ka` / `ru`.

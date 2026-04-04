@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { errorMessage } from "../lib/errors.ts";
 import { MAX_BAN_REASON_LENGTH } from "../lib/banReason.ts";
@@ -9,22 +10,23 @@ import { extendPremiumIso, isPremiumActive } from "../lib/premium.ts";
 import { fetchProfilesForAdmin, setUserBanned, setUserPremiumUntil } from "../lib/adminUsers.ts";
 import type { ProfileRow } from "../types/db.ts";
 
-function formatPremiumCell(premiumUntil: string | null): string {
+function formatPremiumCell(premiumUntil: string | null, emDash: string, expired: string): string {
   if (premiumUntil == null || premiumUntil.length === 0) {
-    return "—";
+    return emDash;
   }
   if (!isPremiumActive(premiumUntil)) {
-    return "expired";
+    return expired;
   }
   try {
     return new Date(premiumUntil).toLocaleDateString(undefined, { dateStyle: "medium" });
   } catch {
-    return "—";
+    return emDash;
   }
 }
 
 export function AdminUsersPage(): ReactElement {
   const { user } = useAuth();
+  const { t } = useI18n();
   const toast = useToast();
   const [rows, setRows] = useState<ProfileRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +34,8 @@ export function AdminUsersPage(): ReactElement {
   const [banTarget, setBanTarget] = useState<ProfileRow | null>(null);
   const [banReasonDraft, setBanReasonDraft] = useState<string>("");
   const banPanelRef = useRef<HTMLElement | null>(null);
+
+  const emDash: string = t("pages.admin.users.emDash");
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -82,7 +86,7 @@ export function AdminUsersPage(): ReactElement {
     if (!user || targetId === user.id) {
       return;
     }
-    if (!window.confirm("Clear premium for this user?")) {
+    if (!window.confirm(t("pages.admin.users.confirmClearPremium"))) {
       return;
     }
     setBusyId(targetId);
@@ -114,7 +118,7 @@ export function AdminUsersPage(): ReactElement {
     }
     const trimmed: string = banReasonDraft.trim();
     if (trimmed.length > MAX_BAN_REASON_LENGTH) {
-      toast.error(`Reason must be at most ${MAX_BAN_REASON_LENGTH} characters.`);
+      toast.error(t("pages.admin.users.banReasonTooLong", { max: MAX_BAN_REASON_LENGTH }));
       return;
     }
     const targetId: string = banTarget.id;
@@ -146,7 +150,7 @@ export function AdminUsersPage(): ReactElement {
     if (!user || targetId === user.id) {
       return;
     }
-    if (!window.confirm("Unban this user?")) {
+    if (!window.confirm(t("pages.admin.users.confirmUnban"))) {
       return;
     }
     setBusyId(targetId);
@@ -166,9 +170,9 @@ export function AdminUsersPage(): ReactElement {
     }
   }
 
-  function truncateReason(text: string | null, max: number): string {
+  function truncateReason(text: string | null, max: number, dash: string): string {
     if (text == null || text.length === 0) {
-      return "—";
+      return dash;
     }
     if (text.length <= max) {
       return text;
@@ -178,36 +182,47 @@ export function AdminUsersPage(): ReactElement {
 
   const tableActionsLocked: boolean = busyId !== null || banTarget !== null;
 
+  function displayName(r: ProfileRow): string {
+    return r.email ?? r.id.slice(0, 8);
+  }
+
+  function ariaName(r: ProfileRow): string {
+    return r.email ?? r.id;
+  }
+
   return (
     <div className="stack admin-page">
       <section className="card">
-        <h1 className="card__title">Users</h1>
+        <h1 className="card__title">{t("pages.admin.users.title")}</h1>
         <div className="card__body">
           <p className="muted">
-            Ban blocks posting, comments, reactions, and chat messages (read-only). Optional reason is shown to the user
-            on <code className="admin-page__code">/banned</code>. Premium is admin-granted until a date (payments not
-            wired yet).
+            {t("pages.admin.users.introBefore")}
+            <code className="admin-page__code">/banned</code>
+            {t("pages.admin.users.introAfter")}
           </p>
           <p>
-            <Link to="/admin">← Admin overview</Link>
+            <Link to="/admin">{t("pages.admin.backToOverview")}</Link>
+          </p>
+          <p>
+            <Link to="/">{t("pages.admin.backToHome")}</Link>
           </p>
         </div>
       </section>
 
       {loading ? (
         <p className="page-loading" role="status">
-          Loading…
+          {t("pages.common.loading")}
         </p>
       ) : null}
 
       {banTarget ? (
         <section ref={banPanelRef} className="card admin-users__ban-panel" aria-labelledby="ban-dialog-title">
           <h2 id="ban-dialog-title" className="card__title">
-            Ban {banTarget.email ?? banTarget.id.slice(0, 8)}
+            {t("pages.admin.users.banTitle", { name: displayName(banTarget) })}
           </h2>
           <div className="card__body">
             <label className="form__label" htmlFor="ban-reason">
-              Reason (optional, shown to user)
+              {t("pages.admin.users.reasonLabel")}
             </label>
             <textarea
               id="ban-reason"
@@ -216,10 +231,13 @@ export function AdminUsersPage(): ReactElement {
               maxLength={MAX_BAN_REASON_LENGTH}
               value={banReasonDraft}
               onChange={(e) => setBanReasonDraft(e.target.value)}
-              placeholder="e.g. Spam, harassment, or a short note…"
+              placeholder={t("pages.admin.users.reasonPlaceholder")}
             />
             <p className="muted">
-              {banReasonDraft.length}/{MAX_BAN_REASON_LENGTH} characters
+              {t("pages.admin.users.charCount", {
+                current: banReasonDraft.length,
+                max: MAX_BAN_REASON_LENGTH,
+              })}
             </p>
             <p className="admin-users__ban-actions">
               <button
@@ -228,10 +246,10 @@ export function AdminUsersPage(): ReactElement {
                 disabled={busyId !== null}
                 onClick={() => void confirmBan()}
               >
-                {busyId === banTarget.id ? "…" : "Confirm ban"}
+                {busyId === banTarget.id ? "…" : t("pages.admin.users.confirmBan")}
               </button>
               <button type="button" className="btn" disabled={busyId !== null} onClick={cancelBanDialog}>
-                Cancel
+                {t("pages.admin.users.cancel")}
               </button>
             </p>
           </div>
@@ -243,12 +261,12 @@ export function AdminUsersPage(): ReactElement {
           <table className="admin-users__table">
             <thead>
               <tr>
-                <th scope="col">Email</th>
-                <th scope="col">Admin</th>
-                <th scope="col">Banned</th>
-                <th scope="col">Reason</th>
-                <th scope="col">Premium</th>
-                <th scope="col">Actions</th>
+                <th scope="col">{t("pages.admin.users.colEmail")}</th>
+                <th scope="col">{t("pages.admin.users.colAdmin")}</th>
+                <th scope="col">{t("pages.admin.users.colBanned")}</th>
+                <th scope="col">{t("pages.admin.users.colReason")}</th>
+                <th scope="col">{t("pages.admin.users.colPremium")}</th>
+                <th scope="col">{t("pages.admin.users.colActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -256,25 +274,33 @@ export function AdminUsersPage(): ReactElement {
                 const isSelf: boolean = user?.id === r.id;
                 return (
                   <tr key={r.id}>
-                    <td>{r.email ?? r.id.slice(0, 8)}</td>
-                    <td>{r.is_admin ? "yes" : "—"}</td>
-                    <td>{r.is_banned ? "yes" : "—"}</td>
+                    <td>{displayName(r)}</td>
+                    <td>{r.is_admin ? t("pages.admin.users.yes") : emDash}</td>
+                    <td>{r.is_banned ? t("pages.admin.users.yes") : emDash}</td>
                     <td className="admin-users__reason-cell" title={r.ban_reason ?? undefined}>
-                      {r.is_banned ? truncateReason(r.ban_reason, 48) : "—"}
+                      {r.is_banned ? truncateReason(r.ban_reason, 48, emDash) : emDash}
                     </td>
-                    <td>{formatPremiumCell(r.premium_until)}</td>
+                    <td>
+                      {formatPremiumCell(r.premium_until, emDash, t("pages.admin.users.premiumExpired"))}
+                    </td>
                     <td>
                       {isSelf ? (
-                        <span className="muted">—</span>
+                        <span className="muted">{emDash}</span>
                       ) : (
                         <div className="admin-users__actions">
                           <div className="admin-users__action-group">
-                            <span className="admin-users__action-label">Moderation</span>
+                            <span className="admin-users__action-label">
+                              {t("pages.admin.users.labelModeration")}
+                            </span>
                             <button
                               type="button"
                               className={`btn btn--small${r.is_banned ? "" : " btn--danger"}`}
                               disabled={tableActionsLocked}
-                              aria-label={r.is_banned ? `Unban ${r.email ?? r.id}` : `Ban ${r.email ?? r.id}`}
+                              aria-label={
+                                r.is_banned
+                                  ? t("pages.admin.users.ariaUnban", { name: ariaName(r) })
+                                  : t("pages.admin.users.ariaBan", { name: ariaName(r) })
+                              }
                               onClick={() => {
                                 if (r.is_banned) {
                                   void unbanUser(r.id);
@@ -283,17 +309,17 @@ export function AdminUsersPage(): ReactElement {
                                 }
                               }}
                             >
-                              {busyId === r.id ? "…" : r.is_banned ? "Unban" : "Ban"}
+                              {busyId === r.id ? "…" : r.is_banned ? t("pages.admin.users.unban") : t("pages.admin.users.ban")}
                             </button>
                           </div>
                           <div className="admin-users__action-group admin-users__action-group--premium">
-                            <span className="admin-users__action-label">Premium</span>
+                            <span className="admin-users__action-label">{t("pages.admin.users.labelPremium")}</span>
                             <div className="admin-users__premium-btns">
                               <button
                                 type="button"
                                 className="btn btn--small"
                                 disabled={tableActionsLocked}
-                                aria-label={`Add 30 days premium for ${r.email ?? r.id}`}
+                                aria-label={t("pages.admin.users.ariaPrem30", { name: ariaName(r) })}
                                 onClick={() => void extendPremiumDays(r.id, 30)}
                               >
                                 {busyId === r.id ? "…" : "+30d"}
@@ -302,7 +328,7 @@ export function AdminUsersPage(): ReactElement {
                                 type="button"
                                 className="btn btn--small"
                                 disabled={tableActionsLocked}
-                                aria-label={`Add 365 days premium for ${r.email ?? r.id}`}
+                                aria-label={t("pages.admin.users.ariaPrem365", { name: ariaName(r) })}
                                 onClick={() => void extendPremiumDays(r.id, 365)}
                               >
                                 {busyId === r.id ? "…" : "+365d"}
@@ -311,10 +337,10 @@ export function AdminUsersPage(): ReactElement {
                                 type="button"
                                 className="btn btn--small"
                                 disabled={tableActionsLocked || r.premium_until == null}
-                                aria-label={`Clear premium for ${r.email ?? r.id}`}
+                                aria-label={t("pages.admin.users.ariaClearPrem", { name: ariaName(r) })}
                                 onClick={() => void clearPremium(r.id)}
                               >
-                                {busyId === r.id ? "…" : "Clear prem."}
+                                {busyId === r.id ? "…" : t("pages.admin.users.clearPrem")}
                               </button>
                             </div>
                           </div>
@@ -329,7 +355,7 @@ export function AdminUsersPage(): ReactElement {
           {!loading ? (
             <p>
               <button type="button" className="btn btn--small" onClick={() => void load()}>
-                Refresh
+                {t("pages.admin.refresh")}
               </button>
             </p>
           ) : null}

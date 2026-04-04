@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { fetchPlatformMetrics } from "../lib/adminStats.ts";
 import { errorMessage } from "../lib/errors.ts";
@@ -13,6 +14,7 @@ type AdminStats = {
 };
 
 export function AdminPage(): ReactElement {
+  const { t } = useI18n();
   const toast = useToast();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,69 +44,69 @@ export function AdminPage(): ReactElement {
   return (
     <div className="stack admin-page">
       <section className="card">
-        <h1 className="card__title">Admin</h1>
+        <h1 className="card__title">{t("pages.admin.overview.title")}</h1>
         <div className="card__body">
           <p className="muted">
-            Promote admins in Supabase SQL Editor if needed:{" "}
+            {t("pages.admin.overview.promoteHintBefore")}{" "}
             <code className="admin-page__code">
               {`update public.profiles set is_admin = true where id = '…';`}
             </code>
           </p>
           <p>
-            <Link to="/admin/moderation">Moderation — delete posts &amp; comments</Link>
+            <Link to="/admin/moderation">{t("pages.admin.overview.linkModeration")}</Link>
           </p>
           <p>
-            <Link to="/admin/users">Users — ban / unban accounts</Link>
+            <Link to="/admin/users">{t("pages.admin.overview.linkUsers")}</Link>
           </p>
           <p>
-            <Link to="/admin/reports">Reports — user reports on posts</Link>
+            <Link to="/admin/reports">{t("pages.admin.overview.linkReports")}</Link>
           </p>
           <p>
-            <Link to="/admin/stats">Statistics — full platform counts</Link>
+            <Link to="/admin/stats">{t("pages.admin.overview.linkStats")}</Link>
           </p>
           <p>
-            <Link to="/admin/ads">Ads — feed top sponsored strip</Link>
+            <Link to="/admin/ads">{t("pages.admin.overview.linkAds")}</Link>
           </p>
           <p>
-            <Link to="/admin/api">API catalog — tables &amp; RPCs (Supabase)</Link>
+            <Link to="/admin/api">{t("pages.admin.overview.linkApi")}</Link>
           </p>
           <p>
-            <Link to="/">← Home</Link>
+            <Link to="/">{t("pages.admin.backToHome")}</Link>
           </p>
         </div>
       </section>
 
       <section className="card">
-        <h2 className="card__title">Counts</h2>
+        <h2 className="card__title">{t("pages.admin.overview.countsTitle")}</h2>
         <div className="card__body">
           {loading ? (
             <p className="page-loading" role="status">
-              Loading…
+              {t("pages.common.loading")}
             </p>
           ) : null}
           {!loading && stats ? (
             <ul className="admin-stats">
               <li className="admin-stats__item">
-                <span className="admin-stats__label">Profiles</span>
+                <span className="admin-stats__label">{t("pages.admin.overview.statProfiles")}</span>
                 <span className="admin-stats__value">{stats.profiles}</span>
               </li>
               <li className="admin-stats__item">
-                <span className="admin-stats__label">Posts</span>
+                <span className="admin-stats__label">{t("pages.admin.overview.statPosts")}</span>
                 <span className="admin-stats__value">{stats.posts}</span>
               </li>
               <li className="admin-stats__item">
-                <span className="admin-stats__label">Comments</span>
+                <span className="admin-stats__label">{t("pages.admin.overview.statComments")}</span>
                 <span className="admin-stats__value">{stats.comments}</span>
               </li>
               <li className="admin-stats__item">
-                <span className="admin-stats__label">Reactions</span>
+                <span className="admin-stats__label">{t("pages.admin.overview.statReactions")}</span>
                 <span className="admin-stats__value">{stats.reactions}</span>
               </li>
             </ul>
           ) : null}
           {!loading ? (
             <button type="button" className="btn btn--small" onClick={() => void load()}>
-              Refresh
+              {t("pages.admin.refresh")}
             </button>
           ) : null}
         </div>
