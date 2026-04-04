@@ -93,6 +93,8 @@ After you know your live URL:
 
 Password sign-in needs a correct **Site URL**; magic links / OAuth need **Redirect URLs** to match.
 
+**Password recovery (reset):** The app uses `resetPasswordForEmail` with redirect to `{origin}/reset-password`. Add explicit entries if your Supabase project does not accept a wildcard, for example `https://your-project.vercel.app/reset-password` and, for local dev, `http://localhost:5173/reset-password`. Under **Authentication** → **Emails**, ensure the recovery template uses `{{ .ConfirmationURL }}` (default). Optional: **Authentication** → **SMTP Settings** to send via your own provider.
+
 ### 6. Verify production
 
 - Home and `/login` load without a blank screen.

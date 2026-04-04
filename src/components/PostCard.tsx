@@ -82,6 +82,11 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
           />
         </div>
       ) : null}
+      {isOwner && post.is_flagged ? (
+        <p className="post-card__flag-hint muted" role="status">
+          {t("pages.postCard.flaggedAuthorHint")}
+        </p>
+      ) : null}
       <p className="post-card__body">{post.body}</p>
       {post.tagSlugs.length > 0 ? (
         <ul className="tag-list">

@@ -94,6 +94,9 @@ export function SearchPage(): ReactElement {
           {showHint ? (
             <p className="muted">{t("pages.search.hintMinChars")}</p>
           ) : null}
+          {isSearchQueryValid(patternForHint) ? (
+            <p className="muted form__hint">{t("pages.search.rankingHint")}</p>
+          ) : null}
         </div>
       </section>
 

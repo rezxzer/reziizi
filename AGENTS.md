@@ -48,13 +48,15 @@ reziizi/
 |-----------------|--------|
 | **`README.md`** | Quick start, tests, **GitHub Actions (CI)**, **Production deployment (GitHub + Vercel + Supabase)** — სრული ნაბიჯები. |
 | **`project.md`** | სრული სპეკი: feature-ები 1–51, VERSIONS (MVP/v2/v3), **FEATURE BREAKDOWN**, **CURRENT WORK** (დასრულებული სტატუსი + **შემდეგი განვითარების გეგმა (შევსებადი)** ცხრილი). |
-| **`JOURNAL.md`** | ქრონოლოგია — რა გაკეთდა, რა გადაწყვიტე (მოკლე ჩანაწერები). |
+| **`JOURNAL.md`** | ქრონოლოგია — რა გაკეთდა, რა გადაწყვიტე (მოკლე ჩანაწერები). როცა მომხმარებელი ადასტურებს Supabase-ზე migration-ის გაშვებას — AI უნდა განაახლოს **`JOURNAL.md`** + **`project.md` CURRENT WORK** (იხილე `.cursor/rules/reziizi.mdc` → „დადასტურება, რიგი და ჩანაწერი“). |
 | **`supabase/SCHEMA.md`** | public DB სქემის მიმოხილვა (ცხრილები, RPC, Storage, rate limits). |
 | **`supabase/ACCOUNT_DELETION_DESIGN.md`** | ანგარიშის წაშლა (Supabase): Edge Function, CASCADE, Storage — **დეპლოი სავალდებულოა** (`README` → Edge Function სექცია). |
 | **`.cursor/rules/reziizi.mdc`** | Cursor წესები: ენა, მიდგომა, **v1/v2 იმპლემენტაციის რიგი**, **მიგრაციების თანმიმდევრობა**, **იმპლემენტაციამდე: შემოწმება → დოკუმენტი → მერე კოდი**, Supabase/Git. |
 | **`src/`** | აპის კოდი — `pages/`, `components/`, `lib/supabaseClient.ts`. |
 
 **ახალი ჩატის მინიმალური წესი:** ჯერ **`## CURRENT WORK`** `project.md`, შემდეგ **`reziizi.mdc`** (v1/v2 რიგი, migrations ცხრილი, **იმპლემენტაციამდე** 4 ნაბიჯი). ახალი ფიჩა: თანმიმდევრობა არ ემთხვევა სპეკს → **ჯერ დოკუმენტი**, მერე კოდი.
+
+**გარე AI (ChatGPT და სხვა):** სრული სპეკი **Anti-spam (49)** — `project.md` → **`## CURRENT WORK`** → **`#### Anti-spam (49)`** (კონფიგი + checklist + ინგლისური Appendix). დუბლირება §49-ში არაა.
 
 ## ლოკალურად გაშვება
 
@@ -71,7 +73,7 @@ npm run dev
 - **v1 core:** Supabase + აპი (Auth, feed, reactions, profile, settings, `/legal`); **UI ტოკენები + მობილური ბაზა** — `styles.css` / `index.html`.
 - **v2:** **Comments**, **Search**, **Theme**, **Notifications**, **Tags**, **Trending**, **Chat**, **Ranking (17)** — net score `PostCard`-ზე; migrations Supabase-ში.
 - **v3:** **Admin** … **API Layer**, **Database Structure**, **Caching (30)**, **Logging (31)**, **Error Handling (32)**, **Deployment (37)**, **Testing (41)** (Vitest), **Performance (36)** (lazy routes) — სრულად `project.md` → **REZIIZI v3**. **Localization (44):** `en` / `ka` / `ru` — `src/i18n/messages.ts`, მთავარი ფიჩა-გვერდები + **Admin** `t()`-ით; დარჩენილი სკოპი → `project.md` **§44** + **CURRENT WORK**.
-- **შემდეგი განვითარება:** `project.md` → **`## CURRENT WORK`** → **„შემდეგი განვითარების გეგმა (შევსებადი)“** — იქ ჩაწერე პრიორიტეტები; v3 ტექნიკური baseline დასრულებულია. **Media (11)** / **Avatar (4)** — `project.md` ცხრილი. **ანგარიშის წაშლა:** **production დადასტურებული** (Vercel `/api/delete-account` + Supabase Auth/Storage) — `project.md` **CURRENT WORK**, `README.md`. **Email (45)** — მოგვიანებით (არა სავალდებულო). **Tests:** `npm test`. **CI:** GitHub (`ci.yml`). **Production:** `README.md` → **„Production deployment“** (Vercel).
+- **შემდეგი განვითარება:** `project.md` → **`## CURRENT WORK`** → **„შემდეგი განვითარების გეგმა (შევსებადი)“** — იქ ჩაწერე პრიორიტეტები; v3 ტექნიკური baseline დასრულებულია. **Media (11)** / **Avatar (4)** — `project.md` ცხრილი. **ანგარიშის წაშლა:** **production დადასტურებული** (Vercel `/api/delete-account` + Supabase Auth/Storage) — `project.md` **CURRENT WORK**, `README.md`. **Email (45)** — **password reset** აპში (`/forgot-password`, `/reset-password`); verification/alerts + custom SMTP — მოგვიანებით (`README` → Auth URL). **Tests:** `npm test`. **CI:** GitHub (`ci.yml`). **Production:** `README.md` → **„Production deployment“** (Vercel).
 
 ## კომუნიკაცია და კოდი
 

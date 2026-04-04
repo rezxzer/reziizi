@@ -3,8 +3,22 @@ import { supabase } from "./supabaseClient";
 
 export const NOTIFICATIONS_CHANGED_EVENT = "reziizi-notifications-changed";
 
+/** Same name in every tab — cross-tab sync for unread badge + notifications list. */
+export const NOTIFICATIONS_BROADCAST_CHANNEL = "reziizi-notifications";
+
 export function dispatchNotificationsChanged(): void {
   window.dispatchEvent(new CustomEvent(NOTIFICATIONS_CHANGED_EVENT));
+  try {
+    if (typeof BroadcastChannel !== "undefined") {
+      const bc = new BroadcastChannel(NOTIFICATIONS_BROADCAST_CHANNEL);
+      bc.postMessage({ v: 1 as const });
+      queueMicrotask(() => {
+        bc.close();
+      });
+    }
+  } catch {
+    // ignore (e.g. private mode quirks)
+  }
 }
 
 export type NotificationWithActor = NotificationRow & {

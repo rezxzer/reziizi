@@ -8,7 +8,12 @@ function createSupabaseClient(): SupabaseClient {
   if (!url || !anonKey) {
     logger.warn("missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — add .env (see .env.example)");
   }
-  return createClient(url ?? "", anonKey ?? "");
+  return createClient(url ?? "", anonKey ?? "", {
+    auth: {
+      detectSessionInUrl: true,
+      flowType: "pkce",
+    },
+  });
 }
 
 export const supabase: SupabaseClient = createSupabaseClient();

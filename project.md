@@ -50,11 +50,11 @@
 42. SEO Optimization 🟡
 43. Accessibility (A11Y) 🟡
 44. Localization (Languages) 🟡
-45. Email System (verification/reset)
+45. Email System 🔄 (password reset MVP; verification later)
 46. Push Notifications
 47. File Storage System
 48. Rate Limiting System 🟡
-49. Anti-Spam System
+49. Anti-Spam System 🔄
 50. Future Features
 51. Legal / Privacy (Terms & Privacy)
 
@@ -133,6 +133,8 @@
 - **ნავიგაცია (ადმინი):** **`Layout`** — ადმინის ქვემენიუ ერთ **`details`** ჩამოსაშლელში (ჰედერი აღარ „იშლება“ ბევრი ბმულით). **`translate="no"`** ჰედერზე — ბრაუზერის ავტოთარგმანი არ ურევს ნავიგაციის ტექსტს.
 - **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security, **Notifications** (`pages.notifications.*`), **`MessagesPage` / `ChatThreadPage`** (`pages.messages.*`, `pages.chat.*`, `en`/`ka`/`ru`) სრულად `t()`; **ადმინ გვერდები** — `pages.admin.*` (`AdminPage`, Moderation, Reports, Ads, Stats, Users, API catalog) `en`/`ka`/`ru` + `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
 - **Home feed UI (პირველი polish):** **`HomePage`** — `home-feed-toolbar` (სორტი/ფილტრი) და **`home-composer`** (`PostForm`) ვიზუალურად გამიჯნული; **`home-feed-toolbar--sticky`** — Latest/Trending ზოლი scroll-ზე „მიწებდება“; **`styles.css`** — `post-list` ინტერვალი, `post-card` მსუბუქი ჩრდილი, პოსტის ტექსტის `line-height` — დანარჩენი §33/§35 **Future** (სხვა გვერდები, სრული audit).
+- **Email (45) — password reset (MVP):** `/forgot-password` · `/reset-password`, `getAuthRecoveryRedirectTo()`, Supabase `resetPasswordForEmail` + session recovery → `updateUser({ password })`; i18n `en`/`ka`/`ru`; **Dashboard:** Redirect URLs + ნებისმიერი SMTP — **`README.md`**, **`project.md` → §45**. **ტესტები:** Vitest/RTL ამ ფლოუზე — **მომავალში** (იხილე §45 / §41 Notes).
+- **Anti-spam (49) — body update:** migration `20260401350600_antispam_recheck_on_body_update.sql` — `body` შეცვლისას იგივე duplicate/link ევრისტიკა რაც INSERT-ზე; `abuse_flags` როცა `is_flagged` ხდება UPDATE-ით (`skip_spam_guard` — report path-თან დუბლირების გარეშე).
 
 **შენიშვნა:** **Database Structure (29)** — `supabase/SCHEMA.md`, `verify_schema.sql`; ახალი migration-ის შემდეგ ამ ფაილებიც განაახლე.
 
@@ -159,12 +161,18 @@
 |-------------|-------------------|---------|------------------|
 | 1 | **11. Media Upload System** (+ **47. File Storage**) | ✅ baseline | სურათი ან მოკლე ვიდეო პოსტზე (ორი ერთად არა); იხილე §10 / §11 |
 | 2 | **4. Avatar** — `profiles.avatar_url`, bucket `avatars`, Settings upload, feed `PostCard` | ✅ baseline | სურვილისამებრ: სხვა გვერდებზე Avatar |
-| 3 | **42. SEO** — `src/lib/seo.ts`, `RouteSeo`, `index.html` defaults; public routes indexable, auth/admin noindex | ✅ baseline | **Email (45)** — მოგვიანებით |
+| 3 | **42. SEO** — `src/lib/seo.ts`, `RouteSeo`, `index.html` defaults; public routes indexable, auth/admin noindex | ✅ baseline | **Email (45)** password reset — აპი ✅; SMTP/redirect — `README` |
 | 4 | **43. A11Y** — skip link, `#main-content`, brand; **`RouteAnnouncer`** (`aria-live`, `getRouteAnnouncement`) | ✅ baseline | full audit — v3 |
 | 5 | **48. Rate limiting** — DB triggers on `posts` / `comments` / `chat_messages` / `reports` (see `SCHEMA.md`) | ✅ baseline | Edge/API limits — v2 |
 | 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security, **Notifications**, **Messages / Chat**, **Admin** (`pages.admin.*`) | ✅ baseline v3 | Legal article body ინგლისურად; სხვა გვერდები/ტექსტები სურვილისამებრ |
 | 7 | **Account deletion** — Edge `delete-account`, `api/delete-account`, `src/lib/deleteAccount.ts`, Settings UI | ✅ production (დადასტურებული) | Vercel + Supabase; Hobby-ზე იშლება — მძიმე Storage-ისას იხილე `README` troubleshooting |
 | 8 | **5. Friends — mutual follows** (ორმხრივი გამოწერა, UI ინდიკატორი `UserProfilePage`) | ✅ baseline (MVP) | სრული სკოპი **§5**; „მომავალი ტალღა“ იხილე **`#### 🚀 Future`** mutual-ის ქვეშ |
+| 9 | **49. Anti-spam (MVP)** — `abuse_flags`, `is_flagged` / `spam_score`, ტრიგერები, RLS, admin UI, feed soft-hide | ✅ baseline (SQL + აპი) | Migrations: `20260401350000` … `20260401350100`; სპეკი: **`#### Anti-spam (49)`** |
+| 10 | **Notifications v2** — ტიპზე preference (`profiles.notify_on_*`), Settings UI, unread/list სინქი ტაბებს შორის (`BroadcastChannel`) | ✅ baseline | Migration: `20260401350200_add_notification_preferences.sql`; `notificationPreferences.ts`, `notifications.ts`, `useUnreadNotificationCount` |
+| 11 | **Feed tuning (trending)** — `feed_trending_post_ids` recency decay + კომენტარის წონა; flagged პოსტები გარეთ | ✅ **გაშვებულია Supabase-ზე** (დადასტურებული) | `20260401350300_improve_feed_trending_ranking.sql`; `SCHEMA.md` RPC აღწერა |
+| 12 | **Search v2** — `search_post_ids` / `search_profile_ids` (ranking), `search.ts` + UI hint | ✅ **გაშვებულია Supabase-ზე** (დადასტურებული) | `20260401350400_add_search_v2_rpcs.sql`; `registry.ts`, `SCHEMA.md` |
+| 13 | **მოდერაციის ავტომატიზაცია** — N report ერთ პოსტზე → `is_flagged` + `abuse_flags` | ✅ **გაშვებულია Supabase-ზე** (დადასტურებული) | `20260401350500_add_report_threshold_auto_flag.sql`; Admin Moderation hint (`pages.admin.moderation.autoFlagHint`) |
+| 14 | **49. Anti-spam — რედაქტირება** — `body` UPDATE → ხელახალი duplicate/link (INSERT-ის პარიტეტი) | 🔄 **migration რეპოში** — გაშვება Supabase-ზე | `20260401350600_antispam_recheck_on_body_update.sql`; `SCHEMA.md`, `verify_schema.sql` |
 
 ---
 
@@ -178,8 +186,8 @@
 | **A** | **ნოტიფიკაციები v2:** preference-ები ტიპზე, Realtime/დუბლიკატების პოლიში, unread სინქი ტაბებს შორის. | უკვე არის notifications baseline — ეს **გაუმჯობესება**; effort **S არა ყოველთვის** — DB/UI/Realtime საჭიროებისამებრ **M** შეიძლება იყოს. |
 | **B — საშუალო** | **Feed / trending ხარისხი** — ranking-ის დაზუსტება (რეაქცია, recency, თაღლითის საწინააღმდეგო მარტივი წესები); **§17** / RPC უკვე არსებობს — tuning, არა ზედმეტად сложная ML პირველ ტალღაში. | |
 | **B** | **Search v2** — ranking, UX, full-text polish (`§14`); PostgreSQL უკვე გამოიყენება. | |
-| **B** | **მოდერაციის ავტომატიზაცია** — report threshold → დამალვა/რიგი ადმინში; DB + Edge საჭიროებისამებრ. | ადმინ პანელი უკვეა — ეს **ავტომატიზაცია**. |
-| **C — ფუნდამენტი / later** | **Email (45) მინიმალური** — password reset + კრიტიკული alerts; პროვაიდერი (Resend/SendGrid); **არა** მარკეტინგული ეკოსისტემა მალე. | სპეკში Email მოგვიანებით — ეს **ინტეგრაციის** ეტაპია. |
+| **B** | **მოდერაციის ავტომატიზაცია** — report threshold → დამალვა/რიგი ადმინში; DB + Edge საჭიროებისამებრ. | **MVP:** `20260401350500` — **3** report იმავე პოსტზე → auto-flag + `abuse_flags` (`report_threshold`); იხილე `SCHEMA.md` |
+| **C — ფუნდამენტი / later** | **Email (45):** **password reset** — ✅ აპი; **ტესტები** — მომავალში (`§45`); **დარჩა:** verification, alerts, SMTP. | Redirect URLs — **`README.md`**. |
 | **C — Bigger bet** | **Premium „რეალური“** — გადახდა, ლიმიტები, ბეიჯი/პერკები. | **ამჟამად:** `premium_until` + ადმინი უკვეა — billing არის **ახალი** სკოპი + migration/პროვაიდერი. |
 
 **გადადება / პროდუქტის არჩევანი (არა „სამუდამო უარი“):** **Legal სრული i18n** — გარე რეკომენდაციამ „დაბალი ROI“ შეიძლება თქვას; პროექტზე ეს **პროდუქტის/რეგიონის** გადაწყვეტაა (ნდობა). **AI მოდერაცია**, **native აპები** — მოგვიანებით.
@@ -190,7 +198,83 @@
 
 ---
 
-**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება), **Anti-spam (49)** — დეტალები **MASTER FEATURE LIST** + **FEATURE BREAKDOWN**. **Friends (5)** — baseline §5 + mutual MVP; ნოტიფიკაცია follow-ზე live. **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
+#### Anti-spam (**49**) — სპეკი და იმპლემენტაცია (ერთი წყარო)
+
+**სტატუსი:** 🔄 იმპლემენტაცია — დეტალი **მხოლოდ აქ**; **§49 FEATURE BREAKDOWN** ქვემოთ მხოლოდ მიმართებაა (არ ვაკოპირებთ ცხრილს).
+
+**პრინციპი:** არსებულ **rate limits (48)** ზედ (`20260401310000_add_rate_limit_triggers.sql`, `SCHEMA.md`) — ევრისტიკა + რბილი დროშები; **არა** AI/CAPTCHA/fingerprint/ავტომატური სამუდამო ბანი MVP-ში. **Edge** მოგვიანებით; **არა** ტრიგერიდან Edge პირდაპირ (pg_net-ის გარეშე).
+
+**Locked technical outline**
+
+| ელემენტი | როგორ |
+|----------|--------|
+| **ლოგიკა** | PostgreSQL ტრიგერები + ფუნქციები — duplicate / ლინკის წესები; ინდექსი `user_id` + `created_at` სადაც საჭიროა. |
+| **სქემა** | **`abuse_flags`** (FK: `post_id`, `comment_id`, ოფციონალური `message_id` — ერთი non-null `CHECK`); **და** **`posts` / `comments`** — `is_flagged` boolean, `spam_score` int default 0. |
+| **RLS** | მომხმარებელი ვერ ცვლის `is_flagged` / `spam_score` ხელით — ტრიგერი ან SD ფუნქცია; ადმინი + bypass. |
+| **აპი** | `src/pages/`, `src/components/`, `src/lib/` — არა `src/features/`. Toast / `errorMessage`. |
+| **დოკი** | migration-ის შემდეგ: `SCHEMA.md`, `verify_schema.sql`. |
+
+**იმპლემენტაციის default-ები (გადაწყვეტილი სანამ SQL დაიწყება)**
+
+| თემა | მნიშვნელობა |
+|------|----------------|
+| დუბლიკატის ფანჯარა | **5 წუთი** (3–5 დიაპაზონიდან); ტექსტი ნორმალიზებული (trim, lower, collapse whitespace). |
+| Soft hide feed | საჯარო feed / trending / სიები სხვებისთვის: **`is_flagged = true` არ ჩანს**; ავტორი ხედავს **საკუთარ პროფილში** / თავის პოსტებში (იმპლემენტაციაში დაიზუსტება query-ებით). |
+| ლინკის ათვლა | მინიმუმ `http://`, `https://`; სურვილისამებრ `www.` უსქემოდ — ერთი regex იმპლემენტაციაში. |
+| Approve (ადმინი) | `is_flagged = false`, `spam_score = 0`; `abuse_flags` ჩანაწერები იგივე საგანზე — წაშლა ან დატოვება audit-ისთვის (აირჩიე migration-ში ერთი). |
+| Rate limit vs anti-spam | ორივე ტრიგერი შეიძლება იგივე INSERT-ზე — ერთი user-facing შეტყობინება (`errorMessage`); ზედმეტი დუბლირებული toast არა. |
+
+**დადასტურებული კონფიგი (MVP)** — პროდუქტის ცხრილი (რისკებით); **`message_id`** ოფციონალური მომავალი chat-ისთვის; **პირველი ტალღა** — მხოლოდ **posts + comments** (chat — არსებული rate-limit მარტო).
+
+| # | თემა | რეკომენდებული მნიშვნელობა | რისკი თუ ზედმეტად მკაცრი / რბილია |
+|---|------|---------------------------|-------------------------------------|
+| 1 | `abuse_flags` სქემა — FK vs polymorphic | FK ცალკე ველებით (`post_id`, `comment_id`, ოფციონალური `message_id`) — nullable; ერთ ჩანაწერში ერთი შევსებული | polymorphic მოქნილია, მაგრამ რთულდება RLS და join-ები; FK უფრო უსაფრთხოა MVP-ში |
+| 2 | `is_flagged` / `spam_score` სად | `posts` და `comments`: `is_flagged` boolean, `spam_score` int default 0 | ზედმეტად აგრესიული → legit პოსტები დაიმალება; რბილი → სპამი დარჩება feed-ში |
+| 3 | მხოლოდ posts+comments თუ chat-იც | პირველ ტალღაში: **posts + comments**; chat → მხოლოდ არსებული rate-limit | chat-ის სრული anti-spam ახლავე ზრდის false positives-ს |
+| 4 | დუბლიკატის დროის ფანჯარა (წუთებში) | **5 წთ** იგივე ტექსტისთვის იგივე user-ზე (ნორმალიზებული ტექსტი); იხილე „იმპლემენტაციის default-ები“ | ძალიან მოკლე → spam გაეპარება; ძალიან გრძელი → legit პოსტები/რედაქტი დაიბლოკება |
+| 5 | ლინკების მაქს. რაოდენობა | **max 2** link / post, comment-ში **max 1** | მკაცრი ლიმიტი → legit promo/content დაზარალდება; რბილი → link spam გაიზრდება |
+| 6 | ავტორს ჩანს თუ არა დროში | ჩანს **საკუთარ პროფილში**; feed-ში შესაძლოა არ გამოჩნდეს (soft hide) | საერთოდ არ ჩანს → confusion; ყველგან ჩანს → spam ეფექტი არ მცირდება |
+| 7 | ადმინის მინიმალური UI | Admin: filter `is_flagged=true`, sort `spam_score` desc; სწრაფი მოქმედებები: approve / delete / ban user (რაც უკვე არსებობს + ახალი ველების მიბმა) | სუსტი UI → bottleneck; ზედმეტად რთული → ზედმეტი dev დრო |
+| 8 | ლოკალიზაცია | `en` / `ka` / `ru` — `messages.ts` (ახალი სტრინგები სამივე ლოკალში) | — |
+
+**Migration / იმპლემენტაციის ნაბიჯები (checklist)**
+
+0. ახალი migration: **`20260401350000_add_anti_spam_flags.sql`** — იხილე `.cursor/rules/reziizi.mdc` migrations ცხრილი (#24).
+1. `abuse_flags` ცხრილი (FK-ები + `CHECK` ერთი target-ზე).
+2. `posts` / `comments` — `is_flagged`, `spam_score`.
+3. duplicate-check ტრიგერი (INSERT / UPDATE საჭიროებისამებრ).
+4. link-count ტრიგერი.
+5. RLS + soft-hide წესი (იხილე „იმპლემენტაციის default-ები“).
+6. admin bypass policy.
+7. ინდექსები (`user_id`, `created_at`, საჭიროებისამებრ).
+8. client — UI / ფილტრები / `messages.ts`.
+9. **გაფართოება (რედაქტირება):** `20260401350600_antispam_recheck_on_body_update.sql` — `body` UPDATE-ზე იგივე ევრისტიკა + `abuse_flags` AFTER UPDATE (იხილე `SCHEMA.md`).
+
+**Appendix — external AI (optional):** სხვა ჩატში დასაკოპირებლად — **ინგლისური** ჩარჩო (სტეკი/რეპო არ დაირღვეს). სრული სპეკი anti-spam-ისთვის **ამავე სექციაა**, დამატებითი ქართული პრომპტი არ ვაკოპირებთ — იყო git ისტორიაში.
+
+```
+You are assisting the REZIIZI project. Obey these constraints:
+
+1) STACK (fixed): React (Vite) + TypeScript + Supabase only. Do NOT propose new frameworks, new databases, or rewriting the app.
+
+2) SOURCE OF TRUTH: Treat this repo’s project.md (CURRENT WORK + migrations list in .cursor/rules) as authoritative. If unsure, say "verify in repo" instead of inventing file paths, tables, or folders.
+
+3) FOLDER STRUCTURE: Code lives under src/pages, src/components, src/lib — there is NO src/features/ tree. API registry: src/lib/api/.
+
+4) IMPLEMENTATION ORDER: migrations + RLS + Supabase first, then app code — never skip RLS for user-facing tables.
+
+5) POSTGRES: Do NOT assume a PostgreSQL trigger can "call" a Supabase Edge Function unless the project explicitly uses pg_net/http — prefer triggers + SQL for MVP; Edge Functions optional as separate HTTP step later.
+
+6) SCOPE: One feature per answer unless asked otherwise. If the user asks for a plan, output scope, DB touchpoints, RLS notes, risks, acceptance criteria — NOT full production code unless requested.
+
+7) ANTI-SPAM / ABUSE: Prefer soft flags, rate limits, and admin visibility; avoid AI moderation, CAPTCHA, and device fingerprinting in MVP unless explicitly requested.
+
+Reply in the language the user asked (Georgian or English).
+```
+
+---
+
+**იდეები სპეკიდან (არა სავალდებულო რიგი):** **SEO (42)**, **A11Y (43)**, **Localization (44)**, **Email (45)** (მოგვიანებით), **Rate limiting (48)** (Edge/API დამატება). **Anti-spam (49)** — სრული სპეკი **მხოლოდ** ზემოთ **`#### Anti-spam (49)`** (არა დუბლირება §49-ში). **Friends (5)** — baseline §5 + mutual MVP; ნოტიფიკაცია follow-ზე live. **Video (10)** — baseline §10 (ტრანსკოდინგი/სტრიმინგი მომავალში). **CI (GitHub Actions):** `README.md` → „GitHub Actions (CI)“.
 
 **სადაც „მომავალია“:** თითოეულ ფიჩას აქვს **🚀 Future** ან **Notes** `FEATURE BREAKDOWN`-ში; ახალი ფიჩა: **ჯერ** გეგმა/სკოპი აქ (`project.md`) და სტატუსი ცხრილში, **მერე** კოდი (`reziizi.mdc`).
 
@@ -861,7 +945,7 @@ Backend:
 #### 🛠️ Notes
 
 - **SEO (42)** და **Email (45)** პარალელურად მნიშვნელოვანია production-ისთვის, მაგრამ **Media** უშუალოდ უმატებს retention-ს feed-ში.
-- **Rate limiting (48):** პოსტები/კომენტარები/ჩატი/რეპორტები — DB ტრიგერები (`SCHEMA.md`); **Storage** ატვირთვის სიხშირე — მომავალში. **Anti-spam (49)** — მომავალში.
+- **Rate limiting (48):** პოსტები/კომენტარები/ჩატი/რეპორტები — DB ტრიგერები (`SCHEMA.md`); **Storage** ატვირთვის სიხშირე — მომავალში. **Anti-spam (49)** — იმპლემენტაცია — **`## CURRENT WORK`** → **`#### Anti-spam (49)`** (ერთი სპეკი).
 
 ---
 
@@ -993,13 +1077,13 @@ users, posts
 #### 🧱 Implementation (14. Search)
 
 Frontend:
-- `SearchPage` `/search`; `src/lib/search.ts` (ilike on `posts.body`, `profiles.email`)
+- `SearchPage` `/search`; `src/lib/search.ts` — `search_post_ids` / `search_profile_ids` RPC (ordered ids → `fetchFeedPostsByIdsOrdered` / profile `select` by id); `pages.search.rankingHint`
 
 Backend:
-- no new tables; uses existing RLS + indexes (seq scan OK for small data)
+- **Search v2 (migration `20260401350400_add_search_v2_rpcs.sql`):** GIN index `to_tsvector('simple', body)`; `search_post_ids` — FTS + `ts_rank_cd`, ILIKE fallback, `not is_flagged`; `search_profile_ids` — email ILIKE, exact/prefix/substring order, `searchable` or viewer self
 
 Notes:
-- sanitize LIKE wildcards in user input; min 2 chars
+- sanitize LIKE wildcards in user input; min 2 chars; RPC `SECURITY DEFINER` with explicit visibility (aligned with soft-hide / privacy)
 
 ---
 
@@ -2305,6 +2389,7 @@ Frontend:
 
 Notes:
 - full feature 41 still open (integration tests, E2E, coverage gates)
+- **Deferred:** password recovery UI tests (`ForgotPasswordPage`, `ResetPasswordPage`, mocked Auth) — იხილე **§45** Notes.
 
 ---
 
@@ -2448,49 +2533,55 @@ Notes:
 
 ---
 
-### 45. Email System ❌
+### 45. Email System 🔄
 
 #### 📌 Description
-Email verification and password reset.
+Transactional email via **Supabase Auth** (and optional custom SMTP). **MVP:** password recovery. **Later:** email verification, critical alerts — **არა** მარკეტინგული ეკოსისტემა მალე.
 
 ---
 
 #### ✅ v1 (MVP)
-- not included
+- **Password reset:** `/forgot-password` → `resetPasswordForEmail` → email link → `/reset-password` → `updateUser({ password })` (PKCE + `detectSessionInUrl`).
 
 ---
 
 #### 🚀 Future (v2+)
-- email verification
-- password reset
+- email verification (signup confirm)
+- critical / transactional alerts (საჭიროებისამებრ Resend/SendGrid SMTP in Dashboard)
 
 ---
 
 #### ⚙️ Logic
-- send email
+- Supabase Auth sends recovery email; redirect URL must be allowlisted (**Site URL** + **Redirect URLs**).
 
 ---
 
 #### 🗄️ Database (planned)
-email tokens
+- none for password reset (Auth handles tokens). Future verification may use Auth metadata only.
 
 ---
 
 #### 🛠️ Notes
-- important later
+- **Production:** Dashboard → **Authentication** → **SMTP** (custom provider optional); **URL Configuration** — add `https://<domain>/reset-password` (and dev `http://localhost:5173/reset-password` if needed). იხილე **`README.md`** → *Supabase — Auth URL configuration*.
 
 ---
 
 #### 🧱 Implementation (45. Email System)
 
 Frontend:
-- none (v1)
+- `src/lib/authRedirect.ts` — `getAuthRecoveryRedirectTo()` → `{origin}/reset-password`
+- `src/pages/ForgotPasswordPage.tsx`, `src/pages/ResetPasswordPage.tsx`
+- `src/lib/supabaseClient.ts` — `auth: { detectSessionInUrl: true, flowType: "pkce" }`
+- `src/App.tsx` — routes `/forgot-password`, `/reset-password`
+- `src/pages/LoginPage.tsx` — „Forgot password?“ → `/forgot-password` (sign-in mode)
+- `src/lib/seo.ts`, `src/i18n/messages.ts` — routes + copy (`en` / `ka` / `ru`)
 
 Backend:
-- Supabase (later)
+- Supabase Auth (built-in); no app migration for reset flow.
 
 Notes:
-- later
+- Does not disclose whether an email exists (generic success copy on forgot-password).
+- **Tests (deferred, §41):** Vitest/RTL for `ForgotPasswordPage` / `ResetPasswordPage` with mocked `supabase.auth` — მომავალში, როცა პრიორიტეტი იქნება.
 
 ---
 
@@ -2630,48 +2721,28 @@ Notes:
 
 ---
 
-### 49. Anti-Spam System ❌
+### 49. Anti-Spam System 🔄
 
 #### 📌 Description
-Detect and block spam.
+Spam ევრისტიკა + რბილი დროშები; არსებულ rate limits-ზე დამატება.
 
 ---
 
-#### ✅ v1 (MVP)
-- not included
+#### სპეკი (ერთი წყარო)
+
+**არ ავაკოპირებთ ცხრილს აქ.** სრული დეტალი: **`## CURRENT WORK`** → **`### შემდეგი ფაზა`** → **`#### Anti-spam (49)`** — locked სქემა, კონფიგი, migration checklist, optional AI appendix.
 
 ---
 
-#### 🚀 Future (v2+)
-- spam detection
-
----
-
-#### ⚙️ Logic
-- filter content
-
----
-
-#### 🗄️ Database (planned)
-spam flags
-
----
-
-#### 🛠️ Notes
-- later
+#### ✅ v1 (MVP) — შინაარსი იხილე ზემო ბმული
 
 ---
 
 #### 🧱 Implementation (49. Anti-Spam System)
 
-Frontend:
-- none
-
-Backend:
-- none
-
-Notes:
-- later
+- **DB:** migration `supabase/migrations/` (ახალი ფაილი, თანმიმდევრობა `.cursor/rules/reziizi.mdc`), შემდეგ `SCHEMA.md`, `verify_schema.sql`.
+- **App:** `src/pages/`, `src/components/`, `src/lib/`; `messages.ts` (`en`/`ka`/`ru`).
+- **Admin:** არსებულ moderation-ზე ფილტრი / სორტი ახალ ველებზე.
 
 ---
 

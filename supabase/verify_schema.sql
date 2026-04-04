@@ -33,6 +33,8 @@ WHERE n.nspname = 'public'
     'handle_new_user',
     'feed_post_ids_by_tag',
     'feed_trending_post_ids',
+    'search_post_ids',
+    'search_profile_ids',
     'get_or_create_conversation',
     'notify_post_owner_on_comment',
     'notify_post_owner_on_reaction',
@@ -43,7 +45,18 @@ WHERE n.nspname = 'public'
     'enforce_post_rate_limit',
     'enforce_comment_rate_limit',
     'enforce_chat_message_rate_limit',
-    'enforce_report_rate_limit'
+    'enforce_report_rate_limit',
+    'normalize_body_for_spam',
+    'count_url_indicators',
+    'prevent_user_editing_spam_columns_posts',
+    'prevent_user_editing_spam_columns_comments',
+    'posts_antispam_before_insert',
+    'comments_antispam_before_insert',
+    'abuse_flags_after_post_insert',
+    'abuse_flags_after_comment_insert',
+    'abuse_flags_after_post_update',
+    'abuse_flags_after_comment_update',
+    'reports_after_insert_auto_flag_post'
   )
 ORDER BY p.proname;
 
@@ -73,4 +86,5 @@ UNION ALL SELECT 'conversations', COUNT(*) FROM public.conversations
 UNION ALL SELECT 'chat_messages', COUNT(*) FROM public.chat_messages
 UNION ALL SELECT 'reports', COUNT(*) FROM public.reports
 UNION ALL SELECT 'ad_slots', COUNT(*) FROM public.ad_slots
-UNION ALL SELECT 'follows', COUNT(*) FROM public.follows;
+UNION ALL SELECT 'follows', COUNT(*) FROM public.follows
+UNION ALL SELECT 'abuse_flags', COUNT(*) FROM public.abuse_flags;

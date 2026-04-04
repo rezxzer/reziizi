@@ -1220,6 +1220,50 @@ button:focus-visible,
   color: var(--accent);
 }
 
+.post-card__flag-hint {
+  margin: 0 0 var(--space-sm);
+  font-size: 0.82rem;
+}
+
+.admin-moderation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.admin-moderation-list__item {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.admin-moderation-list__meta {
+  font-size: 0.88rem;
+  margin-bottom: var(--space-xs);
+}
+
+.admin-moderation-list__body {
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: var(--space-sm);
+}
+
+.admin-moderation-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.admin-moderation-list__badge {
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .mod-list {
   list-style: none;
   margin: 0;

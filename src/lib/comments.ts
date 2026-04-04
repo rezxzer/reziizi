@@ -15,7 +15,7 @@ export function getCommentMaxLength(): number {
 export async function fetchCommentsForPost(postId: string): Promise<CommentWithAuthor[]> {
   const { data: rows, error } = await supabase
     .from("comments")
-    .select("id, post_id, user_id, body, created_at, updated_at")
+    .select("id, post_id, user_id, body, is_flagged, spam_score, created_at, updated_at")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
 

@@ -7,7 +7,9 @@ import { RouteFallback } from "./components/RouteFallback.tsx";
 import { HomePage } from "./pages/HomePage.tsx";
 import { LegalPage } from "./pages/LegalPage.tsx";
 import { SecurityPage } from "./pages/SecurityPage.tsx";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage.tsx";
 import { LoginPage } from "./pages/LoginPage.tsx";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage.tsx";
 import { ProfilePage } from "./pages/ProfilePage.tsx";
 import { SearchPage } from "./pages/SearchPage.tsx";
 import { SettingsPage } from "./pages/SettingsPage.tsx";
@@ -39,6 +41,8 @@ export default function App(): ReactElement {
           <Route path="/u/:userId/following" element={<UserFollowListPage />} />
           <Route path="/u/:userId" element={<UserProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/notifications"
             element={

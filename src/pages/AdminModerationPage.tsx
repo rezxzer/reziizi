@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import {
+  approveCommentAsModerator,
+  approvePostAsModerator,
   deleteCommentAsModerator,
   deletePostAsModerator,
   fetchCommentsForModeration,
@@ -39,6 +41,32 @@ export function AdminModerationPage(): ReactElement {
     void load();
   }, [load]);
 
+  async function onApprovePost(row: ModerationPostRow): Promise<void> {
+    try {
+      await approvePostAsModerator(row.id);
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === row.id ? { ...p, is_flagged: false, spam_score: 0 } : p,
+        ),
+      );
+    } catch (e: unknown) {
+      toast.error(errorMessage(e));
+    }
+  }
+
+  async function onApproveComment(row: ModerationCommentRow): Promise<void> {
+    try {
+      await approveCommentAsModerator(row.id);
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === row.id ? { ...c, is_flagged: false, spam_score: 0 } : c,
+        ),
+      );
+    } catch (e: unknown) {
+      toast.error(errorMessage(e));
+    }
+  }
+
   async function onDeletePost(row: ModerationPostRow): Promise<void> {
     if (!window.confirm(t("pages.admin.moderation.confirmDeletePost"))) {
       return;
@@ -71,6 +99,7 @@ export function AdminModerationPage(): ReactElement {
           <p className="muted">
             {t("pages.admin.moderation.hint")} {t("pages.admin.moderation.latest50")}
           </p>
+          <p className="muted">{t("pages.admin.moderation.autoFlagHint")}</p>
           <p>
             <Link to="/admin">{t("pages.admin.backToOverview")}</Link>
           </p>
@@ -104,9 +133,25 @@ export function AdminModerationPage(): ReactElement {
                     {p.authorEmail ? (
                       <span className="muted"> · {p.authorEmail}</span>
                     ) : null}
+                    {p.is_flagged ? (
+                      <span className="admin-moderation-list__badge"> · {t("pages.admin.moderation.flaggedLabel")}</span>
+                    ) : null}
+                    <span className="muted">
+                      {" "}
+                      · {t("pages.admin.moderation.spamScoreLabel")}: {p.spam_score}
+                    </span>
                   </div>
                   <div className="admin-moderation-list__body">{p.body}</div>
                   <div className="admin-moderation-list__actions">
+                    {p.is_flagged ? (
+                      <button
+                        type="button"
+                        className="btn btn--small"
+                        onClick={() => void onApprovePost(p)}
+                      >
+                        {t("pages.admin.moderation.approvePost")}
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       className="btn btn--small btn--danger"
@@ -139,9 +184,25 @@ export function AdminModerationPage(): ReactElement {
                     <span className="muted">
                       · {t("pages.admin.moderation.postRefPrefix")} {c.post_id.slice(0, 8)}…
                     </span>
+                    {c.is_flagged ? (
+                      <span className="admin-moderation-list__badge"> · {t("pages.admin.moderation.flaggedLabel")}</span>
+                    ) : null}
+                    <span className="muted">
+                      {" "}
+                      · {t("pages.admin.moderation.spamScoreLabel")}: {c.spam_score}
+                    </span>
                   </div>
                   <div className="admin-moderation-list__body">{c.body}</div>
                   <div className="admin-moderation-list__actions">
+                    {c.is_flagged ? (
+                      <button
+                        type="button"
+                        className="btn btn--small"
+                        onClick={() => void onApproveComment(c)}
+                      >
+                        {t("pages.admin.moderation.approveComment")}
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       className="btn btn--small btn--danger"

@@ -10,6 +10,11 @@ import { normalizeLocale } from "../i18n/locale.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from "../lib/passwordPolicy.ts";
+import {
+  fetchNotificationPreferences,
+  setNotificationPreferences,
+  type NotificationPreferences,
+} from "../lib/notificationPreferences.ts";
 import { fetchProfileSearchable, setProfileSearchable } from "../lib/profilePrivacy.ts";
 import { deleteAccountViaEdgeFunction } from "../lib/deleteAccount.ts";
 import { queryClient } from "../lib/queryClient.ts";
@@ -28,6 +33,14 @@ export function SettingsPage(): ReactElement {
   const [privacyLoading, setPrivacyLoading] = useState<boolean>(true);
   const [privacyBusy, setPrivacyBusy] = useState<boolean>(false);
   const [privacyMsg, setPrivacyMsg] = useState<string | null>(null);
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({
+    notifyOnComment: true,
+    notifyOnReaction: true,
+    notifyOnFollow: true,
+  });
+  const [notifLoading, setNotifLoading] = useState<boolean>(true);
+  const [notifBusy, setNotifBusy] = useState<boolean>(false);
+  const [notifMsg, setNotifMsg] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
   const [passwordBusy, setPasswordBusy] = useState(false);
@@ -101,6 +114,38 @@ export function SettingsPage(): ReactElement {
     };
   }, [user]);
 
+  useEffect(() => {
+    if (!user) {
+      setNotifLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setNotifLoading(true);
+    void fetchNotificationPreferences(user.id)
+      .then((p) => {
+        if (!cancelled) {
+          setNotifPrefs(p);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setNotifPrefs({
+            notifyOnComment: true,
+            notifyOnReaction: true,
+            notifyOnFollow: true,
+          });
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setNotifLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   async function handlePrivacySave(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     if (!user) {
@@ -115,6 +160,23 @@ export function SettingsPage(): ReactElement {
       toast.error(errorMessage(err));
     } finally {
       setPrivacyBusy(false);
+    }
+  }
+
+  async function handleNotificationPrefsSave(e: FormEvent<HTMLFormElement>): Promise<void> {
+    e.preventDefault();
+    if (!user) {
+      return;
+    }
+    setNotifMsg(null);
+    setNotifBusy(true);
+    try {
+      await setNotificationPreferences(user.id, notifPrefs);
+      setNotifMsg(t("settings.notificationsSaved"));
+    } catch (err: unknown) {
+      toast.error(errorMessage(err));
+    } finally {
+      setNotifBusy(false);
     }
   }
 
@@ -207,6 +269,59 @@ export function SettingsPage(): ReactElement {
               {privacyMsg ? (
                 <p className="form__success" role="status">
                   {privacyMsg}
+                </p>
+              ) : null}
+            </form>
+          )}
+        </div>
+      </section>
+
+      <section className="card">
+        <h2 className="card__title">{t("settings.notificationsSection")}</h2>
+        <div className="card__body">
+          <p className="muted">{t("settings.notificationsHint")}</p>
+          {!user ? null : notifLoading ? (
+            <p className="page-loading" role="status">
+              {t("settings.notificationsLoading")}
+            </p>
+          ) : (
+            <form className="form" onSubmit={(ev) => void handleNotificationPrefsSave(ev)}>
+              <label className="form__label--checkbox">
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.notifyOnComment}
+                  onChange={(ev) =>
+                    setNotifPrefs((p) => ({ ...p, notifyOnComment: ev.target.checked }))
+                  }
+                />
+                {t("settings.notifyOnComment")}
+              </label>
+              <label className="form__label--checkbox">
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.notifyOnReaction}
+                  onChange={(ev) =>
+                    setNotifPrefs((p) => ({ ...p, notifyOnReaction: ev.target.checked }))
+                  }
+                />
+                {t("settings.notifyOnReaction")}
+              </label>
+              <label className="form__label--checkbox">
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.notifyOnFollow}
+                  onChange={(ev) =>
+                    setNotifPrefs((p) => ({ ...p, notifyOnFollow: ev.target.checked }))
+                  }
+                />
+                {t("settings.notifyOnFollow")}
+              </label>
+              <button type="submit" className="btn btn--primary" disabled={notifBusy}>
+                {notifBusy ? t("settings.notificationsSaving") : t("settings.notificationsSave")}
+              </button>
+              {notifMsg ? (
+                <p className="form__success" role="status">
+                  {notifMsg}
                 </p>
               ) : null}
             </form>

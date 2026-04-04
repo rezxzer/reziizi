@@ -92,7 +92,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
     const { data, error: insError } = await supabase
       .from("comments")
       .insert({ post_id: postId, user_id: user.id, body: trimmed })
-      .select("id, post_id, user_id, body, created_at, updated_at")
+      .select("id, post_id, user_id, body, is_flagged, spam_score, created_at, updated_at")
       .single();
     setSubmitting(false);
     if (insError || !data) {

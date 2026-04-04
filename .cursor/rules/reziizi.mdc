@@ -78,6 +78,13 @@ alwaysApply: true
 | 21 | `20260401320000_add_post_videos_storage_and_video_url.sql` (bucket `post-videos`, `posts.video_url`, CHECK) |
 | 22 | `20260401330000_add_follows.sql` (`follows` table + RLS) |
 | 23 | `20260401340000_add_follow_notifications.sql` (`follow` notification type + trigger on `follows`) |
+| 24 | `20260401350000_add_anti_spam_flags.sql` — **Anti-spam (49)** MVP: `abuse_flags`, `posts`/`comments` `is_flagged` + `spam_score`, triggers, RLS (`project.md` → Anti-spam) |
+| 25 | `20260401350100_fix_count_url_indicators_regexp_flags.sql` — `count_url_indicators`: `regexp_count` flags without `g` (PG rejects global for this function) |
+| 26 | `20260401350200_add_notification_preferences.sql` — `profiles.notify_on_*`; notification triggers respect opt-out |
+| 27 | `20260401350300_improve_feed_trending_ranking.sql` — `feed_trending_post_ids`: recency decay + comment weight |
+| 28 | `20260401350400_add_search_v2_rpcs.sql` — Search v2: `search_post_ids`, `search_profile_ids`, GIN FTS index on `posts.body` |
+| 29 | `20260401350500_add_report_threshold_auto_flag.sql` — 3 reports/post → auto-flag + `reziizi.skip_spam_guard` |
+| 30 | `20260401350600_antispam_recheck_on_body_update.sql` — anti-spam duplicate/link on `body` UPDATE + `abuse_flags` after UPDATE (honors `skip_spam_guard`) |
 
 **შენიშვნა:** Security (27) — SQL migration არ არის; `vercel.json` Vercel-ისთვის (headers + SPA rewrites; **Deployment (37)**). **Production:** `README.md` → „Production (Vercel)“. API Layer (28) — `src/lib/api/` (migration არა; ახალი ცხრილი/RPC → `registry.ts`). Database Structure (29) — `supabase/SCHEMA.md` + `verify_schema.sql` განახლება. Performance (36) — კლიენტი: `src/lazy/chunks.ts`, `RouteFallback`, `App.tsx` Suspense (migration არა). Caching (30) — `@tanstack/react-query`, `queryClient.ts`, `queryKeys.ts` (migration არა). Error Handling (32) — `errorMessage` / `lib/errors.ts`, `InlineError` (migration არა). Logging (31) — `src/lib/logger.ts` (migration არა). Testing (41) — Vitest (`npm test`; migration არა). **GitHub CI** — `.github/workflows/ci.yml` (არა migration).
 
@@ -113,5 +120,6 @@ alwaysApply: true
 ## დადასტურება, რიგი და ჩანაწერი
 
 - **როცა შენ ამბობ, რომ რაღაც მუშაობს / მზადაა / დადასტურებულია:** AI ჩააწერს მოკლე **ჩანაწერს `JOURNAL.md`-ში** (რა დადასტურდა ან რა დასრულდა, თარიღი) — განსაკუთრებით როცა პირდაპირ წერ „მუშაობს“ ტესტის შემდეგ; საჭიროებისამებრ განაახლებს `project.md`-ს — რომ მომავალში სწრაფად ჩანდეს რა იყო მოწმინადე.
+- **როცა მომხმარებელი ადასტურებს** (ჩატში ან სხვაგან), რომ **SQL migration გაშვებულია Supabase / production DB-ზე**, ან **დეპლოი დასრულებულია:** AI **სავალდებულოდ** განაახლებს **`project.md`** (**`## CURRENT WORK`** — შესაბამისი ფიჩის/მიგრაციის სტატუსი „გაშვებულია / დადასტურებული“) და **`JOURNAL.md`** (ერთი მოკლე ხაზი: რა დადასტურდა, თარიღი). **არ დატოვო** მხოლოდ ჩატის ტექსტი — რეპო უნდა აისახოს რეალობა.
 - **თუ რამე გაუგებარია, ორმნიშვნელოვანია ან ირღვევა რიგი** (`project.md`, MVP, წესები): AI **გეტყვის პირდაპირ**, **არ გააგრძელებს** იმ ნაბიჯს (არ „გაიკეთებს ჩუმად“), სანამ არ გავარკვევთ / არ დაადასტურებ რა გინდა.
 - **გაორმაგებული ფაილები, დუბლირებული ლოგიკა, აშკარა ბაგები:** AI ცდილობს არ დაუშვას და თუ რისკი ჩანს — **ამოგიწერს**; შენ **ვამოწმებთ** ერთად (run, UI, ფაილების სია), სანამ „დასრულებულად“ არ ჩავთვლით — ეს წესი ორვეს მხარეს.

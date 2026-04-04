@@ -24,6 +24,7 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 | `reports` | User reports on posts |
 | `ad_slots` | Sponsored slots (e.g. `feed_top`) |
 | `follows` | User A follows user B (directed) |
+| `abuse_flags` | Audit rows when content is auto-flagged (FK to post, comment, or optional `message_id`) |
 
 ### `profiles`
 
@@ -34,11 +35,13 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 - `ban_reason`, `banned_at` (ban UX; cleared on unban)
 - `premium_until` (monetization / admin grant)
 - `searchable` (privacy: email search opt-out)
+- `notify_on_comment`, `notify_on_reaction`, `notify_on_follow` (default `true`; when `false`, triggers skip creating that notification type — see `20260401350200_add_notification_preferences.sql`)
 - Triggers: `profiles_lock_is_admin…`, `profiles_premium_guard`, `on_auth_user_created` → `handle_new_user`
 
 ### `posts`
 
 - `id`, `user_id`, `body`, `image_url` (nullable; bucket `post-images`), `video_url` (nullable; bucket `post-videos`) — **at most one** of `image_url` / `video_url` non-null (`posts_one_media_type` CHECK), `created_at`, `updated_at`
+- `is_flagged` (boolean; when true, row is hidden from public SELECT via RLS except author + admins), `spam_score` (int; heuristic)
 
 ### `follows`
 
@@ -52,6 +55,12 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 ### `comments`
 
 - `id`, `post_id`, `user_id`, `body`, `created_at`, `updated_at`
+- `is_flagged`, `spam_score` (same semantics as `posts`)
+
+### `abuse_flags`
+
+- `id`, optional `post_id` / `comment_id` / `message_id` (exactly one set; CHECK), `reason` (default `auto`), `created_at`
+- RLS: SELECT for admins only; inserts from triggers (SECURITY DEFINER), not from the web client
 
 ### `notifications`
 
@@ -73,7 +82,14 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 
 ### `reports`
 
-- `id`, `reporter_id`, `post_id`, `reason`, `created_at` — unique reporter/post where applicable (see migration)
+- `id`, `reporter_id`, `post_id`, `reason`, `created_at` — unique `(reporter_id, post_id)` (one report per user per post)
+
+### Moderation automation (reports → auto-flag)
+
+Migration: `20260401350500_add_report_threshold_auto_flag.sql`.
+
+- **AFTER INSERT** on `reports`: if total reports for that `post_id` ≥ **3**, update `posts` — `is_flagged = true`, `spam_score = greatest(spam_score, 5)`; if newly flagged, insert `abuse_flags` with `reason = report_threshold`.
+- Updates use session `reziizi.skip_spam_guard = 1` so `prevent_user_editing_spam_columns_posts` allows the change (same pattern as other server-side spam updates).
 
 ### `ad_slots`
 
@@ -92,17 +108,31 @@ BEFORE INSERT on **`posts`**, **`comments`**, **`chat_messages`**, **`reports`**
 
 Errors surface as PostgREST messages (e.g. `Too many posts. Wait a minute and try again.`).
 
+## Anti-spam (DB triggers)
+
+Migrations: `20260401350000_add_anti_spam_flags.sql` (MVP), `20260401350600_antispam_recheck_on_body_update.sql` (recompute on edit).
+
+- **BEFORE INSERT** (`posts_zz_antispam_before_insert`, `comments_zz_antispam_before_insert`): duplicate text within **5 minutes** (normalized body) → flag + score; **link count** over limit (posts: more than 2 URL-like patterns, comments: more than 1) → flag + score.
+- **BEFORE UPDATE** (`prevent_user_editing_spam_columns_*`): non-admins cannot set `is_flagged` / `spam_score` directly; when **`body` changes**, spam fields are recomputed from scratch (same duplicate/link rules as INSERT; duplicate check excludes current row `id`). Honors `reziizi.skip_spam_guard` (e.g. report auto-flag).
+- **AFTER INSERT**: optional row in `abuse_flags` when `is_flagged`.
+- **AFTER UPDATE** (`abuse_flags_after_post_update`, `abuse_flags_after_comment_update`): if `is_flagged` becomes true and was false, insert `abuse_flags` with `reason = auto` — skipped when `skip_spam_guard = 1` (avoids duplicate row with report-threshold path).
+- **SELECT RLS**: `posts` / `comments` — unflagged rows visible to all; flagged visible to **author** and **admins** only (soft hide for others).
+
+Helpers: `normalize_body_for_spam`, `count_url_indicators` (uses `regexp_count(text, pattern, 1, 'i')` — no `g` flag (`regexp_count` does not support global); PostgreSQL 15+).
+
 ## RPCs (invoked from web client)
 
 | Name | Role |
 |------|------|
 | `feed_post_ids_by_tag` | Tag feed ordering |
-| `feed_trending_post_ids` | Trending feed |
+| `feed_trending_post_ids` | Trending feed — score = (net reactions + 0.15×non-flagged comment count) / (age_hours + 2)^1.5 (age floor 15 min); unflagged posts only; see migration `20260401350300_improve_feed_trending_ranking.sql` |
+| `search_post_ids` | Search v2 — ranked post ids: FTS (`simple`) + `ts_rank_cd`, ILIKE fallback; excludes `is_flagged`; GIN on `to_tsvector('simple', body)` — `20260401350400_add_search_v2_rpcs.sql` |
+| `search_profile_ids` | Search v2 — ranked profile ids by email match (exact / prefix / substring); `searchable` or self row; same privacy as legacy client query |
 | `get_or_create_conversation` | Chat thread id |
 | `admin_set_user_banned` | Admin ban/unban (+ reason) |
 | `admin_set_user_premium_until` | Admin premium window |
 
-Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_post_owner_on_*`, `notify_followed_user_on_follow`, `enforce_*_rate_limit`); not called directly from the app.
+Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_post_owner_on_*`, `notify_followed_user_on_follow`, `enforce_*_rate_limit`, anti-spam helpers above); not called directly from the app.
 
 ## Storage (Supabase)
 

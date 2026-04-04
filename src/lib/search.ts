@@ -1,6 +1,6 @@
-import type { PostRow, ProfileRow } from "../types/db";
+import type { ProfileRow } from "../types/db";
 import type { FeedPost } from "../types/feed";
-import { enrichPosts } from "./feed";
+import { fetchFeedPostsByIdsOrdered } from "./feed";
 import { supabase } from "./supabaseClient";
 
 const MAX_QUERY_LEN = 120;
@@ -26,18 +26,21 @@ export async function searchPostsByBody(query: string): Promise<FeedPost[]> {
     return [];
   }
 
-  const { data, error } = await supabase
-    .from("posts")
-    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
-    .ilike("body", `%${pattern}%`)
-    .order("created_at", { ascending: false })
-    .limit(RESULT_LIMIT);
+  const { data, error } = await supabase.rpc("search_post_ids", {
+    p_query: pattern,
+    p_limit: RESULT_LIMIT,
+  });
 
   if (error) {
     throw error;
   }
 
-  return enrichPosts((data ?? []) as PostRow[]);
+  const ids: string[] = (data ?? []).map((r: { id: string }) => r.id);
+  if (ids.length === 0) {
+    return [];
+  }
+
+  return fetchFeedPostsByIdsOrdered(ids);
 }
 
 /**
@@ -53,26 +56,36 @@ export async function searchProfilesByEmail(
     return [];
   }
 
-  let q = supabase
-    .from("profiles")
-    .select(
-      "id, email, avatar_url, created_at, is_admin, is_banned, ban_reason, banned_at, premium_until, searchable",
-    )
-    .ilike("email", `%${pattern}%`)
-    .order("created_at", { ascending: false })
-    .limit(RESULT_LIMIT);
-
-  if (viewerId != null && viewerId.length > 0) {
-    q = q.or(`searchable.eq.true,id.eq.${viewerId}`);
-  } else {
-    q = q.eq("searchable", true);
-  }
-
-  const { data, error } = await q;
+  const { data, error } = await supabase.rpc("search_profile_ids", {
+    p_query: pattern,
+    p_limit: RESULT_LIMIT,
+    p_viewer_id: viewerId ?? null,
+  });
 
   if (error) {
     throw error;
   }
 
-  return (data ?? []) as ProfileRow[];
+  const ids: string[] = (data ?? []).map((r: { id: string }) => r.id);
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const { data: rows, error: fetchError } = await supabase
+    .from("profiles")
+    .select(
+      "id, email, avatar_url, created_at, is_admin, is_banned, ban_reason, banned_at, premium_until, searchable, notify_on_comment, notify_on_reaction, notify_on_follow",
+    )
+    .in("id", ids);
+
+  if (fetchError) {
+    throw fetchError;
+  }
+
+  const byId = new Map<string, ProfileRow>();
+  for (const row of rows ?? []) {
+    byId.set(row.id, row as ProfileRow);
+  }
+
+  return ids.map((id) => byId.get(id)).filter((r): r is ProfileRow => r !== undefined);
 }

@@ -16,6 +16,8 @@ export const TABLE = {
   reports: "reports",
   ad_slots: "ad_slots",
   follows: "follows",
+  /** Audit rows for auto-flagged content (admin SELECT only). */
+  abuse_flags: "abuse_flags",
 } as const;
 
 export type TableName = (typeof TABLE)[keyof typeof TABLE];
@@ -24,6 +26,8 @@ export type TableName = (typeof TABLE)[keyof typeof TABLE];
 export const RPC = {
   feed_post_ids_by_tag: "feed_post_ids_by_tag",
   feed_trending_post_ids: "feed_trending_post_ids",
+  search_post_ids: "search_post_ids",
+  search_profile_ids: "search_profile_ids",
   get_or_create_conversation: "get_or_create_conversation",
   admin_set_user_banned: "admin_set_user_banned",
   admin_set_user_premium_until: "admin_set_user_premium_until",

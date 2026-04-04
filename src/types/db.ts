@@ -11,6 +11,12 @@ export type ProfileRow = {
   banned_at: string | null;
   premium_until: string | null;
   searchable: boolean;
+  /** In-app notifications for comments on your posts (default true). */
+  notify_on_comment: boolean;
+  /** In-app notifications for reactions on your posts (default true). */
+  notify_on_reaction: boolean;
+  /** In-app notifications for new followers (default true). */
+  notify_on_follow: boolean;
   created_at: string;
 };
 
@@ -22,6 +28,9 @@ export type PostRow = {
   image_url: string | null;
   /** Public URL from Storage (`post-videos`); null if no video. Mutually exclusive with `image_url`. */
   video_url: string | null;
+  /** Anti-spam: hidden from public lists when true (author/admin still see). */
+  is_flagged: boolean;
+  spam_score: number;
   created_at: string;
   updated_at: string;
 };
@@ -39,6 +48,8 @@ export type CommentRow = {
   post_id: string;
   user_id: string;
   body: string;
+  is_flagged: boolean;
+  spam_score: number;
   created_at: string;
   updated_at: string;
 };

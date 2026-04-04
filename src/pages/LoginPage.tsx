@@ -118,6 +118,13 @@ export function LoginPage(): ReactElement {
                   ? t("pages.login.submitSignIn")
                   : t("pages.login.submitSignUp")}
             </button>
+            {mode === "signin" ? (
+              <p>
+                <Link to="/forgot-password" className="inline-link">
+                  {t("pages.login.forgotPasswordLink")}
+                </Link>
+              </p>
+            ) : null}
           </form>
         </div>
       </section>

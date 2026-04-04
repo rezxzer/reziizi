@@ -7,13 +7,14 @@ const PAGE_SIZE = 10;
 
 export type FeedSortMode = "latest" | "trending";
 
-async function fetchPostsByIdsOrdered(ids: string[]): Promise<FeedPost[]> {
+/** Load posts by id list preserving order (for RPC-ordered id lists: tag feed, trending, search). */
+export async function fetchFeedPostsByIdsOrdered(ids: string[]): Promise<FeedPost[]> {
   if (ids.length === 0) {
     return [];
   }
   const { data: postRows, error: postsError } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, is_flagged, spam_score, created_at, updated_at")
     .in("id", ids);
 
   if (postsError) {
@@ -115,7 +116,7 @@ export async function fetchFeedPage(
       return { posts: [], hasMore: false };
     }
 
-    const feed = await fetchPostsByIdsOrdered(ids);
+    const feed = await fetchFeedPostsByIdsOrdered(ids);
     return { posts: feed, hasMore: ids.length === PAGE_SIZE };
   }
 
@@ -134,14 +135,14 @@ export async function fetchFeedPage(
       return { posts: [], hasMore: false };
     }
 
-    const feed = await fetchPostsByIdsOrdered(ids);
+    const feed = await fetchFeedPostsByIdsOrdered(ids);
     return { posts: feed, hasMore: ids.length === PAGE_SIZE };
   }
 
   const to = from + PAGE_SIZE - 1;
   const { data: postRows, error: postsError } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, is_flagged, spam_score, created_at, updated_at")
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -157,7 +158,7 @@ export async function fetchFeedPage(
 export async function fetchUserPosts(userId: string): Promise<FeedPost[]> {
   const { data: postRows, error } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, is_flagged, spam_score, created_at, updated_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 

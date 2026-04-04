@@ -27,6 +27,8 @@ const ROUTE_DEFS: readonly { pattern: string; key: RouteKey; robots: RobotsDirec
   { pattern: "/notifications", key: "notifications", robots: "noindex,nofollow" },
   { pattern: "/profile", key: "profile", robots: "noindex,nofollow" },
   { pattern: "/settings", key: "settings", robots: "noindex,nofollow" },
+  { pattern: "/forgot-password", key: "forgotPassword", robots: "noindex,nofollow" },
+  { pattern: "/reset-password", key: "resetPassword", robots: "noindex,nofollow" },
   { pattern: "/login", key: "login", robots: "noindex,nofollow" },
   { pattern: "/banned", key: "banned", robots: "noindex,nofollow" },
   { pattern: "/search", key: "search", robots: "index,follow" },

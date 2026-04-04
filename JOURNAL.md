@@ -21,6 +21,70 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Anti-spam: body UPDATE → იგივე ევრისტიკა
+
+- **SQL:** `20260401350600_antispam_recheck_on_body_update.sql` — `prevent_user_editing_spam_columns_posts/comments`: `body` შეცვლისას score/flag ხელახლა; `abuse_flags` AFTER UPDATE (unflag→flag), `skip_spam_guard`-ზე არ იმეორებს report-threshold ჩანაწერს.
+- **დოკი:** `SCHEMA.md`, `verify_schema.sql`, `reziizi.mdc`, `project.md` CURRENT WORK (ხაზი 14).
+- **Production:** migration **გასაშვებია** Supabase-ზე.
+
+### 2026-04-03 — Email (45): password reset — UI ტესტები მომავალში
+
+- **შენიშვნა:** Vitest/RTL `ForgotPasswordPage` / `ResetPasswordPage` (mock Auth) — **დაგეგმილია** — `project.md` §45 / §41 Notes.
+
+### 2026-04-03 — Email (45): password reset (Supabase Auth)
+
+- **აპი:** `ForgotPasswordPage`, `ResetPasswordPage`, `getAuthRecoveryRedirectTo()` → `/reset-password`; `supabaseClient` PKCE + `detectSessionInUrl`; `LoginPage` ბმული; `seo` + i18n `en`/`ka`/`ru` (`forgotPassword` / `resetPassword`).
+- **დოკი:** `project.md` §45 + CURRENT WORK, `README.md` (Redirect URLs + recovery email), `.env.example` შენიშვნა.
+- **Ops:** Supabase Dashboard — **Redirect URLs**-ში production/dev `…/reset-password`; სურვილისამებრ **SMTP**.
+- **ტესტი:** `npm run build`, `npm test` — OK (ლოკალურად); **forgot/reset UI ტესტები** — ცალკე ტალღა (იხილე ზემოთ).
+
+### 2026-04-03 — მოდერაციის ავტომატიზაცია: report threshold → auto-flag
+
+- **SQL:** `20260401350500_add_report_threshold_auto_flag.sql` — `reports_after_insert_auto_flag_post`: ≥3 report იმავე `post_id`-ზე → `posts.is_flagged`, `spam_score ≥ 5`, `abuse_flags` (`report_threshold`); `prevent_user_editing_spam_columns_posts` იღებს `reziizi.skip_spam_guard`.
+- **აპი:** `AdminModerationPage` + `pages.admin.moderation.autoFlagHint` (en/ka/ru).
+- **დოკი:** `SCHEMA.md`, `verify_schema.sql`, `reziizi.mdc`, `project.md` CURRENT WORK.
+- **Production:** migration `20260401350500` **წარმატებით გაშვებულია Supabase-ზე** (მომხმარებლის დადასტურება).
+
+### 2026-04-03 — Search v2: ranked RPCs + app
+
+- **SQL:** `20260401350400_add_search_v2_rpcs.sql` — `search_post_ids`, `search_profile_ids`, `posts_search_fts_idx` (GIN).
+- **აპი:** `search.ts` → RPC; `feed.ts` exports `fetchFeedPostsByIdsOrdered`; `SearchPage` + `pages.search.rankingHint` (en/ka/ru); `registry.ts`, `verify_schema.sql`.
+- **დოკი:** `SCHEMA.md`, `reziizi.mdc`, `project.md` §14 + CURRENT WORK.
+- **Production:** migration `20260401350400` **წარმატებით გაშვებულია Supabase-ზე** (მომხმარებლის დადასტურება).
+
+### 2026-04-03 — Feed tuning: trending RPC (recency + comments)
+
+- **SQL:** `20260401350300_improve_feed_trending_ranking.sql` — `feed_trending_post_ids`: `(net reactions + 0.15 × visible comment count) / (age_h + 2)^1.5`, `SECURITY DEFINER`, მხოლოდ `not is_flagged` პოსტები; კომენტარების რაოდენობა `not is_flagged`.
+- **დოკი:** `SCHEMA.md`, `reziizi.mdc`, `project.md` CURRENT WORK.
+- **Production:** migration **გაშვებულია Supabase-ზე** (მომხმარებლის დადასტურება, იგივე დღე).
+
+### 2026-04-03 — Notifications v2: preferences + cross-tab sync
+
+- **SQL:** `20260401350200_add_notification_preferences.sql` — `profiles.notify_on_comment|reaction|follow` (default true); notification triggers skip insert when opted out.
+- **აპი:** `notificationPreferences.ts`, Settings section (checkboxes + save), `ProfileRow` + admin/search `select`; `dispatchNotificationsChanged` posts to `BroadcastChannel("reziizi-notifications")`; `useUnreadNotificationCount` invalidates `queryKeys.notifications.list` on cross-tab message.
+- **დოკი:** `SCHEMA.md`, `reziizi.mdc` migrations table, `project.md` CURRENT WORK.
+
+### 2026-04-03 — Anti-spam: `regexp_count` არ იღებს `g` ფლაგს
+
+- **შეცდომა:** `regexp_count() does not support the "global" option` — კომენტარის/პოსტის INSERT ტრიგერზე.
+- **გამოსავალი:** ფლაგები `'i'` მხოლოდ (არა `'gi'`). განახლება: `20260401350000_...sql` + ახალი migration `20260401350100_fix_count_url_indicators_regexp_flags.sql` უკვე გაშვებული DB-სთვის.
+
+### 2026-04-03 — Anti-spam migration: `regexp_count` არგუმენტები (Supabase SQL Editor)
+
+- **`20260401350000_add_anti_spam_flags.sql`:** `regexp_count(..., 'gi')` — PG-ში მესამე არგუმენტი არის `start` (int), არა flags; გასწორება: `regexp_count(..., 1, 'gi')`. იხილე `SCHEMA.md` შენიშვნა.
+
+### 2026-04-03 — Anti-spam (49) MVP: migration + აპი
+
+- **SQL:** `supabase/migrations/20260401350000_add_anti_spam_flags.sql` — `abuse_flags`, `posts`/`comments` სვეტები, RLS (soft hide), ტრიგერები (5 წთ დუბლიკატი, ლინკების ლიმიტი), admin UPDATE approve. **PostgreSQL 15+** (`regexp_count`).
+- **აპი:** `feed.ts` / `search.ts` / `comments.ts` select; `adminModeration.ts` approve + სორტი; `AdminModerationPage`; `PostCard` — ავტორს hint; `messages.ts` en/ka/ru; `types/db.ts`; `registry.ts` `abuse_flags`.
+- **დოკი:** `SCHEMA.md`, `verify_schema.sql`.
+
+### 2026-04-03 — Anti-spam (49): დოკი ერთიანებული, იმპლემენტაციისთვის მზად (`project.md`, `AGENTS.md`, `JOURNAL.md`)
+
+- **`project.md`:** **ერთი სპეკი** — `#### Anti-spam (49)` (locked outline + default-ები + კონფიგის ცხრილი + migration checklist + ინგლისური Appendix); დუბლირებული ქართული GPT ბლოკი ამოღებული; **§49 FEATURE BREAKDOWN** — მხოლოდ მიმართება; **CURRENT WORK** ცხრილში რიგი #9; Media §-ში ბმული განახლებული.
+- **`AGENTS.md`:** გარე AI — მიმართება ერთ სექციაზე.
+- **ამ ჩანაწერმა ჩაანაცვლა:** წინა სამი ცალკე anti-spam ჩანაწერი ერთით.
+
 ### 2026-04-03 — `project.md`: შემდეგი ფაზის გეგმა (ChatGPT roadmap + რეპოს რეალობა)
 
 - **`## CURRENT WORK`:** ქვესექცია **„შემდეგი ფაზა — გეგმის მიმართულება“** — ფაზა A/B/C, ცხრილი (Anti-spam, Notifications v2, Feed/Search/Moderation, Email, Premium+billing), განსაკუთრებული შენიშვნები: `premium_until` უკვე არსებობს, Legal i18n = პროდუქტის არჩევანი, `reziizi.mdc` რიგი არ ირღვევა.

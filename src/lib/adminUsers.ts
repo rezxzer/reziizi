@@ -5,7 +5,7 @@ export async function fetchProfilesForAdmin(): Promise<ProfileRow[]> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, email, avatar_url, created_at, is_admin, is_banned, ban_reason, banned_at, premium_until, searchable",
+      "id, email, avatar_url, created_at, is_admin, is_banned, ban_reason, banned_at, premium_until, searchable, notify_on_comment, notify_on_reaction, notify_on_follow",
     )
     .order("created_at", { ascending: true })
     .limit(200);

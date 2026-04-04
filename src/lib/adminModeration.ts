@@ -1,4 +1,4 @@
-import type { PostRow } from "../types/db";
+import type { CommentRow, PostRow } from "../types/db";
 import { removeStoredPostImageByPublicUrl } from "./postImageStorage.ts";
 import { removeStoredPostVideoByPublicUrl } from "./postVideoStorage.ts";
 import { supabase } from "./supabaseClient";
@@ -9,12 +9,7 @@ export type ModerationPostRow = PostRow & {
   authorEmail: string | null;
 };
 
-export type ModerationCommentRow = {
-  id: string;
-  post_id: string;
-  user_id: string;
-  body: string;
-  created_at: string;
+export type ModerationCommentRow = CommentRow & {
   authorEmail: string | null;
 };
 
@@ -37,7 +32,9 @@ async function emailsForUserIds(ids: string[]): Promise<Map<string, string | nul
 export async function fetchPostsForModeration(): Promise<ModerationPostRow[]> {
   const { data, error } = await supabase
     .from("posts")
-    .select("id, user_id, body, image_url, video_url, created_at, updated_at")
+    .select("id, user_id, body, image_url, video_url, is_flagged, spam_score, created_at, updated_at")
+    .order("is_flagged", { ascending: false })
+    .order("spam_score", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(LIST_LIMIT);
 
@@ -58,7 +55,9 @@ export async function fetchPostsForModeration(): Promise<ModerationPostRow[]> {
 export async function fetchCommentsForModeration(): Promise<ModerationCommentRow[]> {
   const { data, error } = await supabase
     .from("comments")
-    .select("id, post_id, user_id, body, created_at")
+    .select("id, post_id, user_id, body, is_flagged, spam_score, created_at, updated_at")
+    .order("is_flagged", { ascending: false })
+    .order("spam_score", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(LIST_LIMIT);
 
@@ -66,7 +65,7 @@ export async function fetchCommentsForModeration(): Promise<ModerationCommentRow
     throw error;
   }
 
-  const rows = (data ?? []) as Omit<ModerationCommentRow, "authorEmail">[];
+  const rows = (data ?? []) as CommentRow[];
   const userIds: string[] = [...new Set(rows.map((r) => r.user_id))];
   const emails = await emailsForUserIds(userIds);
 
@@ -74,6 +73,26 @@ export async function fetchCommentsForModeration(): Promise<ModerationCommentRow
     ...r,
     authorEmail: emails.get(r.user_id) ?? null,
   }));
+}
+
+export async function approvePostAsModerator(postId: string): Promise<void> {
+  const { error } = await supabase
+    .from("posts")
+    .update({ is_flagged: false, spam_score: 0 })
+    .eq("id", postId);
+  if (error) {
+    throw error;
+  }
+}
+
+export async function approveCommentAsModerator(commentId: string): Promise<void> {
+  const { error } = await supabase
+    .from("comments")
+    .update({ is_flagged: false, spam_score: 0 })
+    .eq("id", commentId);
+  if (error) {
+    throw error;
+  }
 }
 
 export async function deletePostAsModerator(postId: string): Promise<void> {

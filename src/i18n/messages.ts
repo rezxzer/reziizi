@@ -15,6 +15,8 @@ type SeoRoutes = {
   userFollowers: SeoPage;
   userFollowing: SeoPage;
   settings: SeoPage;
+  forgotPassword: SeoPage;
+  resetPassword: SeoPage;
   login: SeoPage;
   banned: SeoPage;
   search: SeoPage;
@@ -49,6 +51,28 @@ type PagesBundle = {
     submitWait: string;
     submitSignIn: string;
     submitSignUp: string;
+    forgotPasswordLink: string;
+  };
+  forgotPassword: {
+    title: string;
+    intro: string;
+    emailLabel: string;
+    submit: string;
+    sending: string;
+    success: string;
+    backToLogin: string;
+  };
+  resetPassword: {
+    title: string;
+    intro: string;
+    passwordLabel: string;
+    confirmLabel: string;
+    submit: string;
+    submitWait: string;
+    success: string;
+    mismatch: string;
+    invalidOrExpired: string;
+    backToLogin: string;
   };
   search: {
     title: string;
@@ -64,6 +88,7 @@ type PagesBundle = {
     viewProfile: string;
     postsWithCount: string;
     noPosts: string;
+    rankingHint: string;
   };
   postForm: {
     signInPrompt: string;
@@ -166,10 +191,15 @@ type PagesBundle = {
         title: string;
         hint: string;
         latest50: string;
+        autoFlagHint: string;
         postsHeading: string;
         commentsHeading: string;
         noPosts: string;
         noComments: string;
+        flaggedLabel: string;
+        spamScoreLabel: string;
+        approvePost: string;
+        approveComment: string;
         deletePost: string;
         deleteComment: string;
         confirmDeletePost: string;
@@ -278,6 +308,8 @@ type PagesBundle = {
     delete: string;
     deleting: string;
     netScoreTitle: string;
+    /** Shown to the author when the post was auto-flagged (still visible to them). */
+    flaggedAuthorHint: string;
   };
   comment: {
     comments: string;
@@ -395,6 +427,15 @@ export type Bundle = {
     privacySave: string;
     privacySaving: string;
     privacySaved: string;
+    notificationsSection: string;
+    notificationsHint: string;
+    notificationsLoading: string;
+    notifyOnComment: string;
+    notifyOnReaction: string;
+    notifyOnFollow: string;
+    notificationsSave: string;
+    notificationsSaving: string;
+    notificationsSaved: string;
     changePassword: string;
     passwordMinHint: string;
     newPassword: string;
@@ -485,6 +526,15 @@ const en: Bundle = {
     privacySave: "Save privacy",
     privacySaving: "Saving…",
     privacySaved: "Privacy settings saved.",
+    notificationsSection: "Notifications",
+    notificationsHint: "Choose which in-app notifications you receive (bell icon).",
+    notificationsLoading: "Loading…",
+    notifyOnComment: "Comments on my posts",
+    notifyOnReaction: "Reactions on my posts",
+    notifyOnFollow: "New followers",
+    notificationsSave: "Save notification preferences",
+    notificationsSaving: "Saving…",
+    notificationsSaved: "Notification preferences saved.",
     changePassword: "Change password",
     passwordMinHint: "Use at least {min} characters.",
     newPassword: "New password",
@@ -534,6 +584,31 @@ const en: Bundle = {
       submitWait: "Please wait…",
       submitSignIn: "Sign in",
       submitSignUp: "Sign up",
+      forgotPasswordLink: "Forgot password?",
+    },
+    forgotPassword: {
+      title: "Reset password",
+      intro:
+        "Enter your account email. If it matches an account, you will receive a link to choose a new password.",
+      emailLabel: "Email",
+      submit: "Send reset link",
+      sending: "Sending…",
+      success:
+        "If an account exists for this email, we sent a message with a reset link. Check your inbox and spam folder.",
+      backToLogin: "← Back to log in",
+    },
+    resetPassword: {
+      title: "Set new password",
+      intro: "Choose a new password for your account.",
+      passwordLabel: "New password",
+      confirmLabel: "Confirm new password",
+      submit: "Update password",
+      submitWait: "Updating…",
+      success: "Password updated.",
+      mismatch: "Passwords do not match.",
+      invalidOrExpired:
+        "This reset link is invalid or expired. Request a new link from the log-in page.",
+      backToLogin: "← Back to log in",
     },
     search: {
       title: "Search",
@@ -550,6 +625,8 @@ const en: Bundle = {
       viewProfile: "Profile",
       postsWithCount: "Posts ({count})",
       noPosts: "No matching posts.",
+      rankingHint:
+        "Results are ordered by relevance (full-text match, where the term appears) and recency. Flagged posts are excluded.",
     },
     postForm: {
       signInPrompt: "Sign in to create posts.",
@@ -651,12 +728,18 @@ const en: Bundle = {
       },
       moderation: {
         title: "Moderation",
-        hint: "Delete posts or comments (admin only).",
-        latest50: "Latest 50 each.",
+        hint: "Review flagged content, approve to clear flags, or delete (admin only).",
+        latest50: "Latest 50 each (flagged and highest spam score first).",
+        autoFlagHint:
+          "Automation: when 3 different users report the same post, it is auto-flagged and hidden from public lists (same as spam flag).",
         postsHeading: "Posts",
         commentsHeading: "Comments",
         noPosts: "No posts.",
         noComments: "No comments.",
+        flaggedLabel: "Flagged",
+        spamScoreLabel: "Spam score",
+        approvePost: "Approve (clear flag)",
+        approveComment: "Approve (clear flag)",
         deletePost: "Delete post",
         deleteComment: "Delete comment",
         confirmDeletePost: "Delete this post? (Comments will be removed with it.)",
@@ -769,6 +852,7 @@ const en: Bundle = {
       delete: "Delete",
       deleting: "…",
       netScoreTitle: "Net score (thumbs up minus thumbs down)",
+      flaggedAuthorHint: "Under review — only you and moderators see this in the public feed.",
     },
     comment: {
       comments: "Comments",
@@ -873,6 +957,14 @@ const en: Bundle = {
         title: "Settings",
         description: "Account and privacy settings on REZIIZI.",
       },
+      forgotPassword: {
+        title: "Reset password",
+        description: "Request a password reset email for REZIIZI.",
+      },
+      resetPassword: {
+        title: "Set new password",
+        description: "Choose a new password after following the reset link.",
+      },
       login: {
         title: "Log in",
         description: "Sign in to REZIIZI.",
@@ -960,6 +1052,16 @@ const ka: Bundle = {
     privacySave: "პირადულობის შენახვა",
     privacySaving: "ინახება…",
     privacySaved: "პირადულობის პარამეტრები შენახულია.",
+    notificationsSection: "შეტყობინებები",
+    notificationsHint:
+      "აირჩიეთ, რომელი აპლიკაციის შიდა შეტყობინებები მიიღოთ (ზარის ხატულა).",
+    notificationsLoading: "იტვირთება…",
+    notifyOnComment: "კომენტარები ჩემ პოსტებზე",
+    notifyOnReaction: "რეაქციები ჩემ პოსტებზე",
+    notifyOnFollow: "ახალი გამომწერები",
+    notificationsSave: "შეტყობინებების პარამეტრების შენახვა",
+    notificationsSaving: "ინახება…",
+    notificationsSaved: "შეტყობინებების პარამეტრები შენახულია.",
     changePassword: "პაროლის შეცვლა",
     passwordMinHint: "გამოიყენეთ მინიმუმ {min} სიმბოლო.",
     newPassword: "ახალი პაროლი",
@@ -1009,6 +1111,31 @@ const ka: Bundle = {
       submitWait: "დაელოდეთ…",
       submitSignIn: "შესვლა",
       submitSignUp: "რეგისტრაცია",
+      forgotPasswordLink: "დაგავიწყდათ პაროლი?",
+    },
+    forgotPassword: {
+      title: "პაროლის აღდგენა",
+      intro:
+        "შეიყვანეთ ანგარიშის ელფოსტა. თუ ანგარიში არსებობს, მიიღებთ ბმულს ახალი პაროლის ასარჩევად.",
+      emailLabel: "ელფოსტა",
+      submit: "ბმულის გაგზავნა",
+      sending: "იგზავნება…",
+      success:
+        "თუ ასეთი ელფოსტით ანგარიში არსებობს, გამოგიგზავნეთ წერილი ბმულით. შეამოწმეთ საფოსტე ყუთი და სპამი.",
+      backToLogin: "← უკან შესვლაზე",
+    },
+    resetPassword: {
+      title: "ახალი პაროლი",
+      intro: "აირჩიეთ ახალი პაროლი თქვენი ანგარიშისთვის.",
+      passwordLabel: "ახალი პაროლი",
+      confirmLabel: "გაიმეორეთ პაროლი",
+      submit: "პაროლის განახლება",
+      submitWait: "ახლდება…",
+      success: "პაროლი განახლდა.",
+      mismatch: "პაროლები არ ემთხვევა.",
+      invalidOrExpired:
+        "ბმული არასწორია ან ვადაგასულია. მოითხოვეთ ახალი ბმული შესვლის გვერდიდან.",
+      backToLogin: "← უკან შესვლაზე",
     },
     search: {
       title: "ძიება",
@@ -1025,6 +1152,8 @@ const ka: Bundle = {
       viewProfile: "პროფილი",
       postsWithCount: "პოსტები ({count})",
       noPosts: "შესაბამისი პოსტები არ არის.",
+      rankingHint:
+        "შედეგები დალაგებულია რელევანტურობით (სრული ტექსტური შესაბამისობა, სად ჩანს ტერმინი) და ახლობლობით. დაფლაგული პოსტები არ შედის.",
     },
     postForm: {
       signInPrompt: "პოსტისთვის შედით.",
@@ -1126,12 +1255,18 @@ const ka: Bundle = {
       },
       moderation: {
         title: "მოდერაცია",
-        hint: "პოსტებისა და კომენტარების წაშლა (მხოლოდ ადმინი).",
-        latest50: "ბოლო 50 თითოეულიდან.",
+        hint: "დროშების განხილვა, დადასტურება ან წაშლა (მხოლოდ ადმინი).",
+        latest50: "ბოლო 50 თითოეულიდან (დროშები და spam score პირველად).",
+        autoFlagHint:
+          "ავტომატიკა: თუ 3 სხვადასხვა მომხმარებელი იგივე პოსტს დაარეპორტებს, პოსტი ავტომატურად იფარება საჯარო სიებიდან (როგორც სპამ-დროშა).",
         postsHeading: "პოსტები",
         commentsHeading: "კომენტარები",
         noPosts: "პოსტები არაა.",
         noComments: "კომენტარები არაა.",
+        flaggedLabel: "დროშა",
+        spamScoreLabel: "Spam score",
+        approvePost: "დადასტურება (დროშის მოხსნა)",
+        approveComment: "დადასტურება (დროშის მოხსნა)",
         deletePost: "პოსტის წაშლა",
         deleteComment: "კომენტარის წაშლა",
         confirmDeletePost: "წავშალოთ ეს პოსტი? (კომენტარებიც წაიშლება.)",
@@ -1243,6 +1378,7 @@ const ka: Bundle = {
       delete: "წაშლა",
       deleting: "…",
       netScoreTitle: "ქულა (მოწონება მინუს არ მოწონება)",
+      flaggedAuthorHint: "შემოწმება — საჯარო ლენტაში ხედავთ მხოლოდ თქვენ და მოდერატორები.",
     },
     comment: {
       comments: "კომენტარები",
@@ -1347,6 +1483,14 @@ const ka: Bundle = {
         title: "პარამეტრები",
         description: "ანგარიშისა და პირადულობის პარამეტრები REZIIZI-ზე.",
       },
+      forgotPassword: {
+        title: "პაროლის აღდგენა",
+        description: "პაროლის აღდგენის ელფოსტის მოთხოვნა REZIIZI-ზე.",
+      },
+      resetPassword: {
+        title: "ახალი პაროლი",
+        description: "ახალი პაროლის არჩევა აღდგენის ბმულის შემდეგ.",
+      },
       login: {
         title: "შესვლა",
         description: "REZIIZI-ზე ავტორიზაცია.",
@@ -1434,6 +1578,15 @@ const ru: Bundle = {
     privacySave: "Сохранить настройки",
     privacySaving: "Сохранение…",
     privacySaved: "Настройки конфиденциальности сохранены.",
+    notificationsSection: "Уведомления",
+    notificationsHint: "Выберите, какие уведомления в приложении получать (иконка колокольчика).",
+    notificationsLoading: "Загрузка…",
+    notifyOnComment: "Комментарии к моим постам",
+    notifyOnReaction: "Реакции на мои посты",
+    notifyOnFollow: "Новые подписчики",
+    notificationsSave: "Сохранить настройки уведомлений",
+    notificationsSaving: "Сохранение…",
+    notificationsSaved: "Настройки уведомлений сохранены.",
     changePassword: "Смена пароля",
     passwordMinHint: "Не менее {min} символов.",
     newPassword: "Новый пароль",
@@ -1483,6 +1636,31 @@ const ru: Bundle = {
       submitWait: "Подождите…",
       submitSignIn: "Войти",
       submitSignUp: "Зарегистрироваться",
+      forgotPasswordLink: "Забыли пароль?",
+    },
+    forgotPassword: {
+      title: "Сброс пароля",
+      intro:
+        "Введите email аккаунта. Если он существует, мы отправим ссылку для нового пароля.",
+      emailLabel: "Email",
+      submit: "Отправить ссылку",
+      sending: "Отправка…",
+      success:
+        "Если аккаунт существует, мы отправили письмо со ссылкой. Проверьте входящие и спам.",
+      backToLogin: "← Назад ко входу",
+    },
+    resetPassword: {
+      title: "Новый пароль",
+      intro: "Задайте новый пароль для аккаунта.",
+      passwordLabel: "Новый пароль",
+      confirmLabel: "Подтверждение",
+      submit: "Обновить пароль",
+      submitWait: "Обновление…",
+      success: "Пароль обновлён.",
+      mismatch: "Пароли не совпадают.",
+      invalidOrExpired:
+        "Ссылка недействительна или устарела. Запросите новую на странице входа.",
+      backToLogin: "← Назад ко входу",
     },
     search: {
       title: "Поиск",
@@ -1499,6 +1677,8 @@ const ru: Bundle = {
       viewProfile: "Профиль",
       postsWithCount: "Посты ({count})",
       noPosts: "Подходящих постов нет.",
+      rankingHint:
+        "Результаты упорядочены по релевантности (полнотекстовое совпадение, позиция в тексте) и дате. Помеченные посты исключены.",
     },
     postForm: {
       signInPrompt: "Войдите, чтобы публиковать посты.",
@@ -1600,12 +1780,18 @@ const ru: Bundle = {
       },
       moderation: {
         title: "Модерация",
-        hint: "Удаление постов и комментариев (только админ).",
-        latest50: "По 50 последних каждого.",
+        hint: "Просмотр помеченного контента, одобрение или удаление (только админ).",
+        latest50: "По 50 последних каждого (сначала помеченные и с высоким spam score).",
+        autoFlagHint:
+          "Автоматика: если 3 разных пользователя пожалуются на один пост, он помечается и скрывается из общих списков (как спам).",
         postsHeading: "Посты",
         commentsHeading: "Комментарии",
         noPosts: "Нет постов.",
         noComments: "Нет комментариев.",
+        flaggedLabel: "Помечено",
+        spamScoreLabel: "Spam score",
+        approvePost: "Одобрить (снять флаг)",
+        approveComment: "Одобрить (снять флаг)",
         deletePost: "Удалить пост",
         deleteComment: "Удалить комментарий",
         confirmDeletePost: "Удалить этот пост? (Комментарии будут удалены вместе с ним.)",
@@ -1718,6 +1904,7 @@ const ru: Bundle = {
       delete: "Удалить",
       deleting: "…",
       netScoreTitle: "Итог (лайки минус дизлайки)",
+      flaggedAuthorHint: "На проверке — в общей ленте видите только вы и модераторы.",
     },
     comment: {
       comments: "Комментарии",
@@ -1821,6 +2008,14 @@ const ru: Bundle = {
       settings: {
         title: "Настройки",
         description: "Настройки аккаунта и конфиденциальности в REZIIZI.",
+      },
+      forgotPassword: {
+        title: "Сброс пароля",
+        description: "Запрос письма для сброса пароля в REZIIZI.",
+      },
+      resetPassword: {
+        title: "Новый пароль",
+        description: "Установка нового пароля после перехода по ссылке.",
       },
       login: {
         title: "Вход",
