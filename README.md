@@ -124,6 +124,7 @@ The Edge Function must return **`Access-Control-Allow-Methods`** (and related CO
 2. **`SUPABASE_SERVICE_ROLE_KEY`** must be set for **Production** on Vercel (same Supabase project as `VITE_*`) and redeployed after changes.
 3. **Hobby plan:** serverless functions are limited to **~10s** execution. Heavy Storage cleanup can exceed that → `500` / timeout. Mitigations: **Pro** (longer `maxDuration` in `vercel.json`), or rely on the **Edge Function** fallback (`supabase functions deploy delete-account`), or retry with fewer files.
 4. After deploying this repo’s fixes, the error toast should show the **API error message** (not only `Request failed (500)`). If it still does, check the **Network** tab response body for `{"error":"..."}`.
+5. **`FUNCTION_INVOCATION_FAILED`** (Vercel): the serverless function **crashed or timed out** before returning JSON — often **Hobby ~10s limit** on long Storage cleanup, or a **runtime error**. Check **Vercel → Logs** for the stack trace; use **Pro** (longer `maxDuration`), deploy the **Edge Function** fallback (`supabase functions deploy delete-account`), or ensure the latest `api/delete-account` handler is deployed (top-level `try/catch` returns JSON instead of crashing).
 
 See `supabase/ACCOUNT_DELETION_DESIGN.md` for behavior (Storage + `auth.users`).
 

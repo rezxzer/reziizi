@@ -21,6 +21,12 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Vercel `FUNCTION_INVOCATION_FAILED` — api ლოკალური `errorMessage` + top-level try/catch
+
+- **`api/lib/errorMessage.ts`:** `src/`-ზე იმპორტის გარეშე (Vercel bundler/runtime).
+- **`api/delete-account.ts`:** მთელი handler `try/catch`; `errorMessage` `./lib/errorMessage`-დან.
+- **`README.md`:** `FUNCTION_INVOCATION_FAILED` — ლოგები, Hobby timeout, Edge fallback.
+
 ### 2026-04-03 — Account deletion: 500 — შეცდომის ტექსტი + Storage სიჩქარე
 
 - **`api/delete-account.ts`:** `errorMessage()` Supabase/Storage შეცდომებისთვის (არა მხოლოდ `Error.message`).
