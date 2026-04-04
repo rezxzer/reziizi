@@ -80,41 +80,45 @@ export function HomePage(): ReactElement {
       <section className="card">
         <h2 className="card__title">{t("pages.home.title")}</h2>
         <div className="card__body">
-          <div className="feed-sort" role="tablist" aria-label={t("pages.home.feedSortAria")}>
-            <Link
-              to={latestHref}
-              className={`feed-sort__link${effectiveSort === "latest" ? " feed-sort__link--active" : ""}`}
-              role="tab"
-              aria-selected={effectiveSort === "latest"}
-            >
-              {t("pages.home.latest")}
-            </Link>
-            <Link
-              to="/?sort=trending"
-              className={`feed-sort__link${effectiveSort === "trending" ? " feed-sort__link--active" : ""}`}
-              role="tab"
-              aria-selected={effectiveSort === "trending"}
-            >
-              {t("pages.home.trending")}
-            </Link>
-          </div>
-          {effectiveTag && wantsTrending ? (
-            <p className="muted form__hint">{t("pages.home.trendingTagHint")}</p>
-          ) : null}
-          {effectiveTag ? (
-            <p className="feed-filter">
-              {t("pages.home.filterTag", { tag: effectiveTag })}{" "}
-              <Link to={effectiveSort === "trending" ? "/?sort=trending" : "/"} className="inline-link">
-                {t("pages.home.clear")}
+          <div className="home-feed-toolbar">
+            <div className="feed-sort" role="tablist" aria-label={t("pages.home.feedSortAria")}>
+              <Link
+                to={latestHref}
+                className={`feed-sort__link${effectiveSort === "latest" ? " feed-sort__link--active" : ""}`}
+                role="tab"
+                aria-selected={effectiveSort === "latest"}
+              >
+                {t("pages.home.latest")}
               </Link>
-            </p>
-          ) : null}
-          {tagInvalid ? (
-            <p className="form__error" role="alert">
-              {t("pages.home.invalidTag")}
-            </p>
-          ) : null}
-          <PostForm onPosted={onPosted} />
+              <Link
+                to="/?sort=trending"
+                className={`feed-sort__link${effectiveSort === "trending" ? " feed-sort__link--active" : ""}`}
+                role="tab"
+                aria-selected={effectiveSort === "trending"}
+              >
+                {t("pages.home.trending")}
+              </Link>
+            </div>
+            {effectiveTag && wantsTrending ? (
+              <p className="muted form__hint">{t("pages.home.trendingTagHint")}</p>
+            ) : null}
+            {effectiveTag ? (
+              <p className="feed-filter">
+                {t("pages.home.filterTag", { tag: effectiveTag })}{" "}
+                <Link to={effectiveSort === "trending" ? "/?sort=trending" : "/"} className="inline-link">
+                  {t("pages.home.clear")}
+                </Link>
+              </p>
+            ) : null}
+            {tagInvalid ? (
+              <p className="form__error" role="alert">
+                {t("pages.home.invalidTag")}
+              </p>
+            ) : null}
+          </div>
+          <div className="home-composer">
+            <PostForm onPosted={onPosted} />
+          </div>
         </div>
       </section>
 

@@ -132,6 +132,7 @@
 - **ანგარიშის წაშლა (სტატუსი production):** **მოგვიანებით დაბრუნება.** სისტემა **ამ ეტაპზე სტაბილურად არ მუშაობს** (Vercel `/api/delete-account`, env, Edge — დიაგნოსტიკა/დეპლოი დასრულებული არა). იხილე **`README.md`** → Production deployment, **`vercel.json`**, **`api/delete-account.ts`**.
 - **ნავიგაცია (ადმინი):** **`Layout`** — ადმინის ქვემენიუ ერთ **`details`** ჩამოსაშლელში (ჰედერი აღარ „იშლება“ ბევრი ბმულით). **`translate="no"`** ჰედერზე — ბრაუზერის ავტოთარგმანი არ ურევს ნავიგაციის ტექსტს.
 - **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security, **Notifications** (`pages.notifications.*`) სრულად `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
+- **Home feed UI (პირველი polish):** **`HomePage`** — `home-feed-toolbar` (სორტი/ფილტრი) და **`home-composer`** (`PostForm`) ვიზუალურად გამიჯნული; **`styles.css`** — `post-list` ინტერვალი, `post-card` მსუბუქი ჩრდილი, პოსტის ტექსტის `line-height` — დანარჩენი §33/§35 **Future** (sticky ტაბები, სხვა გვერდები).
 
 **შენიშვნა:** **Database Structure (29)** — `supabase/SCHEMA.md`, `verify_schema.sql`; ახალი migration-ის შემდეგ ამ ფაილებიც განაახლე.
 

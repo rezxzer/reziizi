@@ -21,6 +21,12 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — Home feed UI polish (composer vs feed)
+
+- **`HomePage`:** `home-feed-toolbar` + **`home-composer`** (`PostForm` ცალკე ზონაში).
+- **`styles.css`:** `.home-composer` — `surface-raised`, border; `post-list` gap; `post-card` box-shadow; `post-card__body` line-height/font-size.
+- **`project.md`:** `CURRENT WORK` — ეს ეტაპი ჩაწერილი.
+
 ### 2026-04-03 — სესია დასრულებული (დასვენება)
 
 - **სტატუსი:** `main` სინქი `origin/main`-თან; working tree სუფთა.
