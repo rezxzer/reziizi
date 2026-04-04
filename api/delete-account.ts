@@ -5,8 +5,8 @@
  */
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { errorMessage } from "./lib/errorMessage";
-import { deleteAuthUser, deleteUserStorage } from "./lib/accountDeletionBackend";
+import { errorMessage } from "./lib/errorMessage.js";
+import { deleteAuthUser, deleteUserStorage } from "./lib/accountDeletionBackend.js";
 
 /** Vercel Node serverless — allow long Storage cleanup + auth.admin.deleteUser. */
 export const config: { maxDuration: number } = {

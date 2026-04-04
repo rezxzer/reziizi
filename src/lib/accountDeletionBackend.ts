@@ -3,7 +3,7 @@
  * Edge Function (`supabase/functions/delete-account`) duplicates this for Deno deploy.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { errorMessage } from "./api/errors";
+import { errorMessage } from "./api/errors.js";
 
 const AVATARS_BUCKET: string = "avatars";
 const POST_IMAGES_BUCKET: string = "post-images";
