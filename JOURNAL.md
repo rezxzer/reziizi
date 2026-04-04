@@ -21,6 +21,10 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — `project.md`: შემდეგი ფაზის გეგმა (ChatGPT roadmap + რეპოს რეალობა)
+
+- **`## CURRENT WORK`:** ქვესექცია **„შემდეგი ფაზა — გეგმის მიმართულება“** — ფაზა A/B/C, ცხრილი (Anti-spam, Notifications v2, Feed/Search/Moderation, Email, Premium+billing), განსაკუთრებული შენიშვნები: `premium_until` უკვე არსებობს, Legal i18n = პროდუქტის არჩევანი, `reziizi.mdc` რიგი არ ირღვევა.
+
 ### 2026-04-03 — ანგარიშის წაშლა production: დადასტურებული მუშაობს
 
 - **ტესტი:** Vercel + Supabase — Settings → წაშლა წარმატებით; მომხმარებელი აღარ ჩანს Supabase **Authentication → Users** (და CASCADE / Storage cleanup დიზაინის მიხედვით).
