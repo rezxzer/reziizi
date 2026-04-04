@@ -98,6 +98,7 @@ Password sign-in needs a correct **Site URL**; magic links / OAuth need **Redire
 - Home and `/login` load without a blank screen.
 - Open `/profile` or another route directly — should **not** 404 (`vercel.json` rewrites SPA routes to `index.html`).
 - Sign up / sign in and create a post — confirms Auth + DB + RLS.
+- **Settings → Delete account** (confirm `DELETE`): user removed from **Supabase → Authentication → Users**; related `public` rows CASCADE; Storage prefixes cleaned — **confirmed working** on Vercel + Supabase when env and latest deploy are applied (see *Account deletion* below if errors).
 - Try another browser or incognito to confirm cold load.
 
 ### Repo layout note

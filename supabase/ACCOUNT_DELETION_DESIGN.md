@@ -104,7 +104,9 @@ If listing is expensive, **document** the prefix convention and delete by prefix
 ## 8. App changes (implemented)
 
 - `SettingsPage`: confirm flow (type `DELETE`) → `deleteAccountViaEdgeFunction()` → `queryClient.clear()` → `signOut()` → `/`.
-- `src/lib/deleteAccount.ts`: `POST` to `/functions/v1/delete-account` with session JWT + `apikey` (anon).
+- `src/lib/deleteAccount.ts`: **Production:** same-origin `POST /api/delete-account` (Vercel serverless) with `Authorization` + optional `apikey`; **fallback:** `supabase.functions.invoke('delete-account')` (Edge). See `README.md` → *Account deletion*.
+
+**Status (verified):** End-to-end deletion works on **Vercel + Supabase** when `SUPABASE_SERVICE_ROLE_KEY` and `VITE_*` are set and the deployment includes the latest `api/delete-account` build (relative imports use `.js` extensions for Vercel/Node16; see repo `JOURNAL.md`).
 
 ---
 

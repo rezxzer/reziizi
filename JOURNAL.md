@@ -21,6 +21,12 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — ანგარიშის წაშლა production: დადასტურებული მუშაობს
+
+- **ტესტი:** Vercel + Supabase — Settings → წაშლა წარმატებით; მომხმარებელი აღარ ჩანს Supabase **Authentication → Users** (და CASCADE / Storage cleanup დიზაინის მიხედვით).
+- **კოდი/დეპლოი წინ:** `api/*` იმპორტებში `.js` (TS2835), `errorMessage`, პარალელური Storage, top-level `try/catch` — იხილე წინა ჩანაწერები.
+- **დოკი:** `project.md` **CURRENT WORK** + ცხრილი (#7), `README.md` Verify, `AGENTS.md`, `ACCOUNT_DELETION_DESIGN.md` §8.
+
 ### 2026-04-03 — Vercel `FUNCTION_INVOCATION_FAILED` — api ლოკალური `errorMessage` + top-level try/catch
 
 - **`api/lib/errorMessage.ts`:** `src/`-ზე იმპორტის გარეშე (Vercel bundler/runtime).
