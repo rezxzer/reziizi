@@ -38,7 +38,7 @@ export function MessagesPage(): ReactElement {
   }, [load]);
 
   return (
-    <div className="stack">
+    <div className="stack messages-page">
       <section className="card">
         <h1 className="card__title">{t("pages.messages.title")}</h1>
         <div className="card__body">

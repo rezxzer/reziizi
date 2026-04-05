@@ -9,8 +9,10 @@ export const queryKeys = {
   userPosts: (userId: string) => ["userPosts", userId] as const,
   profile: {
     flags: (userId: string) => ["profile", userId, "flags"] as const,
-    /** Email + avatar_url for Profile / Settings. */
+    /** Profile row fields for Profile / Settings: email, avatar, display_name, bio. */
     display: (userId: string) => ["profile", userId, "display"] as const,
+    /** Posts the user commented on (RPC `user_commented_post_ids` + enrich). */
+    commentedPosts: (userId: string) => ["profile", userId, "commentedPosts"] as const,
   },
   follow: {
     counts: (userId: string) => ["follow", "counts", userId] as const,

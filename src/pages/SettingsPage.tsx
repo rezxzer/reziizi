@@ -15,9 +15,17 @@ import {
   setNotificationPreferences,
   type NotificationPreferences,
 } from "../lib/notificationPreferences.ts";
+import {
+  PROFILE_BIO_MAX,
+  PROFILE_DISPLAY_NAME_MAX,
+  fetchProfileDisplay,
+  normalizeProfileAboutField,
+  updateProfileAbout,
+} from "../lib/profileAbout.ts";
 import { fetchProfileSearchable, setProfileSearchable } from "../lib/profilePrivacy.ts";
 import { deleteAccountViaEdgeFunction } from "../lib/deleteAccount.ts";
 import { queryClient } from "../lib/queryClient.ts";
+import { queryKeys } from "../lib/queryKeys.ts";
 import { supabase } from "../lib/supabaseClient.ts";
 
 /** Must match `settings.deleteAccountConfirmPlaceholder` / user instructions (Latin, all locales). */
@@ -46,6 +54,11 @@ export function SettingsPage(): ReactElement {
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState<string>("");
   const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
+  const [aboutDisplayName, setAboutDisplayName] = useState<string>("");
+  const [aboutBio, setAboutBio] = useState<string>("");
+  const [aboutLoading, setAboutLoading] = useState<boolean>(true);
+  const [aboutBusy, setAboutBusy] = useState<boolean>(false);
+  const [aboutMsg, setAboutMsg] = useState<string | null>(null);
 
   async function handlePassword(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -116,6 +129,36 @@ export function SettingsPage(): ReactElement {
 
   useEffect(() => {
     if (!user) {
+      setAboutLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setAboutLoading(true);
+    void fetchProfileDisplay(user.id)
+      .then((row) => {
+        if (!cancelled) {
+          setAboutDisplayName(row.display_name ?? "");
+          setAboutBio(row.bio ?? "");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAboutDisplayName("");
+          setAboutBio("");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setAboutLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
       setNotifLoading(false);
       return;
     }
@@ -163,6 +206,34 @@ export function SettingsPage(): ReactElement {
     }
   }
 
+  async function handleProfileAboutSave(e: FormEvent<HTMLFormElement>): Promise<void> {
+    e.preventDefault();
+    if (!user) {
+      return;
+    }
+    setAboutMsg(null);
+    const dn = normalizeProfileAboutField(aboutDisplayName);
+    const b = normalizeProfileAboutField(aboutBio);
+    if (dn != null && dn.length > PROFILE_DISPLAY_NAME_MAX) {
+      toast.error(t("settings.displayNameTooLong", { max: PROFILE_DISPLAY_NAME_MAX }));
+      return;
+    }
+    if (b != null && b.length > PROFILE_BIO_MAX) {
+      toast.error(t("settings.bioTooLong", { max: PROFILE_BIO_MAX }));
+      return;
+    }
+    setAboutBusy(true);
+    try {
+      await updateProfileAbout(user.id, { display_name: dn, bio: b });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.profile.display(user.id) });
+      setAboutMsg(t("settings.profileAboutSaved"));
+    } catch (err: unknown) {
+      toast.error(errorMessage(err));
+    } finally {
+      setAboutBusy(false);
+    }
+  }
+
   async function handleNotificationPrefsSave(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     if (!user) {
@@ -184,7 +255,7 @@ export function SettingsPage(): ReactElement {
     locale === "ka" ? "ka-GE" : locale === "ru" ? "ru-RU" : undefined;
 
   return (
-    <div className="stack">
+    <div className="stack settings-page">
       <section className="card">
         <h2 className="card__title" id="language-heading">
           {t("settings.language")}
@@ -220,6 +291,54 @@ export function SettingsPage(): ReactElement {
       </section>
 
       {user ? <AvatarUploadSection userId={user.id} /> : null}
+
+      <section className="card">
+        <h2 className="card__title">{t("settings.profileAbout")}</h2>
+        <div className="card__body">
+          <p className="muted">{t("settings.profileAboutHint")}</p>
+          {!user ? null : aboutLoading ? (
+            <p className="page-loading" role="status">
+              {t("settings.profileAboutLoading")}
+            </p>
+          ) : (
+            <form className="form" onSubmit={(ev) => void handleProfileAboutSave(ev)}>
+              <label className="form__label" htmlFor="settings-display-name">
+                {t("settings.displayName")}
+              </label>
+              <input
+                id="settings-display-name"
+                className="form__input"
+                type="text"
+                maxLength={PROFILE_DISPLAY_NAME_MAX}
+                autoComplete="nickname"
+                value={aboutDisplayName}
+                onChange={(ev) => setAboutDisplayName(ev.target.value)}
+                placeholder={t("settings.displayNamePlaceholder")}
+              />
+              <label className="form__label" htmlFor="settings-bio">
+                {t("settings.bio")}
+              </label>
+              <textarea
+                id="settings-bio"
+                className="form__input"
+                rows={4}
+                maxLength={PROFILE_BIO_MAX}
+                value={aboutBio}
+                onChange={(ev) => setAboutBio(ev.target.value)}
+                placeholder={t("settings.bioPlaceholder")}
+              />
+              <button type="submit" className="btn btn--primary" disabled={aboutBusy}>
+                {aboutBusy ? t("settings.profileAboutSaving") : t("settings.profileAboutSave")}
+              </button>
+              {aboutMsg ? (
+                <p className="form__success" role="status">
+                  {aboutMsg}
+                </p>
+              ) : null}
+            </form>
+          )}
+        </div>
+      </section>
 
       <section className="card">
         <h2 className="card__title">{t("settings.account")}</h2>

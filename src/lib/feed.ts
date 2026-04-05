@@ -155,6 +155,30 @@ export async function fetchFeedPage(
   return { posts: feed, hasMore: posts.length === PAGE_SIZE };
 }
 
+/** Paginated posts the user commented on (RPC order); enriches via `fetchFeedPostsByIdsOrdered`. */
+export async function fetchUserCommentedPostsPage(
+  userId: string,
+  offset: number,
+): Promise<{ posts: FeedPost[]; hasMore: boolean }> {
+  const { data: idRows, error } = await supabase.rpc("user_commented_post_ids", {
+    p_user_id: userId,
+    p_limit: PAGE_SIZE,
+    p_offset: offset,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  const ids: string[] = (idRows ?? []).map((r: { id: string }) => r.id);
+  if (ids.length === 0) {
+    return { posts: [], hasMore: false };
+  }
+
+  const feed = await fetchFeedPostsByIdsOrdered(ids);
+  return { posts: feed, hasMore: ids.length === PAGE_SIZE };
+}
+
 export async function fetchUserPosts(userId: string): Promise<FeedPost[]> {
   const { data: postRows, error } = await supabase
     .from("posts")

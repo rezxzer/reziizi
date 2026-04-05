@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { RouteFallback } from "./components/RouteFallback.tsx";
@@ -28,6 +28,7 @@ import {
   NotificationsPage,
   UserFollowListPage,
   UserProfilePage,
+  NotFoundPage,
 } from "./lazy/chunks.ts";
 
 export default function App(): ReactElement {
@@ -142,7 +143,7 @@ export default function App(): ReactElement {
               </AdminRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </Suspense>

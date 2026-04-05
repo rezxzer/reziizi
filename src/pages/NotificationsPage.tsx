@@ -50,7 +50,7 @@ export function NotificationsPage(): ReactElement {
   const unreadCount: number = items.filter((n) => n.read_at === null).length;
 
   return (
-    <div className="stack">
+    <div className="stack notifications-page">
       <section className="card">
         <div className="notifications-page__head">
           <h1 className="card__title">{t("pages.notifications.title")}</h1>

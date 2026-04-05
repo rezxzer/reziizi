@@ -137,14 +137,18 @@ export function ChatThreadPage(): ReactElement {
 
   if (!peerId || !isValidUuid(peerId)) {
     return (
-      <div className="stack">
+      <div className="stack chat-page">
         <section className="card">
           <h1 className="card__title">{t("pages.chat.chatHeading")}</h1>
           <div className="card__body">
             <p className="form__error" role="alert">
               {t("pages.chat.invalidPeerId")}
             </p>
-            <Link to="/messages">{t("pages.chat.backToMessages")}</Link>
+            <p>
+              <Link to="/messages" className="inline-link">
+                {t("pages.chat.backToMessages")}
+              </Link>
+            </p>
           </div>
         </section>
       </div>

@@ -1,9 +1,11 @@
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { fetchActiveFeedTopAd } from "../lib/ads.ts";
 import type { AdSlotRow } from "../types/db.ts";
 
 export function FeedAdSlot(): ReactElement | null {
+  const { t } = useI18n();
   const [ad, setAd] = useState<AdSlotRow | null>(null);
   const [error, setError] = useState(false);
 
@@ -30,7 +32,7 @@ export function FeedAdSlot(): ReactElement | null {
   }
 
   const hasTitle: boolean = ad.title.trim().length > 0;
-  const headline: string = hasTitle ? ad.title.trim() : "Sponsored";
+  const headline: string = hasTitle ? ad.title.trim() : t("pages.home.feedAdSponsored");
 
   const titleNode: ReactElement =
     ad.link_url && ad.link_url.length > 0 ? (
@@ -42,8 +44,11 @@ export function FeedAdSlot(): ReactElement | null {
     );
 
   return (
-    <aside className="feed-ad" aria-label={hasTitle ? "Sponsored content" : "Sponsored"}>
-      {hasTitle ? <p className="feed-ad__label">Sponsored</p> : null}
+    <aside
+      className="feed-ad"
+      aria-label={hasTitle ? t("pages.home.feedAdSponsoredContent") : t("pages.home.feedAdSponsored")}
+    >
+      {hasTitle ? <p className="feed-ad__label">{t("pages.home.feedAdSponsored")}</p> : null}
       <div className="feed-ad__content">
         <h3 className="feed-ad__title">{titleNode}</h3>
         {ad.body.trim().length > 0 ? <p className="feed-ad__body">{ad.body}</p> : null}

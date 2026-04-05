@@ -24,10 +24,10 @@ export function SecurityPage(): ReactElement {
         </Link>
       </nav>
 
-      <article className="card">
+      <article className="card legal-page__article">
         <h1 className="card__title">{t("pages.security.title")}</h1>
         <div className="card__body">
-          <p className="muted">{t("pages.security.intro")}</p>
+          <p className="muted security-page__lead">{t("pages.security.intro")}</p>
 
           <section className="legal-section" aria-labelledby="sec-auth-heading">
             <h2 id="sec-auth-heading" className="legal-section__title">
@@ -37,7 +37,9 @@ export function SecurityPage(): ReactElement {
               <li>{t("pages.security.sectionAuthLi1")}</li>
               <li>
                 {t("pages.security.sectionAuthLi2")}{" "}
-                <Link to="/settings">{t("layout.nav.settings")}</Link>
+                <Link to="/settings" className="inline-link">
+                  {t("layout.nav.settings")}
+                </Link>
                 {t("pages.security.sectionAuthLi2End")}
               </li>
             </ul>
@@ -64,8 +66,14 @@ export function SecurityPage(): ReactElement {
             </h2>
             <p>
               {t("pages.security.privacyIntro")}{" "}
-              <Link to="/settings">{t("pages.security.privacySettingsPrivacy")}</Link>. {t("pages.security.privacySeeAlso")}{" "}
-              <Link to="/legal">{t("settings.termsLink")}</Link>.
+              <Link to="/settings" className="inline-link">
+                {t("pages.security.privacySettingsPrivacy")}
+              </Link>
+              . {t("pages.security.privacySeeAlso")}{" "}
+              <Link to="/legal" className="inline-link">
+                {t("settings.termsLink")}
+              </Link>
+              .
             </p>
           </section>
         </div>

@@ -63,3 +63,8 @@ export const UserFollowListPage = lazy(async () => {
   const m = await import("../pages/UserFollowListPage.tsx");
   return { default: m.UserFollowListPage };
 });
+
+export const NotFoundPage = lazy(async () => {
+  const m = await import("../pages/NotFoundPage.tsx");
+  return { default: m.NotFoundPage };
+});

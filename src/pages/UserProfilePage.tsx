@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactElement } from "react";
-import { useCallback } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useCallback, useMemo } from "react";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { Avatar } from "../components/Avatar.tsx";
+import { ProfilePostListSkeleton } from "../components/ProfilePostListSkeleton.tsx";
 import { InlineError } from "../components/InlineError.tsx";
 import { PostCard } from "../components/PostCard.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
@@ -11,10 +12,13 @@ import { useToast } from "../contexts/ToastContext.tsx";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { fetchFollowCounts, fetchIsFollowing, followUser, unfollowUser } from "../lib/follows.ts";
-import { fetchUserPosts } from "../lib/feed.ts";
+import { fetchUserCommentedPostsPage, fetchUserPosts, getPageSize } from "../lib/feed.ts";
 import { isValidUuid } from "../lib/chat.ts";
+import { copyToClipboard, getPublicProfileAbsoluteUrl } from "../lib/copyToClipboard.ts";
 import { canShowEmail, fetchPublicProfile } from "../lib/profileView.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
+
+type ProfileTab = "posts" | "commented";
 
 export function UserProfilePage(): ReactElement {
   const { t } = useI18n();
@@ -22,6 +26,7 @@ export function UserProfilePage(): ReactElement {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { userId } = useParams<{ userId: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isBanned: viewerBanned, loading: flagsLoading } = useProfileFlags();
 
   const targetId: string = userId ?? "";
@@ -33,10 +38,42 @@ export function UserProfilePage(): ReactElement {
     enabled: isValidUuid(targetId),
   });
 
+  const profileBanned = profileQuery.data?.is_banned === true;
+  const tab: ProfileTab =
+    !profileBanned && searchParams.get("tab") === "commented" ? "commented" : "posts";
+
+  const setTab = useCallback(
+    (next: ProfileTab): void => {
+      if (next === "posts") {
+        setSearchParams({}, { replace: true });
+      } else {
+        setSearchParams({ tab: "commented" }, { replace: true });
+      }
+    },
+    [setSearchParams],
+  );
+
   const postsQuery = useQuery({
     queryKey: queryKeys.userPosts(targetId),
     queryFn: () => fetchUserPosts(targetId),
     enabled: isValidUuid(targetId) && Boolean(profileQuery.data) && !profileQuery.data?.is_banned,
+  });
+
+  const commentedQuery = useInfiniteQuery({
+    queryKey: queryKeys.profile.commentedPosts(targetId),
+    queryFn: ({ pageParam }: { pageParam: number }) => fetchUserCommentedPostsPage(targetId, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.hasMore) {
+        return undefined;
+      }
+      return allPages.reduce((acc, p) => acc + p.posts.length, 0);
+    },
+    enabled:
+      isValidUuid(targetId) &&
+      Boolean(profileQuery.data) &&
+      !profileQuery.data?.is_banned &&
+      tab === "commented",
   });
 
   const countsQuery = useQuery({
@@ -106,12 +143,39 @@ export function UserProfilePage(): ReactElement {
 
   const onPostChanged = useCallback((): void => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.userPosts(targetId) });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.profile.commentedPosts(targetId) });
     void queryClient.invalidateQueries({ queryKey: queryKeys.feed.all });
   }, [queryClient, targetId]);
 
+  const commentedPosts = useMemo(
+    () => commentedQuery.data?.pages.flatMap((p) => p.posts) ?? [],
+    [commentedQuery.data?.pages],
+  );
+
+  const commentedLoading = commentedQuery.isPending && commentedPosts.length === 0;
+  const commentedLoadingMore = commentedQuery.isFetchingNextPage;
+  const commentedHasMore = Boolean(commentedQuery.hasNextPage);
+  const commentedError = commentedQuery.isError ? errorMessage(commentedQuery.error) : null;
+
+  const loadMoreCommented = useCallback((): void => {
+    if (!commentedHasMore || commentedLoadingMore || commentedLoading) {
+      return;
+    }
+    void commentedQuery.fetchNextPage();
+  }, [commentedQuery, commentedHasMore, commentedLoadingMore, commentedLoading]);
+
+  const onCopyProfileLink = useCallback(async (): Promise<void> => {
+    try {
+      await copyToClipboard(getPublicProfileAbsoluteUrl(targetId));
+      toast.success(t("pages.profile.copyProfileLinkSuccess"));
+    } catch {
+      toast.error(t("pages.profile.copyProfileLinkFailed"));
+    }
+  }, [targetId, toast, t]);
+
   if (!isValidUuid(targetId)) {
     return (
-      <div className="stack">
+      <div className="stack profile-page">
         <section className="card">
           <h1 className="card__title">{t("pages.userProfile.invalidTitle")}</h1>
           <div className="card__body">
@@ -137,11 +201,17 @@ export function UserProfilePage(): ReactElement {
   const profile = profileQuery.data;
 
   const displayLabel: string =
-    profile != null && canShowEmail(profile, viewerId)
-      ? profile.email ?? profile.id.slice(0, 8)
-      : profile != null
-        ? `${profile.id.slice(0, 8)}…`
-        : "—";
+    profile != null
+      ? (() => {
+          const nm = profile.display_name?.trim();
+          if (nm) {
+            return nm;
+          }
+          return canShowEmail(profile, viewerId)
+            ? profile.email ?? profile.id.slice(0, 8)
+            : `${profile.id.slice(0, 8)}…`;
+        })()
+      : "—";
 
   const showFollowUi: boolean =
     Boolean(viewerId) &&
@@ -151,15 +221,41 @@ export function UserProfilePage(): ReactElement {
     !viewerBanned &&
     !flagsLoading;
 
+  const postsStatDisplay = postsQuery.isPending
+    ? "…"
+    : postsQuery.isError
+      ? "—"
+      : (postsQuery.data?.length ?? 0);
+  const followersStatDisplay =
+    countsQuery.isPending && countsQuery.data == null ? "…" : (countsQuery.data?.followers ?? "—");
+  const followingStatDisplay =
+    countsQuery.isPending && countsQuery.data == null ? "…" : (countsQuery.data?.following ?? "—");
+
   return (
-    <div className="stack">
-      <section className="card">
-        <h2 className="card__title">{t("pages.userProfile.title")}</h2>
+    <div className="stack profile-page">
+      <section className="card profile-hero">
+        <h2 className="card__title profile-hero__title">{t("pages.userProfile.title")}</h2>
         <div className="card__body">
           {profileQuery.isPending ? (
-            <p className="page-loading" role="status">
-              {t("pages.common.loading")}
-            </p>
+            <>
+              <p className="sr-only" role="status">
+                {t("pages.common.loading")}
+              </p>
+              <div className="profile-skeleton" aria-hidden="true">
+                <div className="profile-skeleton__row">
+                  <div className="profile-skeleton__avatar" />
+                  <div className="profile-skeleton__lines">
+                    <div className="profile-skeleton__line profile-skeleton__line--lg" />
+                    <div className="profile-skeleton__line profile-skeleton__line--sm" />
+                  </div>
+                </div>
+                <div className="profile-skeleton__stats">
+                  <div className="profile-skeleton__stat" />
+                  <div className="profile-skeleton__stat" />
+                  <div className="profile-skeleton__stat" />
+                </div>
+              </div>
+            </>
           ) : null}
           <InlineError message={profileQuery.isError ? errorMessage(profileErr) : null} />
           {!profileQuery.isPending && !profileQuery.isError && profile == null ? (
@@ -167,29 +263,32 @@ export function UserProfilePage(): ReactElement {
           ) : null}
           {!profileQuery.isPending && profile != null ? (
             <>
+              <p className="profile-hero__toolbar">
+                <button
+                  type="button"
+                  className="btn btn--small"
+                  onClick={() => void onCopyProfileLink()}
+                >
+                  {t("pages.profile.copyProfileLink")}
+                </button>
+              </p>
               {profile.is_banned ? (
                 <p className="form__error" role="alert">
                   {t("pages.userProfile.bannedNotice")}
                 </p>
               ) : null}
-              <div className="profile-page__identity">
-                <Avatar imageUrl={profile.avatar_url} label={displayLabel} size="lg" />
-                <div>
-                  <p>
+              <div className="profile-hero__layout">
+                <div className="profile-hero__avatar">
+                  <Avatar imageUrl={profile.avatar_url} label={displayLabel} size="lg" />
+                </div>
+                <div className="profile-hero__meta">
+                  {!profile.is_banned && profile.display_name?.trim() ? (
+                    <p className="profile-hero__name">{profile.display_name.trim()}</p>
+                  ) : null}
+                  <p className="profile-hero__line">
                     <strong>{t("pages.profile.emailLabel")}</strong>{" "}
                     {canShowEmail(profile, viewerId) ? profile.email ?? "—" : t("pages.userProfile.emailHidden")}
                   </p>
-                  {countsQuery.data != null ? (
-                    <p className="muted user-profile__follow-stats">
-                      <Link className="inline-link" to={`/u/${targetId}/followers`}>
-                        {t("pages.userProfile.followersStat", { count: countsQuery.data.followers })}
-                      </Link>
-                      {" · "}
-                      <Link className="inline-link" to={`/u/${targetId}/following`}>
-                        {t("pages.userProfile.followingStat", { count: countsQuery.data.following })}
-                      </Link>
-                    </p>
-                  ) : null}
                   {showMutualFollow ? (
                     <p className="user-profile__mutual" role="status">
                       <span className="badge badge--mutual">{t("pages.userProfile.mutualFollowBadge")}</span>
@@ -234,38 +333,137 @@ export function UserProfilePage(): ReactElement {
                   ) : null}
                 </div>
               </div>
+              {!profile.is_banned && profile.bio?.trim() ? (
+                <p className="profile-hero__bio">{profile.bio.trim()}</p>
+              ) : null}
+              {!profile.is_banned ? (
+                <div className="profile-stats" role="list">
+                  <div className="profile-stats__item" role="listitem">
+                    <span className="profile-stats__value">{postsStatDisplay}</span>
+                    <span className="profile-stats__label">{t("pages.profile.statsPosts")}</span>
+                  </div>
+                  <Link
+                    className="profile-stats__item profile-stats__item--link"
+                    to={`/u/${targetId}/followers`}
+                    role="listitem"
+                  >
+                    <span className="profile-stats__value">{followersStatDisplay}</span>
+                    <span className="profile-stats__label">{t("pages.profile.statsFollowers")}</span>
+                  </Link>
+                  <Link
+                    className="profile-stats__item profile-stats__item--link"
+                    to={`/u/${targetId}/following`}
+                    role="listitem"
+                  >
+                    <span className="profile-stats__value">{followingStatDisplay}</span>
+                    <span className="profile-stats__label">{t("pages.profile.statsFollowing")}</span>
+                  </Link>
+                </div>
+              ) : null}
             </>
           ) : null}
         </div>
       </section>
 
       {profile != null ? (
-        <section className="card">
-          <h2 className="card__title">{t("pages.userProfile.theirPosts")}</h2>
-          <div className="card__body">
-            {profile.is_banned ? (
-              <p className="muted">{t("pages.userProfile.postsHiddenBanned")}</p>
-            ) : postsQuery.isPending ? (
-              <p className="page-loading" role="status">
-                {t("pages.common.loading")}
-              </p>
-            ) : null}
-            {!profile.is_banned && postsQuery.isError ? (
-              <InlineError message={errorMessage(postsQuery.error)} />
-            ) : null}
-            {!profile.is_banned && !postsQuery.isPending && !postsQuery.isError && (postsQuery.data?.length ?? 0) === 0 ? (
-              <p className="muted">{t("pages.profile.emptyPosts")}</p>
-            ) : null}
-            {!profile.is_banned && !postsQuery.isPending && !postsQuery.isError && (postsQuery.data?.length ?? 0) > 0 ? (
-              <ul className="post-list">
-                {(postsQuery.data ?? []).map((p) => (
-                  <li key={p.id}>
-                    <PostCard post={p} onChanged={onPostChanged} />
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
+        <section className="card profile-posts">
+          {profile.is_banned ? (
+            <>
+              <h2 className="card__title">{t("pages.userProfile.theirPosts")}</h2>
+              <div className="card__body">
+                <p className="muted">{t("pages.userProfile.postsHiddenBanned")}</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="profile-posts__head">
+                <h2 className="card__title" id="user-profile-posts-heading">
+                  {tab === "posts" ? t("pages.userProfile.theirPosts") : t("pages.userProfile.sectionCommented")}
+                </h2>
+                <div className="profile-tabs" role="tablist" aria-labelledby="user-profile-posts-heading">
+                  <button
+                    type="button"
+                    className="profile-tabs__tab"
+                    role="tab"
+                    aria-selected={tab === "posts"}
+                    id="user-profile-tab-posts"
+                    onClick={() => setTab("posts")}
+                  >
+                    {t("pages.profile.tabPosts")}
+                  </button>
+                  <button
+                    type="button"
+                    className="profile-tabs__tab"
+                    role="tab"
+                    aria-selected={tab === "commented"}
+                    id="user-profile-tab-commented"
+                    onClick={() => setTab("commented")}
+                  >
+                    {t("pages.profile.tabCommented")}
+                  </button>
+                </div>
+              </div>
+              <div className="card__body">
+                {tab === "posts" ? (
+                  <>
+                    {postsQuery.isPending ? (
+                      <ProfilePostListSkeleton />
+                    ) : postsQuery.isError ? (
+                      <InlineError message={errorMessage(postsQuery.error)} />
+                    ) : (postsQuery.data?.length ?? 0) === 0 ? (
+                      <div className="profile-empty" role="status">
+                        <p className="profile-empty__text muted">{t("pages.userProfile.emptyPostsOther")}</p>
+                      </div>
+                    ) : (
+                      <ul className="post-list">
+                        {(postsQuery.data ?? []).map((p) => (
+                          <li key={p.id}>
+                            <PostCard post={p} onChanged={onPostChanged} />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {commentedLoading ? (
+                      <ProfilePostListSkeleton />
+                    ) : commentedError ? (
+                      <InlineError message={commentedError} />
+                    ) : commentedPosts.length === 0 ? (
+                      <div className="profile-empty" role="status">
+                        <p className="profile-empty__text muted">{t("pages.userProfile.emptyCommentedOther")}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <ul className="post-list">
+                          {commentedPosts.map((p) => (
+                            <li key={p.id}>
+                              <PostCard post={p} onChanged={onPostChanged} />
+                            </li>
+                          ))}
+                        </ul>
+                        {commentedHasMore ? (
+                          <div className="feed__more">
+                            <button
+                              type="button"
+                              className="btn"
+                              disabled={commentedLoadingMore}
+                              onClick={() => loadMoreCommented()}
+                            >
+                              {commentedLoadingMore
+                                ? t("pages.common.loading")
+                                : t("pages.home.loadMore", { pageSize: getPageSize() })}
+                            </button>
+                          </div>
+                        ) : null}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </section>
       ) : null}
     </div>

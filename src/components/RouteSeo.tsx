@@ -5,12 +5,12 @@ import { applyPageSeo } from "../lib/seo.ts";
 
 /** Client-side SEO: title, meta, Open Graph, canonical — per route (see `getSeoForPath`). */
 export function RouteSeo(): null {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { locale } = useI18n();
 
   useEffect(() => {
-    applyPageSeo(pathname, locale);
-  }, [pathname, locale]);
+    applyPageSeo(pathname, locale, search);
+  }, [pathname, search, locale]);
 
   return null;
 }

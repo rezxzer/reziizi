@@ -35,28 +35,30 @@
 27. Security (v3 baseline)
 28. API Layer (v3 baseline)
 29. Database Structure (v3 baseline: SCHEMA.md + verify_schema)
-30. Caching System 🟡
-31. Logging System 🟡
-32. Error Handling System 🟡
-33. UI Design System
-34. Theme System (Dark/Light)
-35. Mobile Responsiveness
-36. Performance Optimization 🟡
-37. Deployment System 🟡
-38. Environment Configuration (.env)
-39. Backup System
-40. Versioning System
-41. Testing System 🟡
-42. SEO Optimization 🟡
-43. Accessibility (A11Y) 🟡
-44. Localization (Languages) 🟡
-45. Email System 🔄 (password reset MVP; verification later)
-46. Push Notifications
-47. File Storage System
-48. Rate Limiting System 🟡
-49. Anti-Spam System 🔄
-50. Future Features
-51. Legal / Privacy (Terms & Privacy)
+30. Caching System ✅ (v3 baseline; polish სურვილისამებრ)
+31. Logging System ✅ (v3 baseline; remote/Sentry — Future)
+32. Error Handling System ✅ (v3 baseline; telemetry — Future)
+33. UI Design System ✅ (v1 baseline; §33 სრული audit — ტალღა 2 / Future)
+34. Theme System (Dark/Light) ✅ (v2 baseline)
+35. Mobile Responsiveness ✅ (v1 baseline; სრული audit — ტალღა 2 / Future)
+36. Performance Optimization ✅ (v3 baseline: lazy routes; virtualization — Future)
+37. Deployment System ✅ (v3 baseline: Vercel + CI)
+38. Environment Configuration (.env) ✅ (Vercel/ლოკალური; საიდუმლოება — README)
+39. Backup System ❌ (პლატფორმა/ოპერაცია — იხილე §39)
+40. Versioning System ❌ (Git; აპის semver — იხილე §40)
+41. Testing System ✅ (v3 baseline: Vitest; E2E/coverage — Future)
+42. SEO Optimization ✅ (v3 baseline; სრული audit — Future)
+43. Accessibility (A11Y) ✅ (v3 baseline; სრული audit — Future)
+44. Localization (Languages) ✅ (v3 baseline `en`/`ka`/`ru`; Legal სტატიის სრული თარგმანი — Future)
+45. Email System ✅ (password reset MVP აპში) / 🔄 (verification, alerts, custom SMTP — later)
+46. Push Notifications ❌ (იხილე §46)
+47. File Storage System ✅ (Supabase Storage; §11/§47 — იხილე CURRENT WORK)
+48. Rate Limiting System ✅ (v3 baseline: DB + `rateLimitByIp` delete-account; იხილე §48)
+49. Anti-Spam System ✅ (MVP baseline SQL + აპი) / 🔄 (გაფართოება — იხილე §49 Future)
+50. Future Features — (კატეგორია / იდეების სათავე — §50; ახალი ფიჩა → სკოპი `project.md`-ში)
+51. Legal / Privacy (Terms & Privacy) ✅ (v1+ baseline: გვერდები + ლინკები auth-ზე)
+
+**ლეგენდა (MASTER 1–51, ამ ეტაპზე):** **✅** = პროდუქტის baseline კოდში/DB-ში (დეტალები **VERSIONS** + **`## CURRENT WORK`** + შესაბამისი § **FEATURE BREAKDOWN**). **🔄** = MVP/ნაწილი მზადაა, დანარჩენი მომავალი ტალღა. **❌** = აპში არა / მხოლოდ იდეა ან პლატფორმა. **🟡** აღარ ვიყენებთ **MASTER სიაში** — იგი ძველი „ნაწილობრივი“ მარკერი იყო; **იგივე სინქი `FEATURE BREAKDOWN` § სათაურებში** (ძველი 🟡 → **✅ baseline** სადაც v3 დასრულებულია).
 
 ---
 
@@ -74,6 +76,8 @@
 33. UI Design System
 35. Mobile Responsiveness
 51. Legal / Privacy (Terms & Privacy link on auth)
+
+**შენიშვნა (სკოპის გაფართოება პროდუქტში):** ორიგინალური v1 სია ზემოთ. **ამ ეტაპზე** baseline-ად დასრულებულია ასევე **4** Avatar, **5** Friends, **10–11** Video/Media (ორი ერთად არა), **38** env — იხილე **`## CURRENT WORK`** და **MASTER FEATURE LIST** ლეგენდა. ეს **არ ცვლის** ნომრებს — უბრალოდ **რეალობის სინქი** v1 ტექსტთან.
 
 ---
 
@@ -113,9 +117,62 @@
 37. Deployment System (baseline: Vercel + `vercel.json` SPA rewrites; **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**)
 41. Testing System (baseline: Vitest + Testing Library — `src/**/*.test.{ts,tsx}`, `npm test` / `npm run test:watch`)
 
+**დამატებითი baseline (იგივე v3 პროდუქტის ეტაპი — არა ცალკე „ვერსიის“ სახელი):** **4** Avatar, **5** Friends, **10–11** Video/Media, **42** SEO, **43** A11Y, **44** Localization, **45** password reset (MVP), **47** File Storage (Supabase), **48** Rate limiting, **49** Anti-spam (MVP) — დეტალები **`## CURRENT WORK`** და **MASTER FEATURE LIST** (ლეგენდა). **33–35** გაძლიერებულია polish-ით (**§33**/**§35**/**CURRENT WORK** → ტალღები).
+
 ---
 
 ## CURRENT WORK
+
+### ტალღები — პირველი ეტაპი → მეორე ეტაპი (ფუნდამენტი vs გაფართოება)
+
+**ტერმინები:** **ტალღა 1** = პროდუქტის **baseline** (რასაც `VERSIONS` + ქვემოთ „რა გაკეთდა“ ითვლის დასრულებულად — ფუნქცია + ტექნიკური ფენა). **ტალღა 2+** = polish, ახალი იდეები, სრული UI audit, სრული Legal i18n, Stripe live — **არა** სავალდებულო იმისთვის, რომ პროდუქტი „გამოვიდეს“ baseline-ად.
+
+**რატომ არ უნდა მოგვიწიოს საიტის/კოდის მთლიანი გადაწერა ტალღა 2-ზე:** ტალღა 1 უკვე აგებულია **გაფართოებად ფუნდამენტზე** — Supabase (RLS, migrations რიგით), `src/lib/api/registry.ts`, `queryKeys` / TanStack Query, `messages.ts` + `t()`, ერთიანი `styles.css` (კლასები/პატერნები), `Layout` + როუტინგი, error boundaries / toast, lazy routes. **ახალი ფიჩა ან იდეა:** ჯერ **`project.md`** (სკოპი, CURRENT WORK ან შესაბამისი § **Future**), მერე SQL/RLS საჭიროებისამებრ, მერე კოდი — იგივე პატერნებში (**`reziizi.mdc`**). ასე გაფართოება უმეტესშივი **ლოკალური ცვლილებაა**, არა არქიტექტურის ნულიდან დაწყება.
+
+**ტალღა 1 — დიზაინი / UI (§33, §35) რას ნიშნავს „არ გამოგვრჩეს“:** MASTER-ში **33** და **35** v1-ისთვის = **მინიმალური, თანმიმდევრული UI** + **responsive** — ეს **baseline-ად შესრულებულია**. **არ მოითხოვს** პიქსელ-პერფექტ მოკ-აპს ან ცალკე დიზაინ-სისტემის დოკუმენტს. **დარჩენილი polish** (მაგ. ფაზა **E** — სრული საიტის §33 audit, ყველა გვერდის ერთი სიღრმის შემოწმება) განზოგადებულია როგორც **ტალღა 2 / Future** — ეს **არ არის** „ფუნდამენტის ხვრელი“, არამედ ხარისხის შემდეგი ფენა.
+
+**რა არის ნორმალურად „გადადებული“ ტალღა 2-ზე (არა ტალღა 1-ის ჩაგდება):** Legal სტატიის სრული `ka`/`ru`; სრული A11Y/SEO audit ყველა ეკრანზე; Stripe Checkout production; ცალკე **§50** / ფიჩების **🚀 Future** სია — იხილე ქვემოთ ცხრილები და შესაბამისი §.
+
+**ტალღების მოკლე განსაზღვრება (პროდუქტის გეგმა — არა v1/v2/v3 კოდის ვერსია):**
+
+| ტალღა | რას ნიშნავს | მაგალითები |
+|--------|----------------|------------|
+| **1** | **Baseline დასრულებული** — ფუნქცია + DB/RLS + აპი ისე, რომ პროდუქტი იყოს გამოყენებადი | `VERSIONS` + **MASTER FEATURE LIST** ✅; **არა** პიქსელ-პერფექტი / სრული i18n Legal / Stripe live |
+| **2** | **Polish + გაფართოება** იმავე არქიტექტურაზე — UI audit (§33/§35), Legal შიგთავსის i18n, SEO/A11Y სრული audit, ფიჩების **🚀 Future** „პატარა“ ნაწილი, სპამის/ფიდის tuning, email verification/SMTP საჭიროებისამებრ | პროფილის ფაზა **E** დასრულება; **§5** mutual მარშრუტი; **§49** ევრისტიკის გაძლიერება |
+| **3** | **ბიზნეს/პლატფორმის „ლანჩი“** — რეალური გადახდა, პროდაქშენ secrets, მასშტაბის ინფრა საჭიროებისამებრ | **Stripe** live (**§24**), Premium Checkout, webhook production |
+| **4+** | **დიდი ფსონი / ოპერაცია / პლატფორმის გარე** | **Push (46)**, **Backup (39)** სტრატეგია, **native** აპები, **AI** მოდერაცია, PWA — იხილე **§50**, **`#### 🚀 Future`** |
+
+**MASTER 1–51 — იმპლემენტაცია vs მომავალი ტალღა (ამ ეტაპის სინქი):**
+
+| # | ტალღა 1 (baseline) | მომავალი განვითარება (რომელი ტალღა / შენიშვნა) |
+|---|----------------------|--------------------------------------------------|
+| 1–3 | ✅ User / Auth / Profile | **2+:** §50 იდეები; პროფილი polish |
+| 4 | ✅ Avatar | **2:** სხვა გვერდებზე Avatar (სურვილისამებრ) |
+| 5 | ✅ Friends | **2:** **§5** `🚀 Future` — `/mutuals`, ფილტრები |
+| 6–9 | ✅ Posts, Feed, Reactions, Comments | **2:** კომენტარების/ფიდის Future §-ებში |
+| 10 | ✅ Video (short, ტრანსკოდინგი არა) | **3+:** ტრანსკოდინგი / §10 Future |
+| 11–12 | ✅ Media, Notifications | **2:** მედია polish; ნოტიფ. Realtime polish |
+| 13 | ✅ Chat | **2:** §13 Future |
+| 14–17 | ✅ Search, Tags, Trending, Ranking | **2:** ranking/Search UX tuning (**შემდეგი ფაზა** B) |
+| 18–24 | ✅ Admin … Monetization (`premium_until`) | **3:** **Stripe** live, Checkout (**§24**) |
+| 25–29 | ✅ Settings, Privacy, Security, API, DB docs | **2:** security polish; **3:** billing-თან დაკავშირებული |
+| 30–32 | ✅ Caching, Logging, Errors | **2:** Sentry/telemetry; დამატებითი ტესტები |
+| 33–35 | ✅ UI, Theme, Mobile | **2:** ფაზა **E** სრული audit; ტალღა 2 polish |
+| 36–38 | ✅ Perf, Deploy, Env | **2:** E2E, preview env, virtualization |
+| 39–40 | ❌ აპში არა (ოპერაცია/Git) | **4+:** სტრატეგია §39/§40 |
+| 41 | ✅ Vitest | **2:** E2E, coverage |
+| 42–44 | ✅ SEO / A11Y / L10n baseline | **2:** სრული audit; Legal სტატია `ka`/`ru` |
+| 45 | ✅ password reset MVP | **2:** verification, alerts; **3:** SMTP production |
+| 46 | ❌ Push | **4+** |
+| 47 | ✅ Storage | **2:** CDN/ოპტიმიზაცია სურვილისამებრ |
+| 48 | ✅ DB + API rate limit | **2:** Redis/WAF გლობალური — §48 Future |
+| 49 | ✅ Anti-spam MVP | **2:** გაფართოება (**შემდეგი ფაზა** A) |
+| 50 | — იდეების კატეგორია | ახალი ფიჩა → `project.md` |
+| 51 | ✅ Legal გვერდები + ლინკები | **2:** სტატიის სრული თარგმანი |
+
+*ცხრილი შეიძლება იტერაციაში განახლდეს — ერთი წყარო რჩება **MASTER LIST** + **§ FEATURE BREAKDOWN** + **`## CURRENT WORK`**.*
+
+---
 
 ### რა გაკეთდა (სტატუსი — ამ ეტაპზე)
 
@@ -123,6 +180,7 @@
 - **v2:** კომენტარები, ძებნა, თემა, ნოტიფიკაციები, ტეგები, trending, chat, ranking UI — **baseline დასრულებული**.
 - **v3:** Admin, moderation, reports, ban, stats, ads, premium, settings+privacy, security, API catalog, DB docs (`SCHEMA.md`, `verify_schema`), **Caching (30)** TanStack Query, **Error Handling (32)** (toast მთელ აპში მუტაციებზე/ავთენტიკაციაზე სადაც განვავრცელეთ; route-level **`QueryErrorResetBoundary`** + **`RouteErrorBoundary`** → **`LayoutOutlet`**; **`RouteErrorBoundary.test.tsx`**), **Logging (31)**, **Performance (36)** lazy routes, **Deployment (37)** Vercel + `vercel.json` + **`README.md` deployment გზამკვლევი**, **Testing (41)** Vitest — **baseline დასრულებული** კოდში.
 - **Production:** აპი **ატვირთულია Vercel-ზე** (GitHub დაკავშირება, `VITE_*` env, Supabase Auth URL-ები — იხილე **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**).
+- **Supabase SQL (migrations):** რეპოში `supabase/migrations/` ჩამოწერილი migration-ების სრული თანმიმდევრობა **გაშვებულია production Supabase-ზე** (დადასტურებული).
 - **Media Upload (11) + File Storage (47) — baseline:** Supabase Storage `post-images`, `posts.image_url`, `PostForm` სურათი, feed/admin `PostCard` / Moderation; პოსტის წაშლისას Storage cleanup (საუკეთესო ძალისხმევა).
 - **Video (10) — baseline:** Storage `post-videos` (MP4/WebM, 50 MiB), `posts.video_url`, CHECK ერთ მედიაზე; `PostForm` / `PostCard` / admin; account deletion იშლის `post-videos` პრეფიქსს; **ტრანსკოდინგი არა** (იხილე §10).
 - **Friends (5) — baseline:** `follows` + RLS; `/u/:userId`; `/u/:userId/followers` · `/u/:userId/following` (`UserFollowListPage`, pagination); Follow/Unfollow; პროფილზე რაოდენობები ლინკებით; **ორმხრივი გამოწერა** — `UserProfilePage`-ზე ბეიჯი `pages.userProfile.mutualFollowBadge` (ორი `queryKeys.follow.relation`); **ნოტიფიკაცია** ახალ გამომწერზე (`notifications.type` `follow`, migration `20260401340000` **live Supabase** — იხილე `JOURNAL.md`); ლინკები `PostCard` / Search (იხილე §5).
@@ -131,12 +189,68 @@
 - **ანგარიშის წაშლა (სერვერული ფლოუ):** **`supabase/functions/delete-account/`** — Edge Function: JWT → Storage (`avatars/`, `post-images/`) წაშლა → `auth.admin.deleteUser`. **`api/delete-account.ts`** (Vercel) + **`src/lib/deleteAccount.ts`** — same-origin `/api/delete-account`, fallback Edge. **`SettingsPage`** — დადასტურება `DELETE`, `queryClient.clear`, sign out. **Deno/IDE:** `supabase/functions/deno.json` (import map), `tsconfig.json` + `deno-env.d.ts` — `@supabase/supabase-js` ტიპები `node_modules`-იდან. **ცოცხალი Supabase:** საჭიროა **`supabase functions deploy delete-account`** (იხილე **`README.md`** + **`supabase/ACCOUNT_DELETION_DESIGN.md`**).
 - **ანგარიშის წაშლა (სტატუსი production):** **დადასტურებული მუშაობს** — Settings → წაშლა: `POST /api/delete-account` (Vercel), env (`SUPABASE_SERVICE_ROLE_KEY` + `VITE_*`), `auth.users` იშლება Supabase-ში; Storage პრეფიქსები იწმინდება. **Hobby:** ძალიან ბევრი ფაილი/ნელი Storage კვლავ შეიძლება timeout-ს მიუახლოვდეს — საჭიროებისამებრ Pro ან Edge fallback. ტექნიკური ფიქსები: `api/*` relative imports **`.js`** (TS2835 / Vercel build), `errorMessage`, პარალელური bucket cleanup, top-level `try/catch` — იხილე **`README.md`**, **`JOURNAL.md`**.
 - **ნავიგაცია (ადმინი):** **`Layout`** — ადმინის ქვემენიუ ერთ **`details`** ჩამოსაშლელში (ჰედერი აღარ „იშლება“ ბევრი ბმულით). **`translate="no"`** ჰედერზე — ბრაუზერის ავტოთარგმანი არ ურევს ნავიგაციის ტექსტს.
-- **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security, **Notifications** (`pages.notifications.*`), **`MessagesPage` / `ChatThreadPage`** (`pages.messages.*`, `pages.chat.*`, `en`/`ka`/`ru`) სრულად `t()`; **ადმინ გვერდები** — `pages.admin.*` (`AdminPage`, Moderation, Reports, Ads, Stats, Users, API catalog) `en`/`ka`/`ru` + `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
-- **Home feed UI (პირველი polish):** **`HomePage`** — `home-feed-toolbar` (სორტი/ფილტრი) და **`home-composer`** (`PostForm`) ვიზუალურად გამიჯნული; **`home-feed-toolbar--sticky`** — Latest/Trending ზოლი scroll-ზე „მიწებდება“; **`styles.css`** — `post-list` ინტერვალი, `post-card` მსუბუქი ჩრდილი, პოსტის ტექსტის `line-height` — დანარჩენი §33/§35 **Future** (სხვა გვერდები, სრული audit).
+- **Localization (გაფართოება):** `messages.ts` `pages.*` — Profile, PostCard, კომენტარები, reports, reactions, Legal (chrome), Security, **Notifications** (`pages.notifications.*`), **`MessagesPage` / `ChatThreadPage`** (`pages.messages.*`, `pages.chat.*`, `en`/`ka`/`ru`) სრულად `t()`; **`BannedPage`** — `pages.bannedPage.*`; **`AvatarUploadSection`** (Settings) — `settings.avatar*`; **`FeedAdSlot`** (ლენტის ზედა რეკლამა) — `pages.home.feedAdSponsored` / `feedAdSponsoredContent`; **`PlaceholderCard`** — `pages.common.scaffoldInProgress` / `scaffoldInProgressHint`; **ფესვის `ErrorBoundary`** (`main.tsx` → `AppErrorBoundary`) — `errors.appBoundaryBody`, `errors.reload` (+ არსებული `errors.routeTitle` / `errors.homeLink`); **ადმინ გვერდები** — `pages.admin.*` (`AdminPage`, Moderation, Reports, Ads, Stats, Users, API catalog) `en`/`ka`/`ru` + `t()`; Legal სტატიის **შიგთავსი** ჯერ კიდევ ინგლისურია (სურვილისამებრ მომავალი ტალღა).
+- **Home feed UI (პირველი polish):** **`HomePage`** — `home-feed-toolbar` (სორტი/ფილტრი) და **`home-composer`** (`PostForm`) ვიზუალურად გამიჯნული; **`home-feed-toolbar--sticky`** — Latest/Trending ზოლი scroll-ზე „მიწებდება“; **`styles.css`** — `post-list` ინტერვალი, `post-card` მსუბუქი ჩრდილი, პოსტის ტექსტის `line-height` — დანარჩენი §33/§35 **Future** (სხვა გვერდები, სრული audit). **§35 (გაგრძელება):** `max-width: 600px` — პროფილის **`profile-tabs`** ტაბები თანაბარი სიგანით; **`legal-page__nav`** ბმულებს `min-height` / `inline-flex` (Legal/Security).
+- **Profile / User profile UI:** **`ProfilePage`** / **`UserProfilePage`** — `profile-hero` (ავატარი + მეტა), **`profile-stats`** სამ სვეტად (პოსტები / გამომწერები / გამოწერები), **`profile-tabs`** (Posts / Commented, `?tab=commented`), **`profile-empty`** ცარიელი პოსტების ბლოკი; i18n `pages.profile.statsPosts` / `statsFollowers` / `statsFollowing` (`en`/`ka`/`ru`); **`profile-skeleton`** ჰეროს ჩატვირთვა; **`ProfilePostListSkeleton`** პოსტების სიის ჩატვირთვა (`profile-post-skeleton`); საკუთარი ცარიელი პოსტების CTA → მთავარი ფიდი (`emptyPostsCta`); სხვისი პროფილი — `emptyPostsOther` (მესამე პირი); **`profiles.display_name` / `profiles.bio`** — migration `20260401350800`, რედაქტირება **Settings**-ში, ჩვენება პროფილზე (`profileAbout.ts`, `fetchPublicProfile`); **საჯარო ბმული** — `copyToClipboard` + `getPublicProfileAbsoluteUrl` (`/u/:id`), `pages.profile.copyProfileLink*`; **Commented** — `feed.ts` `fetchUserCommentedPostsPage` + `queryKeys.profile.commentedPosts`.
+
+#### Profile UX — roadmap (polish, §33 / სხვა გვერდები)
+
+რეფერენსი: ვიზუალური იერარქია (ავატარი + იდენტობა ზედა ზონაში), აქტივობის სტატისტიკა, ძირითადი კონტენტი (პოსტების სია), მობილური პირველობა — იგივე პატერნები რაც LinkedIn/Twitter-ის ტიპის პროფილებში (მოკლე meta, არა „ფორმის სია“).
+
+| ფაზა | რა | სტატუსი |
+|------|-----|--------|
+| **A** | Hero + stats grid + ცარიელი მდგომარეობა + skeleton | ✅ |
+| **B** | საკუთარი ცარიელი → CTA მთავარ ფიდზე; სხვისი → `emptyPostsOther` | ✅ |
+| **C** | პოსტების ბლოკში skeleton (სიის ადგილზე) — `ProfilePostListSkeleton` | ✅ |
+| **D** | `display_name` + `bio` (DB + Settings + პროფილის UI) | ✅ — **გაშვება Supabase-ზე:** `20260401350800_add_profiles_display_name_bio.sql` |
+| **D+** | copy profile URL (`/u/:id`) — ღილაკი + toast | ✅ |
+| **D++** | ტაბები Posts / Commented (`?tab=commented`, RPC `user_commented_post_ids`) | ✅ — **გაშვებულია Supabase-ზე** (დადასტურებული) — `20260401350900_add_user_commented_post_ids_rpc.sql` |
+| **E** | §33 audit — ტიპოგრაფია/სივრცეები | 🔄 **ფოკუსი (2026):** feed sticky `safe-area`, `feed__more` min-width; **`.card__title`** ერთიანი სტილი — ზემოთ ჩამოთვლილებს + **`messages-page`**, **`banned-page`**, **`follow-list-page`**, **`admin-*`**, **`chat-page`**; **`legal-page`** / **`security-page`** (სათაურები, ნავი, წაკითხვის სვეტი); სრული საიტის audit — ⬜ Future |
 - **Email (45) — password reset (MVP):** `/forgot-password` · `/reset-password`, `getAuthRecoveryRedirectTo()`, Supabase `resetPasswordForEmail` + session recovery → `updateUser({ password })`; i18n `en`/`ka`/`ru`; **Dashboard:** Redirect URLs + ნებისმიერი SMTP — **`README.md`**, **`project.md` → §45**. **ტესტები:** Vitest/RTL ამ ფლოუზე — **მომავალში** (იხილე §45 / §41 Notes).
-- **Anti-spam (49) — body update:** migration `20260401350600_antispam_recheck_on_body_update.sql` — `body` შეცვლისას იგივე duplicate/link ევრისტიკა რაც INSERT-ზე; `abuse_flags` როცა `is_flagged` ხდება UPDATE-ით (`skip_spam_guard` — report path-თან დუბლირების გარეშე).
+- **Anti-spam (49) — body update:** migration `20260401350600_antispam_recheck_on_body_update.sql` — **გაშვებულია Supabase-ზე** (დადასტურებული) — `body` შეცვლისას იგივე duplicate/link ევრისტიკა რაც INSERT-ზე; `abuse_flags` როცა `is_flagged` ხდება UPDATE-ით (`skip_spam_guard` — report path-თან დუბლირების გარეშე).
+- **Anti-spam (49) — დახვეწა (ფაზა A):** **`20260401351000`** — ბაზის ევრისტიკა (მინ. სიგრძე 12, ფანჯარა 5 წთ); **`20260401351100_antispam_tune_window_7_min_len_15.sql`** — **მიმდინარე სპეკი:** ფანჯარა **7 წთ**, ნორმ. `body` სიგრძე ≥ **15** დუბლიკატისთვის; **აპი:** `PostForm` / `CommentSection` — info toast, თუ ჩანაწერი ავტომატურად დაიფლაგა. **Production:** ახალი migration-ის გაშვება სავალდებულოა live-ზე; `SCHEMA.md`, **`reziizi.mdc`** (#35).
+- **პოსტის სიგრძე + ტირი:** **`20260401351200`** — CHECK ზედა ჭერი **5000**; **`20260401351300_posts_tier_free_premium.sql`** — უფასო **1000** სიმბოლო, პრემიუმი ან ადმინი **5000**; ვიდეო პოსტი მხოლოდ პრემიუმი/ადმინი (`video_url` + Storage `post-videos`). **`postBodyLimits.ts`** + `PostForm`. **Production:** ორივე migration; ძველი >5000 პოსტი — იხილე #512 შენიშვნა.
+- **Rate limiting (48) — API ფენა:** `POST /api/delete-account` — IP-ზე best-effort window (`api/lib/rateLimitByIp.ts`); env იხილე **`README.md`**.
+- **Premium + billing (§24):** migration `20260401350700` — **გაშვებულია Supabase-ზე** (დადასტურებული) — `service_role` → `premium_until` მხარდაჭერა. **რეალური Stripe** (Edge `stripe-webhook` deploy, secrets, Dashboard webhook, in-app Checkout) — **ოფიციალური განვითარების რიგი** — **`#### ბიზნესი / §24 — განვითარების გადაწყვეტილება`** ქვემოთ; ტექნიკური ნაბიჯები — **`README.md` → „Stripe Premium“**.
+- **ტეგები / „ჰეშტეგი“ (პროდუქტი):** **ვარიანტი B** — მხოლოდ ცალკე ველი; **`posts.body`-დან `#` არ იკითხება.** სრული არგუმენტაცია — **`### 15`**. **Polish:** live preview — ✅ `PostForm`. **ტირი:** უფასო **4** / პრემიუმი+ადმინი **8** ტეგი — ✅ `tagParse.ts` + migration **`20260401351400_post_tags_tier_limit.sql`** (Production გაშვება სავალდებულოა). **body `#`** — მხოლოდ სკოპის + მეტრიკის შემდეგ.
+
+#### Premium vs free — პოსტი / მედია
+
+**სტატუსი:** ✅ **ფაზა 1 იმპლემენტირებული** — ტექსტის ტირი + ვიდეო მხოლოდ პრემიუმზე/ადმინზე (`20260401351300`, `PostForm`, Storage). **პრემიუმი:** `profiles.premium_until` აქტიური — `src/lib/premium.ts`, **§24**. **მომავალი (ფაზა 2, სურვილისამებრ):** დღიური ლიმიტი, სხვადასხვა rate წუთში, სურათის ზომა ტირებად — იხილე ქვემოთ „სამიზნე“.
+
+| პარამეტრი | არა პრემიუმი | პრემიუმი (ან `is_admin`) | იმპლემენტაცია |
+|-----------|----------------|---------------------------|----------------|
+| `posts.body` მაქს. სიმბოლო | **1000** | **5000** | `posts_enforce_tier_limits` + CHECK ≤5000 (`013512`); `getPostBodyMaxLength` / `PostForm` |
+| პოსტების სიხშირე (rolling) | **12 / 1 წთ** (იგივე) | **იგივე** | `20260401310000` — ტირად განსხვავება **არა** (მომავალი ფაზა) |
+| სურათი — ფაილის მაქს. ზომა | **5 MiB** | **5 MiB** | `postImageStorage` — ტირად განსხვავება **არა** (მომავალი: მაგ. 2 vs 5 MiB) |
+| ვიდეო — დაშვება | **არა** (`video_url` აკრძალული) | **კი** | ტრიგერი + Storage policy `post-videos`; UI-ში ვიდეო არ ჩანს უფასოზე |
+| ვიდეო — ფაილის მაქს. ზომა | — | **50 MiB** | `postVideoStorage` / bucket |
+| ერთ პოსტზე მედია | ერთი ტიპი | იგივე | `posts_one_media_type` |
+| ტეგები პოსტზე | **4** | **8** | `tagParse.ts` `getMaxTagsPerPost`; DB `20260401351400_post_tags_tier_limit.sql` |
+| დღიური ლიმიტი / ვიდეო / დღე | — | — | **არა** (სამიზნე მომავალში) |
+
+**შემდეგი ნაბიჯი (ფაზა 2):** `project.md` / §24 განახლება რიცხვებით → migration + აპი — ერთ სკოპში.
 
 **შენიშვნა:** **Database Structure (29)** — `supabase/SCHEMA.md`, `verify_schema.sql`; ახალი migration-ის შემდეგ ამ ფაილებიც განაახლე.
+
+#### ბიზნესი / §24 — განვითარების გადაწყვეტილება და რისკების დაზღვევა
+
+**რატომ არის ეს სექცია:** გარე ჩატის ბრეინშტორმი (იდეების სია) **არ არის** პროექტის სპეკი. **ოფიციალური სკოპი ბიზნესისთვის** — მხოლოდ ეს ბლოკი + **`README.md`** (Stripe deploy). ასე ვიცავთ რეპოს ერთიანობას და **ვერ „გავტეხავთ“** უგეგმო ფულოვან ფიჩებს ერთ იტერაციაში.
+
+| ეტაპი | რა | სტატუსი / შენიშვნა |
+|--------|-----|---------------------|
+| **P1 — ფაზა C (ლანჩი)** | **Stripe live** + Edge `stripe-webhook` deploy + Supabase/Stripe secrets + Dashboard webhook + **in-app** Checkout (ან session URL → redirect). პროდუქტული ფოკუსი: **Premium / Creator** გამოწერა — არსებული `premium_until` + უკვე არსებული ტირები (სიგრძე, ვიდეო, ტეგები). | ⬜ **დაგეგმილი რიგით №1** — სანამ P1 არაა სტაბილური, **არ იწყება** P2-ის დიდი ფიჩა. |
+| **P1+ (იმავე ტალღის შემდეგ, ცალკე ქვე-სკოპი)** | ოფციონალური: **creator badge** პროფილზე; **მინიმალური analytics** (საკუთარი პოსტების მეტრიკები) — იმპლემენტაცია მხოლოდ migration/RLS/აპის ერთიანი სკოპით `project.md`-ში. | ⬜ მომავალი — **არა** P1-თან ერთად ერთ უსახელო „ყველაფერი ერთად“ პაკეტში. |
+| **P2 — Growth** | მხოლოდ **P1-ის შემდეგ**: **ერთი** მიმართულება პირველ ტალღაში — **ტიპები (tipping)** **ან** **self-serve boosted / „Promoted“** ლენტში. **არა** ორივე პარალელურად (ორი გადახდის სისტემა + მოდერაციის ორმაგი ტვირთი). Boosted **უნდა** იყოს **ერთ სპეკში** არსებულ **feed top / `ad_slots`** მოდელთან (ადმინის რეკლამა vs გადახდიანი სლოტი — ერთი დოკუმენტირებული წესი, არა ორი ურთიერთდაუკავშირებელი პროდუქტი). | ⬜ |
+| **გადადებული (არა სკოპი სანამ ცალკე არ ჩაიწერება `project.md`-ში)** | B2B ორგანიზაციები, paywall / ექსკლუზიური კონტენტი, ლოკალური ბიზნეს-დირექტორია, გადახდიანი ვერიფიკაცია — მაღალი სკოპი ან ოპერაციული ტვირთი. | **არ იწყება** იმპლემენტაცია გეგმის გარეშე. |
+| **Long tail** (რეფერალი, კოსმეტიკა, ჩელენჯები ფულით, white-label, …) | იდეები — **არა** ავტომატური სპეკი. | მხოლოდ **P1 / P2** დასრულების შემდეგ და ცალკე იტერაციაში. |
+
+**დაზღვევა (რისგან თავი — რომ არ „გავაფუჭოთ“ პროექტი):**
+
+1. **არ ავურიოთ** პარალელურად რამდენიმე დიდი გადახდის/ფულის ფიჩა (checkout + tipping + paywall — სხვადასხვა RLS, თაღლითობა, ჩარჯბექი).
+2. **არა** `profiles` / `posts` / **RLS**-ის ფართო შეცვლა **უმიგრაციოდ**; **არა** `service_role` / Stripe საიდუმლოების გაჟონვა კლიენტში ან კომიტში.
+3. **გარე ჩატის ტექსტი** → კოდი **მხოლოდ** ამ სექციის ან `project.md`-ის სხვა განახლების შემდეგ (იხილე **`.cursor/rules/reziizi.mdc` → პროექტის დაცვა**).
+4. **Feed ხარისხი:** გადახდიანი პრომოცია / სლოტები — **ზღვარი და ლეიბლი** (ორგანული vs Promoted), რომ ორგანული ლენტა არ „ჩანჩალეს“ (პროდუქტული წესი P2-ში, სანამ იქ მივალთ).
 
 ---
 
@@ -162,8 +276,8 @@
 | 1 | **11. Media Upload System** (+ **47. File Storage**) | ✅ baseline | სურათი ან მოკლე ვიდეო პოსტზე (ორი ერთად არა); იხილე §10 / §11 |
 | 2 | **4. Avatar** — `profiles.avatar_url`, bucket `avatars`, Settings upload, feed `PostCard` | ✅ baseline | სურვილისამებრ: სხვა გვერდებზე Avatar |
 | 3 | **42. SEO** — `src/lib/seo.ts`, `RouteSeo`, `index.html` defaults; public routes indexable, auth/admin noindex | ✅ baseline | **Email (45)** password reset — აპი ✅; SMTP/redirect — `README` |
-| 4 | **43. A11Y** — skip link, `#main-content`, brand; **`RouteAnnouncer`** (`aria-live`, `getRouteAnnouncement`) | ✅ baseline | full audit — v3 |
-| 5 | **48. Rate limiting** — DB triggers on `posts` / `comments` / `chat_messages` / `reports` (see `SCHEMA.md`) | ✅ baseline | Edge/API limits — v2 |
+| 4 | **43. A11Y** — skip link, `#main-content`, brand; **`RouteAnnouncer`** (`aria-live`, `getRouteAnnouncement`) | ✅ baseline | სრული audit — **ტალღა 2** |
+| 5 | **48. Rate limiting** — DB triggers on `posts` / `comments` / `chat_messages` / `reports` (see `SCHEMA.md`) | ✅ baseline | Edge/API გლობალური ლიმიტები — **ტალღა 2+** (იხილე §48 Future) |
 | 6 | **44. Localization** — `pages.*` (`en`/`ka`/`ru`), Layout, Settings, SEO, Profile, PostCard, comments, reports, reactions, Legal chrome, Security, **Notifications**, **Messages / Chat**, **Admin** (`pages.admin.*`) | ✅ baseline v3 | Legal article body ინგლისურად; სხვა გვერდები/ტექსტები სურვილისამებრ |
 | 7 | **Account deletion** — Edge `delete-account`, `api/delete-account`, `src/lib/deleteAccount.ts`, Settings UI | ✅ production (დადასტურებული) | Vercel + Supabase; Hobby-ზე იშლება — მძიმე Storage-ისას იხილე `README` troubleshooting |
 | 8 | **5. Friends — mutual follows** (ორმხრივი გამოწერა, UI ინდიკატორი `UserProfilePage`) | ✅ baseline (MVP) | სრული სკოპი **§5**; „მომავალი ტალღა“ იხილე **`#### 🚀 Future`** mutual-ის ქვეშ |
@@ -172,35 +286,57 @@
 | 11 | **Feed tuning (trending)** — `feed_trending_post_ids` recency decay + კომენტარის წონა; flagged პოსტები გარეთ | ✅ **გაშვებულია Supabase-ზე** (დადასტურებული) | `20260401350300_improve_feed_trending_ranking.sql`; `SCHEMA.md` RPC აღწერა |
 | 12 | **Search v2** — `search_post_ids` / `search_profile_ids` (ranking), `search.ts` + UI hint | ✅ **გაშვებულია Supabase-ზე** (დადასტურებული) | `20260401350400_add_search_v2_rpcs.sql`; `registry.ts`, `SCHEMA.md` |
 | 13 | **მოდერაციის ავტომატიზაცია** — N report ერთ პოსტზე → `is_flagged` + `abuse_flags` | ✅ **გაშვებულია Supabase-ზე** (დადასტურებული) | `20260401350500_add_report_threshold_auto_flag.sql`; Admin Moderation hint (`pages.admin.moderation.autoFlagHint`) |
-| 14 | **49. Anti-spam — რედაქტირება** — `body` UPDATE → ხელახალი duplicate/link (INSERT-ის პარიტეტი) | 🔄 **migration რეპოში** — გაშვება Supabase-ზე | `20260401350600_antispam_recheck_on_body_update.sql`; `SCHEMA.md`, `verify_schema.sql` |
+| 14 | **49. Anti-spam — რედაქტირება** — `body` UPDATE → ხელახალი duplicate/link (INSERT-ის პარიტეტი) | ✅ **გაშვებულია Supabase-ზე** (დადასტურებული) | `20260401350600_antispam_recheck_on_body_update.sql`; `SCHEMA.md`, `verify_schema.sql` |
+| 15 | **48. API rate limit** + **§24 Premium** | **API:** ✅ `rateLimitByIp` / `README`; **DB:** `20260401350700` ✅ live; **Stripe live** — ⬜ **მომავალი ფაზა** (ლანჩი) | `stripe-webhook` კოდი რეპოში; Checkout UI — იმავე ფაზაში |
 
 ---
 
-### შემდეგი ფაზა — გეგმის მიმართულება (v3+ / გარე შეჯამება → პროექტთან შესაბამისი)
+### შემდეგი ფაზა — A / B / C (ერთი წყარო: სკოპი, რიგი, „არ ავირიოთ“)
 
-ეს ბლოკი **არ ცვლის** **MASTER FEATURE LIST**-ის ნომრებს და **reziizi.mdc** დამოკიდებულების რიგს — პრაქტიკული **პრიორიტეტი** პატარა გუნდისთვის (ChatGPT roadmap + რეპოს რეალობა). **ახალი ფიჩა:** ჯერ აქ სკოპი/რიგი, მერე SQL/RLS საჭიროებისამებრ, მერე კოდი.
+ეს ბლოკი **არ ცვლის** **MASTER FEATURE LIST**-ის ნომრებს და **reziizi.mdc** დამოკიდებულების რიგს — პრაქტიკული **პრიორიტეტი** პატარა გუნდისთვის. **ახალი ფიჩა:** ჯერ **რომელი ფაზაა (A, B თუ C)** — ქვემოთ სკოპი; მერე `project.md` სხვა ადგილას განახლება საჭიროებისამებრ; მერე SQL/RLS; მერე კოდი.
 
-| ფაზა | რა | შენიშვნა პროექტთან |
-|------|-----|---------------------|
-| **A — სწრაფი ზეგავლენა** | **49 Anti-spam** გაფართოება: არსებული DB rate limits (იხილე §48 / `SCHEMA.md`) + ევრისტიკა (დუბლიკატები, ლინკ-სპამი, საჭიროებისამებრ Edge/RLS). | არა „წინა ფიჩის გადაფარვა“ — უსაფრთხოება + false positive ბალანსი. |
-| **A** | **ნოტიფიკაციები v2:** preference-ები ტიპზე, Realtime/დუბლიკატების პოლიში, unread სინქი ტაბებს შორის. | უკვე არის notifications baseline — ეს **გაუმჯობესება**; effort **S არა ყოველთვის** — DB/UI/Realtime საჭიროებისამებრ **M** შეიძლება იყოს. |
-| **B — საშუალო** | **Feed / trending ხარისხი** — ranking-ის დაზუსტება (რეაქცია, recency, თაღლითის საწინააღმდეგო მარტივი წესები); **§17** / RPC უკვე არსებობს — tuning, არა ზედმეტად сложная ML პირველ ტალღაში. | |
-| **B** | **Search v2** — ranking, UX, full-text polish (`§14`); PostgreSQL უკვე გამოიყენება. | |
-| **B** | **მოდერაციის ავტომატიზაცია** — report threshold → დამალვა/რიგი ადმინში; DB + Edge საჭიროებისამებრ. | **MVP:** `20260401350500` — **3** report იმავე პოსტზე → auto-flag + `abuse_flags` (`report_threshold`); იხილე `SCHEMA.md` |
-| **C — ფუნდამენტი / later** | **Email (45):** **password reset** — ✅ აპი; **ტესტები** — მომავალში (`§45`); **დარჩა:** verification, alerts, SMTP. | Redirect URLs — **`README.md`**. |
-| **C — Bigger bet** | **Premium „რეალური“** — გადახდა, ლიმიტები, ბეიჯი/პერკები. | **ამჟამად:** `premium_until` + ადმინი უკვეა — billing არის **ახალი** სკოპი + migration/პროვაიდერი. |
+#### რას ნიშნავს A vs B vs C (ურთიერთგამომრიცხავი სკოპი)
 
-**გადადება / პროდუქტის არჩევანი (არა „სამუდამო უარი“):** **Legal სრული i18n** — გარე რეკომენდაციამ „დაბალი ROI“ შეიძლება თქვას; პროექტზე ეს **პროდუქტის/რეგიონის** გადაწყვეტაა (ნდობა). **AI მოდერაცია**, **native აპები** — მოგვიანებით.
+| ფაზა | მიზანი ერთი წინადადებით | **შედის სკოპში** | **არ შედის სკოპში** (სხვა ფაზაშია) |
+|------|--------------------------|------------------|-------------------------------------|
+| **A** | უსაფრთხოება / სპამი / ნოტიფიკაციების ქცევა | **§49** Anti-spam გაფართოება (ევრისტიკა, Edge/RLS საჭიროებისამებრ — იხილე **`#### Anti-spam (49)`**); **§12** notifications — preference / Realtime polish **მხოლოდ** თუ აქვს პირდაპირი კავშირი სპამთან/სიასთან (სხვა polish → **ტალღა 2** / §44) | Feed ranking ღრმად; Search UX პაკეტი; Stripe; Email verification; Legal სრული თარგმანი |
+| **B** | ლენტა / ძებნა / მოდერაციის ხარისხი (პროდუქტის „გემო“) | **§17** feed/trending tuning; **§14** search ranking + UX polish; **§19/20** მოდერაცია — ავტომატიზაციის გაძლიერება **MVP-ის გარეთ** (თუ უკვე არ არის დასრულებული — იხილე ქვემოთ „სტატუსი“) | §49 ახალი ტრიგერების დიდი პაკეტი უსაფრთხოების თემაზე (ძირითადად **A**); Stripe live; SMTP production |
+| **C** | ინფრა / ბიზნესი „მოგვიანებით“ | **§45** Email — verification, alerts, custom SMTP; **§24** Premium — Stripe deploy, webhook, **Checkout UI** (`README` → Stripe); ტესტები ფლოუზე, თუ სკოპშია | Anti-spam SQL ძირითადი პაკეტი (**A**); feed algorithm სრული რედიზაინი (**B**) |
 
-**რისგან თავი:** Feed ranking — არ გადაიტვინო; Premium — არ ჩაიტანო сложная billing პირველ დღეს; სპამი — legit users არ დააზიანო.
+**წესი — მომხმარებელი + AI (რომ არ „ვიხტუნავოთ“):**
 
-**რეკომენდებული შესრულების რიგი (იგივე ლოგიკა, პატარა გუნდი):** ფაზა A (Anti-spam → Notifications v2) → ფაზა B (Feed tuning → Search v2 → Moderation automation) → ფაზა C (Email მინიმალური → Premium+billing მოგვიანებით).
+1. **მუშაობის დაწყებამდე** დაასახელე **ერთი** ფაზა: **„ვმუშაობთ A-ზე“** / **„B-ზე“** / **„C-ზე“** (ან **ტალღა 2** polish — იხილე **`## CURRENT WORK` → ტალღები**).
+2. **A-ს სკოპში** არ ითხოვება და არ იწერება იმპლემენტაცია, რაც **მხოლობით** B-ის ან C-ის ცხრილშია (მაგ. A-ზე მუშაობისას **არ** იწყება Stripe Checkout ან feed ML).
+3. **B-ს სკოპში** არ გადაიტანო სრულად **§49** ახალი მიგრაციის დიდი პაკეტი უსაფრთხოების თემაზე — ეს **თანხმობის შემთხვევაში** **A** ან ცალკე იტერაცია **`project.md`-ში**.
+4. **C-ს სკოპში** ფოკუსი **Email / Stripe / billing** — არა ახალი anti-spam ტრიგერების პაკეტი (**A**).
+5. **დაბნეულობისას** — უპირველესად **`## CURRENT WORK`** და **`#### Anti-spam (49)`**, არა მხოლოდ ეს ცხრილი.
+
+#### ფაზა A / B / C — რა დასრულებულია vs რა კვლავ **გახსნილი** (სინქი ამ ეტაპზე)
+
+| ფაზა | დაგეგმილი ხაზი | სტატუსი | შენიშვნა |
+|------|----------------|----------|----------|
+| **A** | Anti-spam MVP (SQL + აპი + რედაქტირება) | ✅ **baseline დასრულებული** | იხილე **შემდეგი განვითარების გეგმა** ცხრილი, `JOURNAL.md`; **გაფართოება** კვლავ **A სკოპი** |
+| **A** | ნოტიფიკაციები v2 (preference, unread სინქი) | ✅ **baseline დასრულებული** | migration `20260401350200` — იხილე CURRENT WORK |
+| **A** | Anti-spam დამატებითი ევრისტიკა / Edge | 🔄 **გახსნილი სურვილისამებრ** | არა სავალდებულო baseline-ისთვის; სკოპი **მხოლოდ** **`#### Anti-spam (49)`** + ეს ცხრილი |
+| **B** | Feed tuning (trending RPC) | ✅ **გაშვებულია** | `20260401350300` |
+| **B** | Search v2 RPC + UI | ✅ **გაშვებულია** | `20260401350400` |
+| **B** | მოდერაცია auto-flag (N report) | ✅ **გაშვებულია** | `20260401350500` |
+| **B** | Ranking / Search **UX polish** (სრული ტექსტი, ჰინტები, §14 Future) | 🔄 **ნაწილობრივ** — `/search` ინტრო (არა `q`); ერთიანი ცარიელი შედეგი (0 პოსტი + 0 პროფილი) | დარჩენილი polish სურვილისამებრ |
+| **C** | Password reset MVP | ✅ **აპი** | §45 |
+| **C** | Stripe live + Checkout UI | ⬜ **არა გაკეთებული** (დაგეგმილი **C**) | კოდი `stripe-webhook` რეპოში; deploy/keys — `README` |
+| **C** | Email verification / SMTP / alerts | ⬜ **მომავალი** | **C სკოპი** |
+
+**გადადება / პროდუქტის არჩევანი (არა A/B/C-ის ნაწილი, არამედ ტალგა 2+):** **Legal სრული i18n** — პროდუქტის გადაწყვეტა. **AI მოდერაცია**, **native აპები** — §50 / ტალღა 4+.
+
+**რისგან თავი:** Feed ranking — არ გადაიტვინო ერთ იტერაციაში; Premium — არ ჩაიტანო сложная billing სანამ **C** არ დაგეგმი; სპამი — legit users არ დააზიანო (**A** პრინციპი).
+
+**რეკომენდებული რიგი (თუ ყველაფერი გახსნილია ერთდროულად არა):** ჯერ დასრულებული baseline-ის შემოწმება ზემოთ ცხრილში → შემდეგ **გახსნილი** ხაზების მიხედვით: **A** (სპამის გაფართოება, თუ პრიორიტეტი) → **B** (UX polish) → **C** (Stripe / Email). **არა** ფიქსირებული კალენდარი — პრიორიტეტი გუნდის გადაწყვეტილებაა, მაგრამ **სკოპი** რჩება ზემოთ ცხრილის მიხედვით.
 
 ---
 
 #### Anti-spam (**49**) — სპეკი და იმპლემენტაცია (ერთი წყარო)
 
-**სტატუსი:** 🔄 იმპლემენტაცია — დეტალი **მხოლოდ აქ**; **§49 FEATURE BREAKDOWN** ქვემოთ მხოლოდ მიმართებაა (არ ვაკოპირებთ ცხრილს).
+**სტატუსი:** ✅ **MVP baseline** დასრულებული (SQL + აპი — იხილე **CURRENT WORK**); **გაფართოება** — 🔄 სურვილისამებრ, სკოპი **ფაზა A** + ეს სექცია. დეტალი **მხოლოდ აქ**; **§49 FEATURE BREAKDOWN** ქვემოთ მხოლოდ მიმართებაა (არ ვაკოპირებთ ცხრილს).
 
 **პრინციპი:** არსებულ **rate limits (48)** ზედ (`20260401310000_add_rate_limit_triggers.sql`, `SCHEMA.md`) — ევრისტიკა + რბილი დროშები; **არა** AI/CAPTCHA/fingerprint/ავტომატური სამუდამო ბანი MVP-ში. **Edge** მოგვიანებით; **არა** ტრიგერიდან Edge პირდაპირ (pg_net-ის გარეშე).
 
@@ -218,7 +354,7 @@
 
 | თემა | მნიშვნელობა |
 |------|----------------|
-| დუბლიკატის ფანჯარა | **5 წუთი** (3–5 დიაპაზონიდან); ტექსტი ნორმალიზებული (trim, lower, collapse whitespace). |
+| დუბლიკატის ფანჯარა | **7 წუთი** (3–10 დიაპაზონიდან — იხილე `20260401351100`); ტექსტი ნორმალიზებული (trim, lower, collapse whitespace). |
 | Soft hide feed | საჯარო feed / trending / სიები სხვებისთვის: **`is_flagged = true` არ ჩანს**; ავტორი ხედავს **საკუთარ პროფილში** / თავის პოსტებში (იმპლემენტაციაში დაიზუსტება query-ებით). |
 | ლინკის ათვლა | მინიმუმ `http://`, `https://`; სურვილისამებრ `www.` უსქემოდ — ერთი regex იმპლემენტაციაში. |
 | Approve (ადმინი) | `is_flagged = false`, `spam_score = 0`; `abuse_flags` ჩანაწერები იგივე საგანზე — წაშლა ან დატოვება audit-ისთვის (აირჩიე migration-ში ერთი). |
@@ -231,11 +367,26 @@
 | 1 | `abuse_flags` სქემა — FK vs polymorphic | FK ცალკე ველებით (`post_id`, `comment_id`, ოფციონალური `message_id`) — nullable; ერთ ჩანაწერში ერთი შევსებული | polymorphic მოქნილია, მაგრამ რთულდება RLS და join-ები; FK უფრო უსაფრთხოა MVP-ში |
 | 2 | `is_flagged` / `spam_score` სად | `posts` და `comments`: `is_flagged` boolean, `spam_score` int default 0 | ზედმეტად აგრესიული → legit პოსტები დაიმალება; რბილი → სპამი დარჩება feed-ში |
 | 3 | მხოლოდ posts+comments თუ chat-იც | პირველ ტალღაში: **posts + comments**; chat → მხოლოდ არსებული rate-limit | chat-ის სრული anti-spam ახლავე ზრდის false positives-ს |
-| 4 | დუბლიკატის დროის ფანჯარა (წუთებში) | **5 წთ** იგივე ტექსტისთვის იგივე user-ზე (ნორმალიზებული ტექსტი); იხილე „იმპლემენტაციის default-ები“ | ძალიან მოკლე → spam გაეპარება; ძალიან გრძელი → legit პოსტები/რედაქტი დაიბლოკება |
+| 4 | დუბლიკატის დროის ფანჯარა (წუთებში) | **7 წთ** იგივე ტექსტისთვის იგივე user-ზე (ნორმალიზებული ტექსტი); იხილე „იმპლემენტაციის default-ები“ + `20260401351100` | ძალიან მოკლე → spam გაეპარება; ძალიან გრძელი → legit პოსტები/რედაქტი დაიბლოკება |
 | 5 | ლინკების მაქს. რაოდენობა | **max 2** link / post, comment-ში **max 1** | მკაცრი ლიმიტი → legit promo/content დაზარალდება; რბილი → link spam გაიზრდება |
 | 6 | ავტორს ჩანს თუ არა დროში | ჩანს **საკუთარ პროფილში**; feed-ში შესაძლოა არ გამოჩნდეს (soft hide) | საერთოდ არ ჩანს → confusion; ყველგან ჩანს → spam ეფექტი არ მცირდება |
 | 7 | ადმინის მინიმალური UI | Admin: filter `is_flagged=true`, sort `spam_score` desc; სწრაფი მოქმედებები: approve / delete / ban user (რაც უკვე არსებობს + ახალი ველების მიბმა) | სუსტი UI → bottleneck; ზედმეტად რთული → ზედმეტი dev დრო |
 | 8 | ლოკალიზაცია | `en` / `ka` / `ru` — `messages.ts` (ახალი სტრინგები სამივე ლოკალში) | — |
+
+**სხვების გამოცდილება (მოკლე რეფერენსი — არა „ერთი სიმბოლო“)**  
+პლატფორმები ხშირად **რამდენიმე შრეს** იყენებენ: rate limit + ევრისტიკა + (საჭიროებისას) მოდერაცია/სკორი. დუბლიკატისთვის ტიპურია **დროის ფანჯარა 3–10 წთ** და **ნორმალიზებული ტექსტის** შედარება; მოკლე ტექსტზე **მკაცრი „იგივეა“** ხშირად იწვევს false positive-ს — ამიტომ ბევრი სისტემა **მინ. სიგრძეს** აყენებს მხოლოდ იმ ევრისტიკისთვის, რომელიც „იგივე კონტენტს“ ეძებს (არა იგივეა, რაც „მინიმალური ხარისხის“ ზღვარი პოსტისთვის — მაგ. Q&A საიტებზე ხშირად სხვა რიცხვია „მოკლე პასუხის“ ფილტრისთვის). **რბილი დროშა** (ჩვენთან `is_flagged` + feed-იდან დამალვა) + მეტრიკა false positive-ებზე — უფრო მდგრადია, ვიდრე ერთი პარამეტრით „ყველაფრის“ აკრძალვა.
+
+**პროდუქტის გადაწყვეტილება — შეავსე ცხრილი (რა ქცევა გინდა)**  
+სვეტი **«რა გინდა»** — შენი პირდაპირი ფორმულირება; განახლებისას აქვე განაახლე **«ახლა რეპოში»** (ან მიუთითე migration).
+
+| პარამეტრი / ქცევა | რა გინდა (შეავსე) | სხვების ტიპიური დიაპაზონი | ახლა რეპოში |
+|-------------------|-------------------|-----------------------------|--------------|
+| დუბლიკატის დროის ფანჯარა (იგივე user, იგივე ნორმ. ტექსტი) | უფრო ფართო ფანჯარა (7 წთ), ვიდრე 5 წთ — იგივე ტექსტის სპამ-გამეორება უფრო დიდხანს იჭერა | 3–10 წთ | **7 წთ** (`20260401351100_antispam_tune_window_7_min_len_15.sql`) |
+| დუბლიკატის ევრისტიკა — მინ. ნორმ. `body` სიგრძე (მოკლე ტექსტი არ ითვლება დუბლიკატად) | მინ. 15 სიმბოლო — უფრო ნაკლები false positive მოკლე ფრაზებზე | ხშირად 10–20 სიმბოლო იმავე ტიპის წესისთვის | **≥ 15** (`20260401351100_antispam_tune_window_7_min_len_15.sql`; წინა ეტაპი: `20260401351000` → 12) |
+| ლინკების ლიმიტი post / comment | | ხშირად 1–3 / 0–2 | სპეკში: post **max 2**, comment **max 1** — დაადასტურე ტრიგერით `SCHEMA.md` |
+| დროშის შედეგი (spam) | | რბილი დროშა vs სრული ბლოკი | **რბილი** — `is_flagged`, feed query-ები |
+| ავტორს UI შემდეგ დროშაზე | | toast / ტექსტი ლოკალიზაციით | toast + `messages.ts` (`flaggedAfterPost` / `flaggedAfterComment`) |
+| პრიორიტეტი false positive vs მეტი სპამის დაჭერა | false positive-ზე ორიენტაცია (რბილი დროშა, უფრო გრძელი მინ. სიგრძე დუბლიკატისთვის) | საზოგადოებრივი სერვისები ხშირად ამბობენ: ნდობა > მაქს. catch | იხილე ზემოთ პარამეტრები |
 
 **Migration / იმპლემენტაციის ნაბიჯები (checklist)**
 
@@ -249,6 +400,7 @@
 7. ინდექსები (`user_id`, `created_at`, საჭიროებისამებრ).
 8. client — UI / ფილტრები / `messages.ts`.
 9. **გაფართოება (რედაქტირება):** `20260401350600_antispam_recheck_on_body_update.sql` — `body` UPDATE-ზე იგივე ევრისტიკა + `abuse_flags` AFTER UPDATE (იხილე `SCHEMA.md`).
+10. **ტუნინგი (ფაზა A):** `20260401351100_antispam_tune_window_7_min_len_15.sql` — duplicate ფანჯარა **7 წთ**, `spam_duplicate_eligible` **≥ 15** (იხილე „პროდუქტის გადაწყვეტილება“ ცხრილი).
 
 **Appendix — external AI (optional):** სხვა ჩატში დასაკოპირებლად — **ინგლისური** ჩარჩო (სტეკი/რეპო არ დაირღვეს). სრული სპეკი anti-spam-ისთვის **ამავე სექციაა**, დამატებითი ქართული პრომპტი არ ვაკოპირებთ — იყო git ისტორიაში.
 
@@ -473,7 +625,7 @@ UI:
 
 ---
 
-### 4. Avatar System 🟡
+### 4. Avatar System ✅ (baseline)
 
 #### 📌 Description
 User profile image system.
@@ -525,7 +677,7 @@ UI:
 
 ---
 
-### 5. Friends / Following System 🟡 — baseline (follow / counts / `/u/:userId`)
+### 5. Friends / Following System ✅ — baseline (follow / counts / `/u/:userId`)
 
 #### 📌 Description
 Users can follow other users; follower and following counts are visible on profiles.
@@ -788,7 +940,7 @@ Notes:
 
 ---
 
-### 10. Video System 🟡 — baseline (MP4/WebM, no transcoding)
+### 10. Video System ✅ — baseline (MP4/WebM, no transcoding)
 
 > **ტერმინი „v2+“ აქ** = **post–v2 / შემდეგი ტალღა** (არა „ოფიციალური v2 milestone“ — v2 core baseline უკვე დასრულებულია ვიდეოს გარეშე).
 
@@ -833,7 +985,7 @@ Backend:
 
 ---
 
-### 11. Media Upload System 🟡 — სრული breakdown (baseline: სურათი ან ვიდეო პოსტზე ✅)
+### 11. Media Upload System ✅ — სრული breakdown (baseline: სურათი ან ვიდეო პოსტზე)
 
 > **დამოკიდებულება:** **47. File Storage System** — Supabase Storage bucket(ები), პოლიტიკები (public read ან signed URL), ფაილის ზომის/ტიპის ლიმიტები. **10. Video System** — მოკლე ვიდეო (MP4/WebM) **ან** სურათი ერთ პოსტზე (ორი ერთად არა); იხილე §10. **4. Avatar System** — ცალკე bucket `avatars`.
 
@@ -1077,7 +1229,7 @@ users, posts
 #### 🧱 Implementation (14. Search)
 
 Frontend:
-- `SearchPage` `/search`; `src/lib/search.ts` — `search_post_ids` / `search_profile_ids` RPC (ordered ids → `fetchFeedPostsByIdsOrdered` / profile `select` by id); `pages.search.rankingHint`
+- `SearchPage` `/search`; `src/lib/search.ts` — `search_post_ids` / `search_profile_ids` RPC (ordered ids → `fetchFeedPostsByIdsOrdered` / profile `select` by id); `pages.search.rankingHint`; **`introHint`** (არა `q`); **`noResultsAny`** (ორივე სია ცარიელი); შედეგების რეგიონი `#search-results` — ძიების დასრულების შემდეგ `scrollIntoView` (`prefers-reduced-motion` → `auto`) + ფოკუსი (`resultsRegionLabel`); **`seo.ts`:** `?q=` (2+ სიმბოლო) — დინამიკური title/description, canonical/og:url query-ით; `RouteSeo` / `RouteAnnouncer` — `location.search`
 
 Backend:
 - **Search v2 (migration `20260401350400_add_search_v2_rpcs.sql`):** GIN index `to_tsvector('simple', body)`; `search_post_ids` — FTS + `ts_rank_cd`, ILIKE fallback, `not is_flagged`; `search_profile_ids` — email ILIKE, exact/prefix/substring order, `searchable` or viewer self
@@ -1090,7 +1242,31 @@ Notes:
 ### 15. Categories / Tags ✅ (v2 baseline)
 
 #### 📌 Description
-Organize posts with tags.
+Organize posts with **tags** (slug-ები DB-ში); ფიდის ფილტრი `?tag=`; trending/tag feed RPC.
+
+---
+
+#### პროდუქტის გადაწყვეტილება — „ჰეშტეგი“ `body`-ში vs ცალკე ველი (ერთიანი სპეკი, 2026)
+
+**მიმდინარე და განზოგადებული MVP:** **ვარიანტი B — მხოლოდ ცალკე ველი** (`PostForm` → „Tags“). **`posts.body` ტექსტიდან `#tag` ავტომატურად არ იკითხება** — არც პარსერი, არც სინქი `post_tags`-თან body-დან.
+
+| ვარიანტი | აღწერა | სტატუსი REZIIZI-ში |
+|----------|--------|---------------------|
+| **A** | მხოლოდ body-დან `#` ტეგები; ცალკე ველი ამოღებული | ❌ არა |
+| **B** | მხოლოდ ცალკე ველი — `parseTagsFromInput` / `slugifyTag` | ✅ **აქტიური** |
+| **C** | body `#` + ველი, გაერთიანება dedup, კაპი ტირით | ⬜ გადადებული |
+| **D** | body წყარო; `post_tags` სერვერზე insert/update | ⬜ გადადებული |
+
+**რატომ არა A/C/D ახლა (შეჯამება):**
+- **i18n / slug:** `slugifyTag` — მხოლოდ `[a-z0-9-]`; ქართული/CJK `#ტექსტი` body-დან „ჩუმად“ ქრება — ცალკე ველზე მომხმარებელი ხედავს რას იღებს ლათინური slug-ით.
+- **სპამი / მოდერაცია:** ფარული ტეგები გრძელ body-ში; tag stuffing — Twitter-ის კლასის ზედაპირი.
+- **ტექნიკური სირთულე:** URL-ში `#fragment` (მაგ. `page#section`) — body პარსერი ადვილად იღებს ცრუ ტეგს; საჭიროა სერვერული ვალიდაცია, რედაქტირებისას `post_tags` diff, კოდის ბლოკები — MVP-ს გარეთ.
+
+**როდის გადავხედოთ body `#`:** მხოლოდ როცა **ანალიტიკა/ფიდბექი** აჩვენებს, რომ მომხმარებლები რეალურად წერენ `#...` body-ში და ელიან ქცევას — არა ინტუიციით.
+
+**Polish (იგივე არქიტექტურა):** კომპოზერში **ცოცხალი გადახედვა** — როგორი slug-ები შეინახება (submit-მდე); ცარიელი slug-ის შემთხვევაში — გაფრთხილება არა-ლათინური სიმბოლოების შესახებ — ✅ **`PostForm`** (`tagsPreviewLabel` / `tagsPreviewInvalid`).
+
+**ზღვარი / edge (დოკუმენტირებული):** URL `#`; `###` markdown; body+ველი იგივე slug → dedup; **კაპი ტირით:** უფასო **4** / პრემიუმი ან ადმინი **8** (`getMaxTagsPerPost`, DB trigger `post_tags_enforce_tier_limit`); ზედმეტი ტეგი ველში — ჩუმად მოჭრა `parseTagsFromInput`-ით (max ტირის მიხედვით).
 
 ---
 
@@ -1106,17 +1282,17 @@ Organize posts with tags.
 ---
 
 #### ⚙️ Logic
-- post has tags
+- post has tags (via `post_tags`; not extracted from body)
 
 ---
 
-#### 🗄️ Database (planned)
-tags table
+#### 🗄️ Database
+- `tags`, `post_tags` — იხილე `SCHEMA.md`; migration `20260401150000_add_tags.sql`
 
 ---
 
 #### 🛠️ Notes
-- later feature
+- Body hashtag parsing — იხილე ზემოთ „პროდუქტის გადაწყვეტილება“.
 
 ---
 
@@ -1129,7 +1305,7 @@ Backend:
 - `tags`, `post_tags`, RLS; `feed_post_ids_by_tag` RPC; migration `20260401150000_add_tags.sql`
 
 Notes:
-- apply SQL in Supabase (RPC + tables)
+- SQL გაშვებული უნდა იყოს Supabase-ზე (RPC + ცხრილები).
 
 ---
 
@@ -1551,7 +1727,7 @@ Backend:
 - migration `20260401240000_add_premium_monetization.sql` — trigger, `admin_set_user_premium_until`
 
 Notes:
-- გადახდის პროვაიდერი (Stripe და სხვ.) — მომდევნო ეტაპი
+- **Stripe (billing):** რეპოში არის `supabase/functions/stripe-webhook`; migration `20260401350700` — **live** (service_role → `premium_until`). **რეალური Stripe** (deploy, secrets, webhook URL, Checkout) — **არა სავალდებულო** სანამ საიტი ლანჩზე არ გადავა — იხილე **`README.md` → „Stripe Premium“**. In-app Checkout — იმავე ფაზაში ან მოგვიანებით.
 
 ---
 
@@ -1808,7 +1984,7 @@ Notes:
 
 ---
 
-### 30. Caching System 🟡
+### 30. Caching System ✅ (v3 baseline)
 
 #### 📌 Description
 Client-side **query cache** — fewer redundant Supabase reads, shared data across routes.
@@ -1862,7 +2038,7 @@ Notes:
 
 ---
 
-### 31. Logging System 🟡
+### 31. Logging System ✅ (v3 baseline)
 
 #### 📌 Description
 Centralized client logging instead of ad-hoc `console.*`.
@@ -1913,7 +2089,7 @@ Notes:
 
 ---
 
-### 32. Error Handling System 🟡
+### 32. Error Handling System ✅ (v3 baseline)
 
 #### 📌 Description
 Consistent user-facing messages and predictable handling for Supabase/JS failures.
@@ -1973,22 +2149,31 @@ Notes:
 ### 33. UI Design System ✅ (v1 baseline)
 
 #### 📌 Description
-Design consistency.
+Design consistency — ერთი `styles.css`, განმეორებადი კლასები (`.card`, `.card__title`, `.post-card`, …), ერთი ვიზუალური ენა; **არა** ცალკე Figma-სპეკი — დეტალები **`## CURRENT WORK`** (Home polish, Profile roadmap, ფაზა E).
 
 ---
 
 #### ✅ v1 (MVP)
-- basic styles
+- basic styles (`src/styles.css`)
 
 ---
 
-#### 🚀 Future (v2+)
-- design system
+#### ✅ v3+ (რეალური სტატუსი — სინქი სპეკთან)
+- **Theme (§34)**-თან დაკავშირებული CSS ცვლადები (`html[data-theme]`), მუქი/ღია რეჟიმი
+- **პოლიში:** `home-feed-toolbar` / `home-composer`, sticky ლენტის ზოლი, პოსტის ბარათები; **`.card__title`** ერთიანი სტილი მრავალ გვერდზე (იხილე CURRENT WORK → Home feed UI, Profile UX ფაზა E)
+- **i18n-მზადი UI** — სტრინგები `messages.ts` / `t()` (§44); ახალი ეკრანები იგივე პატერნში
+
+---
+
+#### 🚀 Future (ტალღა 2+ — გაფართოება, არა baseline-ის პირობა)
+- ფაზა **E** დასრულება: სრული საიტის §33 audit (ტიპოგრაფია, სივრცეები, ყველა მარშრუტი)
+- სურვილისამებრ: უფრო ფორმალური **დიზაინ-ტოკენები** (spacing scale, კომპონენტების ცხრილი) — არსებულ CSS-ზე დაყრდნობით, არქიტექტურის გადაწერის გარეშე
+- optional: Storybook / კომპონენტების კატალოგი
 
 ---
 
 #### ⚙️ Logic
-- reusable components
+- reusable components; ერთი გლობალური სტილი + React კომპონენტები
 
 ---
 
@@ -1998,20 +2183,20 @@ Design consistency.
 ---
 
 #### 🛠️ Notes
-- simple UI first
+- simple UI first; **ტალღა 1** = მინიმალური მაგრამ **გაფართოებადი**; **ტალღა 2** = დახვეწა იდეების ჩამატება **`project.md`-ის გარეშე არა** (იხილე **`## CURRENT WORK` → „ტალგები“**)
 
 ---
 
 #### 🧱 Implementation (33. UI Design System)
 
 Frontend:
-- basic styles (CSS)
+- `src/styles.css` — ძირითადი UI; კომპონენტები `src/components/`, გვერდები `src/pages/`
 
 Files:
-- /src/styles.css
+- `src/styles.css`
 
 Notes:
-- minimal design
+- minimal design; სრული ჩამონათვალი polish — CURRENT WORK + Profile UX ცხრილი (ფაზა E)
 
 ---
 
@@ -2027,23 +2212,30 @@ Light/Dark mode.
 
 ---
 
-#### 🚀 Future (v2+)
-- theme switch
+#### ✅ v2 (baseline — სინქი)
+- `ThemeProvider` / `useTheme`; `ThemePreferenceControls`; CSS vars + `html[data-theme="light"|"dark"]`; `index.html` inline script (FOUC-ის თავიდან აცილება)
+- preference: **`localStorage`** (სერვერზე სინქი არა — საკმარისი MVP/v3 baseline-ისთვის)
+
+---
+
+#### 🚀 Future (ტალღა 2+)
+- სურვილისამებრ: `profiles`-ში თემის შენახვა (Auth-თან) — მრავალი მოწყობილობა
+- optional: სისტემის თემასთან სრული სინქი / დამატებითი პალიტრები
 
 ---
 
 #### ⚙️ Logic
-- toggle theme
+- toggle theme; `matchMedia` სისტემის ცვლილებაზე
 
 ---
 
 #### 🗄️ Database (planned)
-user preference
+user preference (optional Future)
 
 ---
 
 #### 🛠️ Notes
-- later
+- v2 baseline ლოკალური პარამეტრით დასრულებულია; სერვერული პარამეტრი — მომავალი ტალღა
 
 ---
 
@@ -2053,7 +2245,7 @@ Frontend:
 - `ThemeProvider` / `useTheme`; `ThemePreferenceControls`; CSS vars + `html[data-theme="light"]`; `index.html` inline script
 
 Backend:
-- none (preference `localStorage` only)
+- none (preference `localStorage` only — baseline)
 
 Notes:
 - system preference updates via `matchMedia`
@@ -2068,17 +2260,25 @@ Mobile-friendly UI.
 ---
 
 #### ✅ v1 (MVP)
-- responsive layout
+- responsive layout (`@media`, fluid width, touch-friendly სადაც უკვე გაკეთებულია)
 
 ---
 
-#### 🚀 Future (v2+)
-- optimize mobile UX
+#### ✅ v3+ (რეალური სტატუსი — სინქი)
+- **პროფილი:** `profile-tabs` ტაბები თანაბარი სიგანით (`max-width: 600px` ზონაში)
+- **Legal / Security:** `legal-page__nav` — `min-height` / `inline-flex` touch-ისთვის
+- **ლენტა:** sticky toolbar + `safe-area` / `feed__more` min-width — ფაზა E ფოკუსი (იხილე CURRENT WORK)
+
+---
+
+#### 🚀 Future (ტალღა 2+)
+- სრული მობილური audit ყველა მარშრუტზე (ადმინი, ჩატი, ძებნა)
+- optional: PWA, უფრო აგრესიული perf (virtualized lists — §36-თან ერთად)
 
 ---
 
 #### ⚙️ Logic
-- CSS responsive
+- CSS responsive; იგივე HTML სტრუქტურა მობილურზე და დესკტოპზე სადაც შესაძლებელია
 
 ---
 
@@ -2088,21 +2288,21 @@ Mobile-friendly UI.
 ---
 
 #### 🛠️ Notes
-- important
+- მობილური პირველობა პროფილის roadmap-ში; დანარჩენი — **ტალღა 2**
 
 ---
 
 #### 🧱 Implementation (35. Mobile Responsiveness)
 
 Frontend:
-- responsive CSS
+- `src/styles.css` — responsive წესები; კომპონენტების კლასები
 
 Notes:
-- mobile friendly layout
+- mobile friendly layout; სრული audit — CURRENT WORK → ფაზა E / Future
 
 ---
 
-### 36. Performance Optimization 🟡
+### 36. Performance Optimization ✅ (v3 baseline)
 
 #### 📌 Description
 Improve speed — **v3 baseline:** smaller initial JS by **lazy-loading** heavy routes (admin, messages, chat thread, notifications).
@@ -2117,7 +2317,7 @@ Improve speed — **v3 baseline:** smaller initial JS by **lazy-loading** heavy 
 #### ✅ v3 (baseline — partial)
 - `src/lazy/chunks.ts` — `React.lazy` for admin pages, `MessagesPage`, `ChatThreadPage`, `NotificationsPage`
 - `src/components/RouteFallback.tsx` — Suspense fallback
-- `App.tsx` — `<Suspense>` around `<Routes>`
+- `App.tsx` — `<Suspense>` around `<Routes>`; catch-all `*` → **`NotFoundPage`** (არა ჩუმად `Navigate` `/`-ზე); **`seo.routes.notFound`** — `noindex`
 
 ---
 
@@ -2154,7 +2354,7 @@ Notes:
 
 ---
 
-### 37. Deployment System 🟡
+### 37. Deployment System ✅ (v3 baseline)
 
 #### 📌 Description
 Host the SPA online with correct routing and secrets.
@@ -2341,7 +2541,7 @@ Notes:
 
 ---
 
-### 41. Testing System 🟡
+### 41. Testing System ✅ (v3 baseline)
 
 #### 📌 Description
 Automated checks for pure logic and UI primitives.
@@ -2393,7 +2593,7 @@ Notes:
 
 ---
 
-### 42. SEO Optimization 🟡
+### 42. SEO Optimization ✅ (v3 baseline)
 
 #### 📌 Description
 Improve search engine visibility.
@@ -2437,7 +2637,7 @@ Notes:
 
 ---
 
-### 43. Accessibility (A11Y) 🟡
+### 43. Accessibility (A11Y) ✅ (v3 baseline)
 
 #### 📌 Description
 Make app usable for all users.
@@ -2484,7 +2684,7 @@ Notes:
 
 ---
 
-### 44. Localization (Languages) 🟡
+### 44. Localization (Languages) ✅ (v3 baseline)
 
 #### 📌 Description
 Support multiple languages.
@@ -2533,7 +2733,7 @@ Notes:
 
 ---
 
-### 45. Email System 🔄
+### 45. Email System ✅ (password reset MVP) / 🔄 (verification, alerts, SMTP — Future)
 
 #### 📌 Description
 Transactional email via **Supabase Auth** (and optional custom SMTP). **MVP:** password recovery. **Later:** email verification, critical alerts — **არა** მარკეტინგული ეკოსისტემა მალე.
@@ -2675,7 +2875,7 @@ Notes:
 
 ---
 
-### 48. Rate Limiting System 🟡
+### 48. Rate Limiting System ✅ (v3 baseline)
 
 #### 📌 Description
 Prevent spam requests.
@@ -2715,13 +2915,14 @@ Frontend:
 
 Backend:
 - `posts` / `comments` / `chat_messages` / `reports` triggers
+- **Vercel API (partial):** `POST /api/delete-account` — IP window rate limit (`api/lib/rateLimitByIp.ts`); env `DELETE_ACCOUNT_RATE_LIMIT_*` — იხილე **`README.md`**
 
 Notes:
-- MVP baseline
+- MVP baseline (DB); Edge/API layer expanded for account deletion; global hard limits → Redis/WAF მომავალში
 
 ---
 
-### 49. Anti-Spam System 🔄
+### 49. Anti-Spam System ✅ (MVP baseline) / 🔄 (გაფართოება — `CURRENT WORK` → Anti-spam (49))
 
 #### 📌 Description
 Spam ევრისტიკა + რბილი დროშები; არსებულ rate limits-ზე დამატება.
@@ -2746,10 +2947,10 @@ Spam ევრისტიკა + რბილი დროშები; არ
 
 ---
 
-### 50. Future Features ❌
+### 50. Future Features — (კატეგორია / იდეების სათავე; არა ერთი ფიჩა)
 
 #### 📌 Description
-Ideas for future expansion.
+Ideas for future expansion — ახალი ფიჩა ჯერ **`project.md`**-ში (სკოპი), მერე კოდი.
 
 ---
 

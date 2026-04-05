@@ -1,5 +1,5 @@
 ---
-description: REZIIZI — ენა, v1/v2 რიგი, migrations თანმიმდევრობა, იმპლემენტაციამდე შემოწმება
+description: REZIIZI — ენა, v1/v2 რიგი, migrations, პროექტის დაცვა, გარე ჩატი vs Cursor, იმპლემენტაციამდე შემოწმება
 alwaysApply: true
 ---
 
@@ -10,6 +10,20 @@ alwaysApply: true
 - **მე ვარ პროგრამისტი** — არ ვეძებ ყოველთვის ყველაზე „ადვილ“ ან სწრაფ მარტივ გამოსავალს, თუ ის ხარისხს ან სტრუქტურას აზიანებს.
 - **დალაგებული სტრუქტურა:** ფაილებისა და ფოლდერების ლოგიკური მოწყობა; კოდი წაკითხვადი და მხარდაჭერადი.
 - **ხარისხი:** ვისწრაფი საუკეთესო შესაძლებელ ვერსიას — არა მხოლოდ „იმუშავებს“, არამედ გრძელვადიანად სანდო.
+
+## პროექტის დაცვა — არ „გავაფუჭოთ“ / არ „გავტეხოთ“ REZIIZI
+
+**რას ნიშნავს:** ცვლილება **არ უნდა** იყოს უგეგმო, ზედმეტად ფართო ერთ იტერაციაში, ან **არსებული ფუნდამენტის** (Auth, RLS, migrations რიგი, `project.md`-ში დადასტურებული სკოპი) უგულებელყოფა. სამიზნე: **არ გავაკეთოთ** ისეთი რეფაქტორი ან ახალი ფიჩა, რომელიც არღვევს სამუშაო აპს, უსაფრთხოებას ან დოკუმენტირებულ რიგს.
+
+**ღონისძიებები (AI და ადამიანი):**
+
+1. **წყარო:** ახალი ფიჩა ან სკოპის შეცვლა — **ჯერ `project.md`** (**`## CURRENT WORK`**, საჭიროებისამებრ **ბიზნესი / §24** ან სხვა სექცია), **მერე** SQL/RLS საჭიროებისამებრ, **მერე** კოდი — იგივე რიგი რაც „იმპლემენტაციამდე“ ქვემოთ.
+2. **ერთი დიდი ფიჩა = ერთი ლოგიკური სკოპი და ცვლილებათა კონტროლი** — არ ავურიოთ პარალელურად რამდენიმე **გადახდის** ან **მოდერაციის** დიდ ფენას (მაგ. Stripe Checkout + tipping + paywall) ერთ „ჩუმ“ სესიაში.
+3. **გარე ჩატის იდეები** (ბრეინშტორმი) **არ იჭრება** სპეკად — სანამ **`project.md`-ში** არ ჩაიწერება ან არ დაგეგმი სკოპი; კოდი მხოლოდ ამის შემდეგ.
+4. **ბიზნესი / Stripe:** ოფიციალური რიგი — **`project.md` → `#### ბიზნესი / §24 — განვითარების გადაწყვეტილება`**; secrets **არასოდეს** კომიტში / ჩატში სრული გასაღებით.
+5. **დადასტურება:** `npm test` / `npm run build` სადაც პროექტის სტანდარტია; production migration — არ დავტოვოთ რეპო და DB განსხვავებული უხსნელოდ.
+
+**შენიშვნა:** ეს სექცია **არ ნიშნავს** „ცვლილება აკრძალებულია“ — ნიშნავს **გონივრულ რიგს და სკოპს**, რომ პროექტი დარჩეს მხარდაჭერადი და უსაფრთხო.
 
 ## ენა
 
@@ -85,6 +99,14 @@ alwaysApply: true
 | 28 | `20260401350400_add_search_v2_rpcs.sql` — Search v2: `search_post_ids`, `search_profile_ids`, GIN FTS index on `posts.body` |
 | 29 | `20260401350500_add_report_threshold_auto_flag.sql` — 3 reports/post → auto-flag + `reziizi.skip_spam_guard` |
 | 30 | `20260401350600_antispam_recheck_on_body_update.sql` — anti-spam duplicate/link on `body` UPDATE + `abuse_flags` after UPDATE (honors `skip_spam_guard`) |
+| 31 | `20260401350700_allow_service_role_premium_update.sql` — `profiles.premium_until` updates allowed for `service_role` JWT (Stripe / billing automation) |
+| 32 | `20260401350800_add_profiles_display_name_bio.sql` — `profiles.display_name`, `profiles.bio` (public; owner-editable) |
+| 33 | `20260401350900_add_user_commented_post_ids_rpc.sql` — RPC `user_commented_post_ids` (profile “Commented” tab) |
+| 34 | `20260401351000_antispam_duplicate_min_body_length.sql` — `spam_duplicate_eligible`: duplicate-within-window only if normalized body length ≥ 12 (Phase A refinement) |
+| 35 | `20260401351100_antispam_tune_window_7_min_len_15.sql` — duplicate window **7 min**, min normalized length **15** (supersedes #34 tuning) |
+| 36 | `20260401351200_posts_body_max_5000.sql` — `posts.body` CHECK **max 5000** chars (was 10000); upper bound for all tiers |
+| 37 | `20260401351300_posts_tier_free_premium.sql` — free **1000** / premium+admin **5000** body; `video_url` + Storage `post-videos` insert/update — premium or admin (`posts_enforce_tier_limits`) |
+| 38 | `20260401351400_post_tags_tier_limit.sql` — `post_tags` BEFORE INSERT: free **4** tags/post, premium or admin **8** (`post_tags_enforce_tier_limit`) |
 
 **შენიშვნა:** Security (27) — SQL migration არ არის; `vercel.json` Vercel-ისთვის (headers + SPA rewrites; **Deployment (37)**). **Production:** `README.md` → „Production (Vercel)“. API Layer (28) — `src/lib/api/` (migration არა; ახალი ცხრილი/RPC → `registry.ts`). Database Structure (29) — `supabase/SCHEMA.md` + `verify_schema.sql` განახლება. Performance (36) — კლიენტი: `src/lazy/chunks.ts`, `RouteFallback`, `App.tsx` Suspense (migration არა). Caching (30) — `@tanstack/react-query`, `queryClient.ts`, `queryKeys.ts` (migration არა). Error Handling (32) — `errorMessage` / `lib/errors.ts`, `InlineError` (migration არა). Logging (31) — `src/lib/logger.ts` (migration არა). Testing (41) — Vitest (`npm test`; migration არა). **GitHub CI** — `.github/workflows/ci.yml` (არა migration).
 
@@ -116,6 +138,17 @@ alwaysApply: true
 
 - **სკოპი:** მოთხოვნა = კონკრეტული ფაილი/ფიჩა; ზედმეტი რეფაქტორი და „გაუმჯობესება“ მთელ პროექტზე — არა, თუ ცალკე არ თხოვია.
 - **დოკუმენტაცია:** დიდი არქიტექტურული ცვლილება — `project.md` ან `JOURNAL.md`-ში ერთი პარაგრაფი მაინც.
+
+### გარე ჩატი (Claude.ai, ChatGPT, სხვ.) vs Cursor — როლები და რიგი
+
+- **რატომ:** გარე ჩატი **არ არის** პროექტის სპეკის წყარო; **ჭეშმარიტი წყარო** — `project.md`, `JOURNAL.md`, `AGENTS.md` და რეპოს კოდი. გარე პასუხი **არ იჭერება** სპეკად კომიტში იმის გარეშე, რაც გადაწყვეტილი/ჩაწერილია დოკუმენტში.
+- **სად ეფექტურია გარე ჩატი:** **იდეის დახვეწა** — როცა **კონკრეტული ფორმულირება არ გაქვს** (ალტერნატივები, pros/cons, edge case-ების ბრეინშტორმი). **სად არა:** იმპლემენტაციის „ოფიციალური“ გეგმა უგეგმველად — იქ ჯერ `project.md` / რიგი (`reziizi.mdc`).
+- **სამუშაო ნაკადი (რეკომენდებული):**
+  1. შენ Cursor-ში: **„მინდა ეს იდეა გავატანო გარე ჩატს დასახვეწად — მომეცი პრომპტი გარე ჩატისთვის“** (+ მოკლედ რა იდეაა).
+  2. **Cursor (AI) ამზადებს პრომპტს**, რომელშიც არის: REZIIZI-ის კონტექსტი (სტეკი, შეზღუდვები, რიგი), შენი იდეა, რა უნდა დააბრუნოს გარე ჩატმა (მაგ. ვარიანტები, რისკები — **არა** „სრული სპეკი სხვა სტეკზე“).
+  3. შენ გარე ჩატში იგზავნი პრომპტს და **პასუხს აბრუნებ Cursor-ში** (ჩასმა/ჩაკოპირება).
+  4. **Cursor იღებს მხოლოდ იმას**, რაც **მოერგება REZIIZI-ს** — უგვერდო კოპირება არა; ეჭვის შემთხვევაში — **ჯერ `project.md` / წესების შესაბამისობა**, მერე კოდი ან დოკის განახლება.
+- **AI Cursor-ში:** პრომპტის მომზადებისას **მიუთითე** `project.md` / v1–v2 რიგი / migrations, რომ გარე ჩატმა არ შესთავაზოს არათანმიმდევრული DB ან სხვა სტეკი როგორც „სავალდებულო“.
 
 ## დადასტურება, რიგი და ჩანაწერი
 

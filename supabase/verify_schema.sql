@@ -35,6 +35,7 @@ WHERE n.nspname = 'public'
     'feed_trending_post_ids',
     'search_post_ids',
     'search_profile_ids',
+    'user_commented_post_ids',
     'get_or_create_conversation',
     'notify_post_owner_on_comment',
     'notify_post_owner_on_reaction',
@@ -47,9 +48,12 @@ WHERE n.nspname = 'public'
     'enforce_chat_message_rate_limit',
     'enforce_report_rate_limit',
     'normalize_body_for_spam',
+    'spam_duplicate_eligible',
     'count_url_indicators',
     'prevent_user_editing_spam_columns_posts',
     'prevent_user_editing_spam_columns_comments',
+    'posts_enforce_tier_limits',
+    'post_tags_enforce_tier_limit',
     'posts_antispam_before_insert',
     'comments_antispam_before_insert',
     'abuse_flags_after_post_insert',
@@ -88,3 +92,11 @@ UNION ALL SELECT 'reports', COUNT(*) FROM public.reports
 UNION ALL SELECT 'ad_slots', COUNT(*) FROM public.ad_slots
 UNION ALL SELECT 'follows', COUNT(*) FROM public.follows
 UNION ALL SELECT 'abuse_flags', COUNT(*) FROM public.abuse_flags;
+
+-- === 8) profiles: display_name + bio (profile polish) ===
+SELECT column_name, data_type, character_maximum_length
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'profiles'
+  AND column_name IN ('display_name', 'bio')
+ORDER BY column_name;

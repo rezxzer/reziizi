@@ -99,6 +99,9 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       toast.error(insError != null ? errorMessage(insError) : t("pages.comment.commentFailed"));
       return;
     }
+    if (data.is_flagged) {
+      toast.show(t("pages.comment.flaggedAfterComment"), "info");
+    }
     setBody("");
     setComments((prev) => [
       ...prev,

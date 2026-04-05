@@ -131,6 +131,30 @@ The Edge Function must return **`Access-Control-Allow-Methods`** (and related CO
 
 See `supabase/ACCOUNT_DELETION_DESIGN.md` for behavior (Storage + `auth.users`).
 
+**API rate limit (delete account):** `POST /api/delete-account` is limited per client IP (in-memory window on each serverless instance). Optional Vercel env: `DELETE_ACCOUNT_RATE_LIMIT_MAX` (default `20`), `DELETE_ACCOUNT_RATE_LIMIT_WINDOW_MS` (default `3600000`, 1 hour). For strict global limits, use Redis/Upstash or a CDN/WAF in front of Vercel.
+
+### Stripe Premium (billing webhook) — when you launch for real
+
+**You do not need Stripe until the site goes live with paid premium.** The repo already includes the Edge Function and the DB migration so you can wire payments in a **later launch phase** without rewriting core flows.
+
+**DB:** Migration `20260401350700_allow_service_role_premium_update.sql` lets the **service role** JWT update `profiles.premium_until` (for server-side billing). If you applied migrations in order, this is already on your Supabase project.
+
+**Edge Function (optional until billing):** `supabase/functions/stripe-webhook/` — verifies Stripe signatures and extends `premium_until` on `checkout.session.completed`. Deploy and configure only when you enable Stripe:
+
+1. [Stripe Dashboard](https://dashboard.stripe.com/) → Developers → API keys: copy **Secret key**.
+2. Deploy: `supabase functions deploy stripe-webhook --no-verify-jwt`
+3. Supabase Dashboard → **Edge Functions** → `stripe-webhook` → **Secrets**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (from Stripe → Webhooks → Signing secret for this endpoint).
+4. Stripe → Webhooks → Add endpoint: `https://<PROJECT_REF>.supabase.co/functions/v1/stripe-webhook` — subscribe to `checkout.session.completed`.
+
+**Checkout Session metadata** (required / optional):
+
+| Key | Required | Description |
+|-----|----------|-------------|
+| `user_id` | yes | Supabase `auth.users` id / `profiles.id` (UUID) |
+| `premium_days` | no | Days to add (default `30`, max `3650`). Extension starts from `max(now, current premium_until)`. |
+
+In-app Checkout / Customer Portal is **not** implemented here; create test sessions from the Stripe Dashboard or a future **Settings → Premium** flow.
+
 ## Repo
 
 Remote: `origin` → GitHub. Never commit `.env`.

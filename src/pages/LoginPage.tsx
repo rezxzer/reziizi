@@ -59,7 +59,7 @@ export function LoginPage(): ReactElement {
   }
 
   return (
-    <div className="stack">
+    <div className="stack login-page">
       <section className="card">
         <h2 className="card__title">
           {mode === "signin" ? t("pages.login.titleSignIn") : t("pages.login.titleSignUp")}

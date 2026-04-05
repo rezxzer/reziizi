@@ -1,5 +1,5 @@
 import type { ChangeEvent, FormEvent, ReactElement } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
@@ -16,11 +16,10 @@ import {
   uploadPostVideo,
   validatePostVideoFile,
 } from "../lib/postVideoStorage.ts";
-import { parseTagsFromInput } from "../lib/tagParse.ts";
+import { getMaxTagsPerPost, parseTagsFromInput } from "../lib/tagParse.ts";
 import { attachTagsToPost } from "../lib/tags.ts";
+import { getPostBodyMaxLength } from "../lib/postBodyLimits.ts";
 import { supabase } from "../lib/supabaseClient.ts";
-
-const MAX_LEN = 10000;
 
 type PostFormProps = {
   onPosted: () => void;
@@ -30,9 +29,23 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   const { t } = useI18n();
   const toast = useToast();
   const { user } = useAuth();
-  const { isBanned, loading: flagsLoading } = useProfileFlags();
+  const { isBanned, isPremium, isAdmin, loading: flagsLoading } = useProfileFlags();
+  const maxLen: number = useMemo(
+    () => getPostBodyMaxLength(isPremium, isAdmin),
+    [isPremium, isAdmin],
+  );
+  const maxTagCount: number = useMemo(
+    () => getMaxTagsPerPost(isPremium, isAdmin),
+    [isPremium, isAdmin],
+  );
+  const allowVideo: boolean = isPremium || isAdmin;
   const [body, setBody] = useState("");
   const [tagsInput, setTagsInput] = useState("");
+  const previewTagSlugs: string[] = useMemo(
+    () => parseTagsFromInput(tagsInput, maxTagCount),
+    [tagsInput, maxTagCount],
+  );
+  const tagsPreviewActive: boolean = tagsInput.trim().length > 0;
   const [submitting, setSubmitting] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -47,6 +60,21 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
       }
     };
   }, []);
+
+  useEffect(() => {
+    setBody((b) => (b.length > maxLen ? b.slice(0, maxLen) : b));
+  }, [maxLen]);
+
+  useEffect(() => {
+    if (allowVideo || !mediaFile?.type.startsWith("video/")) {
+      return;
+    }
+    setMediaFile(null);
+    setPreviewFromFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [allowVideo, mediaFile]);
 
   function setPreviewFromFile(file: File | null): void {
     if (previewUrlRef.current) {
@@ -96,6 +124,9 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
       return validatePostImageFile(file);
     }
     if (file.type.startsWith("video/")) {
+      if (!allowVideo) {
+        return t("pages.postForm.videoRequiresPremium");
+      }
       return validatePostVideoFile(file);
     }
     return t("pages.postForm.mediaInvalidType");
@@ -127,11 +158,11 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     const trimmed = body.trim();
-    if (trimmed.length < 1 || trimmed.length > MAX_LEN) {
-      toast.error(t("pages.postForm.bodyLength", { max: MAX_LEN }));
+    if (trimmed.length < 1 || trimmed.length > maxLen) {
+      toast.error(t("pages.postForm.bodyLength", { max: maxLen }));
       return;
     }
-    const tagSlugs = parseTagsFromInput(tagsInput);
+    const tagSlugs = parseTagsFromInput(tagsInput, maxTagCount);
     setSubmitting(true);
     const { data: post, error: insertError } = await supabase
       .from("posts")
@@ -139,11 +170,17 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
         user_id: userId,
         body: trimmed,
       })
-      .select("id")
+      .select("id, is_flagged")
       .single();
     if (insertError || !post) {
       setSubmitting(false);
-      toast.error(insertError != null ? errorMessage(insertError) : t("pages.postForm.createFailed"));
+      const raw: string =
+        insertError != null ? errorMessage(insertError) : t("pages.postForm.createFailed");
+      if (raw.includes("post_body_tier_limit")) {
+        toast.error(t("pages.postForm.bodyTierLimit", { max: maxLen }));
+      } else {
+        toast.error(raw);
+      }
       return;
     }
 
@@ -176,7 +213,14 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           }
         } catch (mediaErr: unknown) {
           await supabase.from("posts").delete().eq("id", post.id).eq("user_id", userId);
-          throw mediaErr;
+          setSubmitting(false);
+          const raw: string = errorMessage(mediaErr);
+          if (raw.includes("post_video_requires_premium") || raw.includes("post_videos")) {
+            toast.error(t("pages.postForm.videoRequiresPremium"));
+          } else {
+            toast.error(raw);
+          }
+          return;
         }
       }
     } catch (err: unknown) {
@@ -191,11 +235,19 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
       }
     } catch (tagErr: unknown) {
       setSubmitting(false);
-      toast.error(errorMessage(tagErr));
+      const raw: string = errorMessage(tagErr);
+      if (raw.includes("post_tags_tier_limit")) {
+        toast.error(t("pages.postForm.tagsTierLimit", { max: maxTagCount }));
+      } else {
+        toast.error(raw);
+      }
       onPosted();
       return;
     }
     setSubmitting(false);
+    if (post.is_flagged) {
+      toast.show(t("pages.postForm.flaggedAfterPost"), "info");
+    }
     setBody("");
     setTagsInput("");
     setMediaFile(null);
@@ -214,7 +266,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           className="form__textarea"
           name="body"
           rows={4}
-          maxLength={MAX_LEN}
+          maxLength={maxLen}
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder={t("pages.postForm.placeholder")}
@@ -226,8 +278,12 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           ref={fileInputRef}
           className="post-form__file-input"
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
-          aria-label={t("pages.postForm.attachAria")}
+          accept={
+            allowVideo
+              ? "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
+              : "image/jpeg,image/png,image/webp,image/gif"
+          }
+          aria-label={allowVideo ? t("pages.postForm.attachAria") : t("pages.postForm.attachImageAria")}
           onChange={handleMediaPick}
           disabled={submitting}
         />
@@ -238,7 +294,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
             disabled={submitting}
             onClick={() => fileInputRef.current?.click()}
           >
-            {t("pages.postForm.addMedia")}
+            {allowVideo ? t("pages.postForm.addMedia") : t("pages.postForm.addMediaImage")}
           </button>
           {previewUrl ? (
             <button
@@ -283,10 +339,36 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           autoComplete="off"
         />
       </label>
-      <p className="muted form__hint">{t("pages.postForm.tagsHint")}</p>
+      <p className="muted form__hint">{t("pages.postForm.tagsHint", { max: maxTagCount })}</p>
+      {tagsPreviewActive ? (
+        <div
+          className="post-form__tags-preview"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {previewTagSlugs.length > 0 ? (
+            <>
+              <p className="post-form__tags-preview-label muted">
+                {t("pages.postForm.tagsPreviewLabel")}
+              </p>
+              <ul className="tag-list post-form__tags-preview-list">
+                {previewTagSlugs.map((slug) => (
+                  <li key={slug}>
+                    <span className="tag-chip tag-chip--preview">{slug}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="form__hint form__hint--warning" role="status">
+              {t("pages.postForm.tagsPreviewInvalid")}
+            </p>
+          )}
+        </div>
+      ) : null}
       <div className="form__row">
         <span className="muted">
-          {body.length}/{MAX_LEN}
+          {body.length}/{maxLen}
         </span>
         <button type="submit" className="btn btn--primary" disabled={submitting}>
           {submitting ? t("pages.postForm.posting") : t("pages.postForm.post")}

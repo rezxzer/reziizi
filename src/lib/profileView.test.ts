@@ -6,6 +6,8 @@ describe("canShowEmail", () => {
     id: "u1",
     email: "a@b.com",
     avatar_url: null,
+    display_name: null,
+    bio: null,
     searchable: false,
     is_banned: false,
   };

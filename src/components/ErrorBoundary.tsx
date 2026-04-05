@@ -3,8 +3,12 @@ import { Component } from "react";
 import { Link } from "react-router-dom";
 import { logger } from "../lib/logger.ts";
 
-type ErrorBoundaryProps = {
+export type ErrorBoundaryProps = {
   children: ReactNode;
+  title: string;
+  body: string;
+  reloadLabel: string;
+  homeLinkLabel: string;
 };
 
 type ErrorBoundaryState = {
@@ -28,24 +32,27 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   public render(): ReactNode {
     if (this.state.hasError) {
+      const { title, body, reloadLabel, homeLinkLabel } = this.props;
       return (
         <div className="layout">
           <main className="layout__main">
             <div className="stack error-boundary">
               <section className="card">
-                <h1 className="card__title">Something went wrong</h1>
+                <h1 className="card__title">{title}</h1>
                 <div className="card__body">
-                  <p className="muted">The app hit an unexpected error. You can try reloading the page.</p>
+                  <p className="muted">{body}</p>
                   <p className="form__error" role="alert">
                     {this.state.message}
                   </p>
                   <p>
                     <button type="button" className="btn btn--primary" onClick={() => window.location.reload()}>
-                      Reload
+                      {reloadLabel}
                     </button>
                   </p>
                   <p className="muted">
-                    <Link to="/">← Home</Link>
+                    <Link to="/" className="inline-link">
+                      {homeLinkLabel}
+                    </Link>
                   </p>
                 </div>
               </section>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_DESCRIPTION, getRouteAnnouncement, getSeoForPath, SITE_NAME } from "./seo.ts";
+import { DEFAULT_DESCRIPTION, getRouteAnnouncement, getSeoForPath } from "./seo.ts";
 
 describe("getSeoForPath", () => {
   it("home is indexable (en)", () => {
@@ -28,6 +28,18 @@ describe("getSeoForPath", () => {
     expect(getSeoForPath("/legal", "en").robots).toBe("index,follow");
   });
 
+  it("search with valid q uses dynamic title and description (en)", () => {
+    const p = getSeoForPath("/search", "en", "?q=hello");
+    expect(p.title).toBe("Search: hello");
+    expect(p.description).toContain("hello");
+    expect(p.robots).toBe("index,follow");
+  });
+
+  it("search with short q falls back to default search page", () => {
+    const p = getSeoForPath("/search", "en", "?q=a");
+    expect(p.title).toBe("Search");
+  });
+
   it("public member profile is indexable", () => {
     const p = getSeoForPath("/u/550e8400-e29b-41d4-a716-446655440000", "en");
     expect(p.title).toBe("Member profile");
@@ -44,10 +56,10 @@ describe("getSeoForPath", () => {
     expect(g.robots).toBe("index,follow");
   });
 
-  it("unknown path falls back to site default", () => {
+  it("unknown path uses not-found SEO (noindex)", () => {
     const p = getSeoForPath("/does-not-exist", "en");
-    expect(p.title).toBe(SITE_NAME);
-    expect(p.robots).toBe("index,follow");
+    expect(p.title).toBe("Page not found");
+    expect(p.robots).toBe("noindex,nofollow");
   });
 });
 
@@ -58,11 +70,15 @@ describe("getRouteAnnouncement", () => {
     expect(getRouteAnnouncement("/admin/stats", "en")).toBe("Navigated to Admin");
   });
 
-  it("matches unknown path fallback title (en)", () => {
-    expect(getRouteAnnouncement("/weird-path", "en")).toBe(`Navigated to ${SITE_NAME}`);
+  it("matches unknown path not-found title (en)", () => {
+    expect(getRouteAnnouncement("/weird-path", "en")).toBe("Navigated to Page not found");
   });
 
   it("is localized (ru)", () => {
     expect(getRouteAnnouncement("/", "ru")).toBe("Переход: Главная");
+  });
+
+  it("includes search query in title when q is valid (en)", () => {
+    expect(getRouteAnnouncement("/search", "en", "?q=test")).toContain("test");
   });
 });

@@ -7,6 +7,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { errorMessage } from "./lib/errorMessage.js";
 import { deleteAuthUser, deleteUserStorage } from "./lib/accountDeletionBackend.js";
+import { allowIpRequest, getClientIpFromRequest } from "./lib/rateLimitByIp.js";
 
 /** Vercel Node serverless — allow long Storage cleanup + auth.admin.deleteUser. */
 export const config: { maxDuration: number } = {
@@ -32,6 +33,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
     if (req.method !== "POST") {
       json(res, 405, { error: "Method not allowed" });
+      return;
+    }
+
+    const maxAttempts = Number(process.env.DELETE_ACCOUNT_RATE_LIMIT_MAX ?? "20");
+    const windowMs = Number(process.env.DELETE_ACCOUNT_RATE_LIMIT_WINDOW_MS ?? String(3_600_000));
+    const ip = getClientIpFromRequest(req.headers as Record<string, string | string[] | undefined>);
+    if (
+      !allowIpRequest(ip, {
+        max: Number.isFinite(maxAttempts) && maxAttempts > 0 ? maxAttempts : 20,
+        windowMs: Number.isFinite(windowMs) && windowMs > 0 ? windowMs : 3_600_000,
+      })
+    ) {
+      json(res, 429, { error: "Too many attempts. Try again later." });
       return;
     }
 

@@ -21,6 +21,221 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — `styles.css`: Problems (CSS linter) გასწორება
+
+- **`.post-card__video` / `.mod-list__video`:** `vertical-align` ამოღებული — `display: block`-ზე უქმია და linter აფრთხილებდა.
+- **`.post-card__body--clamped`:** დამატებულია სტანდარტული `line-clamp: 1` (ერთად `-webkit-line-clamp`-თან).
+
+### 2026-04-03 — ბიზნესი / §24: ოფიციალური გადაწყვეტილება + Cursor წესი „პროექტის დაცვა“
+
+- **`project.md`:** `#### ბიზნესი / §24 — განვითარების გადაწყვეტილება და რისკების დაზღვევა` — P1 (Stripe + in-app Checkout), P1+, P2, გადადებული; დაზღვევის ხაზები (არ ავურიოთ პარალელურად რამდენიმე გადახდის დიდი ფიჩა; RLS/secrets).
+- **`.cursor/rules/reziizi.mdc`:** სექცია **„პროექტის დაცვა — არ გავაფუჭოთ / არ გავტეხოთ REZIIZI“** — წყარო `project.md`, ერთი სკოპი, გარე ჩატი ≠ სპეკი, Stripe რიგი.
+
+### 2026-04-03 — §33: `not-found-page` + `card__title` (ფაზა E)
+
+- **`styles.css`:** `.not-found-page .card__title` დაემატა იმავე §33 პირველადი სათაურის სელექტორთან (font-weight/letter-spacing), როგორც სხვა გვერდებზე.
+
+### 2026-04-03 — 404 გვერდი (catch-all `*`)
+
+- **`NotFoundPage`:** `pages.notFoundPage.*` (`en`/`ka`/`ru`); lazy `lazy/chunks.ts`.
+- **`App.tsx`:** `path="*"` — ჩუმი რედირექტის ნაცვლად UI + ბმული მთავარზე.
+- **`seo.ts`:** არარსებული მარშრუტი → `pageFromRouteKey(..., "notFound", "noindex,nofollow")`; **`seo.test.ts`** განახლებული.
+- **შემოწმება:** `npm test`, `npm run build` — OK.
+
+### 2026-04-03 — Search: `prefers-reduced-motion` + SEO `?q=`
+
+- **`prefersReducedMotion`:** სქროლი შედეგებზე — `auto` vs `smooth`.
+- **`seo.ts` / `messages.*`:** `searchWithQueryTitle` / `searchWithQueryDescription`; `getSeoForPath` / `applyPageSeo` / `getRouteAnnouncement` — მესამე არგუმენტი `search`; canonical ჩათვლით query.
+- **`RouteSeo` / `RouteAnnouncer`:** `useLocation().search`.
+- **`seo.test.ts`** — დინამიკური ძიება + მოკლე `q`.
+- **შემოწმება:** `npm test`, `npm run build` — OK.
+
+### 2026-04-03 — Search: შედეგებზე სქროლი + ფოკუსი (`#search-results`)
+
+- **`SearchPage`:** ვალიდური `q`-ისთვის შედეგების ბლოკი `aria-label`; ძიების დასრულებისას (ერთხელ თითო `q`) — `scrollIntoView` + `focus({ preventScroll })`; **`messages.*`** `resultsRegionLabel`; **`styles.css`** `.search-page__results-region:focus-visible`.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Search UX (ფაზა B): ინტრო + ერთიანი ცარიელი შედეგი
+
+- **`SearchPage`:** `pages.search.introHint` როცა `q` არაა; `noResultsAny` როცა ვალიდური ძიება და 0 პოსტი + 0 პროფილი (`en`/`ka`/`ru`).
+- **`project.md`:** ფაზა B ცხრილი — Search polish ნაწილობრივ; §14 Implementation.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — ტეგები ტირით: უფასო 4 / პრემიუმი+ადმინი 8
+
+- **SQL:** `20260401351400_post_tags_tier_limit.sql` — `post_tags_enforce_tier_limit` BEFORE INSERT.
+- **აპი:** `tagParse.ts` (`getMaxTagsPerPost`, `parseTagsFromInput(…, maxTags)`), `PostForm`, `messages.*` `tagsHint` / `tagsTierLimit`.
+- **დოკი:** `project.md` (Premium ცხრილი, §15), `SCHEMA.md`, `verify_schema.sql`, **`reziizi.mdc`** migrations #38.
+- **Production:** migration გაშვება სავალდებულოა live Supabase-ზე.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — PostForm: ტეგების slug-ების live preview
+
+- **`PostForm.tsx`:** `parseTagsFromInput` → ჩიპები „შეინახება როგორც“; ცარიელი შედეგი — გაფრთხილება არა-ლათინური მხოლოდ ინფუთზე.
+- **`messages.ts`:** `tagsPreviewLabel`, `tagsPreviewInvalid` (en/ka/ru); **`styles.css`:** `.post-form__tags-preview`, `.tag-chip--preview`, `.form__hint--warning`.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — ტეგები: პროდუქტის გადაწყვეტილება B (ცალკე ველი; body `#` არა)
+
+- **`project.md` §15:** ვარიანტები A–D, რატომ MVP-ზე მხოლოდ **B**, edge case-ები, მომავალი ტრიგერი (ანალიტიკა), optional **live preview** polish.
+- **CURRENT WORK** — ერთი ბულეტი იმავე თემაზე.
+
+### 2026-04-03 — Free vs Premium პოსტი: ტექსტი 1000/5000, ვიდეო მხოლოდ პრემიუმზე
+
+- **SQL:** `20260401351300_posts_tier_free_premium.sql` — `posts_enforce_tier_limits` (INSERT/UPDATE); Storage `post-videos` insert/update — `premium_until` ან `is_admin`.
+- **აპი:** `postBodyLimits.ts` (`getPostBodyMaxLength`), `PostForm.tsx` (კონტერი, სურათი/ვიდეო UI), `messages.ts` `en`/`ka`/`ru`.
+- **დოკი:** `project.md` (Premium vs free ცხრილი), `SCHEMA.md`, `verify_schema.sql`, **`reziizi.mdc`** #37.
+- **შემოწმება:** `npm run build`, `npm test` — OK. **Production:** migration გაშვება სავალდებულოა.
+
+### 2026-04-03 — პოსტის `body` მაქს. სიგრძე 5000 (იყო 10000)
+
+- **SQL:** `20260401351200_posts_body_max_5000.sql` — `posts_body_length_check` 1..5000; წინა inline CHECK მოიხსნება დინამიურად.
+- **აპი:** `src/lib/postBodyLimits.ts` (`POST_BODY_MAX_LENGTH`), `PostForm.tsx`; `SCHEMA.md`, **`reziizi.mdc`** #36.
+- **შემოწმება:** `npm run build`, `npm test` — OK. **Production:** migration სავალდებულია; თუ უკვე არსებობს `body` >5000, ჯერ მოკლე DB-ში ან წაშლა.
+
+### 2026-04-03 — Anti-spam ტუნინგი: 7 წთ ფანჯარა, მინ. სიგრძე 15 (`20260401351100`)
+
+- **SQL:** `20260401351100_antispam_tune_window_7_min_len_15.sql` — `spam_duplicate_eligible` ≥ 15; duplicate-within-window **7 minutes** (INSERT + UPDATE paths); `SCHEMA.md`, `project.md` (CURRENT WORK + სპეკის ცხრილები), **`reziizi.mdc`** migrations #35.
+- **შემოწმება:** `npm run build`, `npm test` — OK. **Production:** migration გაშვება სავალდებულოა live-ზე.
+
+### 2026-04-03 — სპამის დახვეწა (ფაზა A): `spam_duplicate_eligible` + toast
+
+- **SQL:** `20260401351000_antispam_duplicate_min_body_length.sql` — `spam_duplicate_eligible` (ნორმალიზებული სიგრძე ≥ 12); duplicate ევრისტიკა INSERT/UPDATE-ზე მხოლოდ ამის შემდეგ; `SCHEMA.md`, `verify_schema.sql`; **`reziizi.mdc`** migrations #34.
+- **აპი:** `PostForm` / `CommentSection` — info toast თუ `is_flagged` შექმნისას; `messages.ts` `en`/`ka`/`ru`.
+- **`project.md` CURRENT WORK** — ბულეტი; **შემოწმება:** `npm run build`, `npm test` — OK. **Production Supabase:** migration გაშვება სავალდებულოა.
+
+### 2026-04-03 — ფაზა A/B/C: სკოპი, წესები, სტატუსის ცხრილი (`project.md`, `AGENTS.md`)
+
+- **`project.md`:** `### შემდეგი ფაზა` გადაკეთებული — ცალკე ცხრილი „რას ნიშნავს A vs B vs C“, **შედის / არ შედის სკოპში**; **5 წესი** მომხმარებელი+AI; ცხრილი **რა ✅ vs რა 🔄 გახსნილი**; **§49** სტატუსი: MVP ✅, გაფართოება 🔄.
+- **`AGENTS.md`:** მიმართება იმავე სექციაზე.
+
+### 2026-04-03 — ტალღა 1–4+ + MASTER 1–51 ცხრილი (`project.md`, `AGENTS.md`)
+
+- **`project.md` `## CURRENT WORK`:** ცხრილი ტალღების განსაზღვრება (1=baseline … 4+=ops·Future); **MASTER 1–51** ორ სვეტად — ტალღა 1 ✅ vs მომავალი ტალღა; **შემდეგი განვითარების გეგმა** — A11Y/Rate: „v3/v2“ → **ტალღა 2+**.
+- **`AGENTS.md`:** ერთიანი ბულეტი ტალღებზე + მიმართება იმავე ცხრილზე.
+
+### 2026-04-03 — `FEATURE BREAKDOWN` § სათაურები — 🟡 → ✅ (MASTER სინქი)
+
+- **`project.md`:** §4, 5, 10–11, 30–32, 36–37, 41–44, 48 — სათაური **✅ baseline**; §45, §49 — **✅/🔄** როგორც MASTER LIST-ში; §50 — „კატეგორია“ (არა ❌ როგორც „ფიჩა ჩავარდნილი“); **ლეგენდა** გაფართოვებული — `FEATURE BREAKDOWN` სინქი MASTER-თან.
+
+### 2026-04-03 — MASTER FEATURE LIST (1–51) სინქი `VERSIONS` + CURRENT WORK
+
+- **`project.md`:** თითო პუნქტს სტატუსი ✅/🔄/❌ ან კატეგორია (50); ლეგენდა; **v1** შენიშვნა (4, 5, 10–11, 38 baseline); **v3** დამატებითი baseline პარაგრაფი (4–5, 10–11, 42–49, 33–35 polish). ძველი 🟡 MASTER სიაში ამოღებულია (იყო უთანხვედრო v3 დასრულებასთან).
+
+### 2026-04-03 — `project.md` / `AGENTS.md`: ტალღა 1→2, §33/§34/§35 სინქი
+
+- **`project.md`:** ახალი ბლოკი **CURRENT WORK**-ში — „ტალღები“ (baseline vs გაფართოება, ფუნდამენტი რომ არ მოგვიწიოს მთლიანი გადაწერა); **§33** განახლებული რეალური სტატუსით + Future; **§34** — v2 baseline ცალკე (თემა არა მხოლოდ „Future“); **§35** — v3+ რეალური polish + Future.
+- **`AGENTS.md`:** მიმართება იმავე სექციაზე.
+
+### 2026-04-03 — PlaceholderCard i18n (`pages.common.scaffoldInProgress*`)
+
+- **`messages.ts`:** `pages.common.scaffoldInProgress`, `scaffoldInProgressHint` — `en` / `ka` / `ru`; **`PlaceholderCard.tsx`** — `useI18n` (ბეიჯი + `title`).
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Root ErrorBoundary i18n (`errors.appBoundaryBody`, `errors.reload`)
+
+- **`messages.ts`:** `errors.appBoundaryBody`, `errors.reload` — `en` / `ka` / `ru`; **`ErrorBoundary.tsx`** — სტრინგები props-ით; **`main.tsx`** — `AppErrorBoundary` (`useI18n`), სათაური/ტექსტი/გადატვირთვა/მთავარი `t()`-ით; მთავარი ბმული `inline-link`.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Feed: FeedAdSlot i18n (`pages.home.feedAd*`)
+
+- **`messages.ts`:** `pages.home.feedAdSponsored`, `feedAdSponsoredContent` — `en` / `ka` / `ru`; **`FeedAdSlot.tsx`** — `useI18n` (სათაური-ფოლბექი, ეტიკეტი, `aria-label`).
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Settings: AvatarUploadSection i18n (`settings.avatar*`)
+
+- **`messages.ts`:** `avatarSectionTitle`, `avatarFormatHint`, `avatarChooseAria`, `avatarUpload`, `avatarRemove`, toast/confirm, `avatarUserFallback` — `en` / `ka` / `ru`; **`AvatarUploadSection.tsx`** — `useI18n` / `t()`.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — §35 მობილური: პროფილის ტაბები + Legal ნავი
+
+- **`styles.css`** `@media (max-width: 600px)`: **`profile-tabs` / `profile-tabs__tab`** — ტაბები სრულ სიგანეზე, თანაბარი `flex`; **`legal-page__nav a`** — `min-height: var(--touch-compact)`, `inline-flex` (Legal + Security ზედა ნავი).
+- **`project.md`** — **CURRENT WORK** ერთი ხაზით; **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — §33 (E): Legal ნავი + შეცდომის მდგომარეობები
+
+- **`styles.css`:** `.legal-page .legal-page__nav` — `margin-bottom` (იგივე რაც Security-ზე); **`ChatThreadPage`** — არასწორი peer → `stack chat-page`, ბმული `inline-link`; **`UserProfilePage`** — არასწორი UUID → `stack profile-page`.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — §33 (E): Legal გვერდის სათაურები
+
+- **`styles.css`:** `.legal-page .legal-page__title`, `.legal-page .legal-section__title` — `font-weight` / `letter-spacing` იგივე ხმა რაც სხვა primary ზედაპირებზე; სტატიის **შიგთავსი** ჯერ ინგლისურია (`project.md`).
+- **შემოწმება:** `npm run build` — OK.
+
+### 2026-04-03 — `/banned` — i18n (`pages.bannedPage`)
+
+- **`BannedPage`:** `useI18n` / `t()` — `en` / `ka` / `ru` (`messages.ts`); **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Supabase: ყველა migration live
+
+- **`supabase/migrations/`** — რეპოში ჩამოწერილი SQL migration-ების სრული თანმიმდევრობა გაშვებულია **production Supabase-ზე** (დადასტურებული მომხმარებლის მიერ), მათ შორის **`20260401350600_antispam_recheck_on_body_update.sql`** (ხაზი 14 `project.md` ცხრილში → ✅).
+- **`project.md`** — `CURRENT WORK` + პრიორიტეტების ცხრილი განახლებულია.
+
+### 2026-04-03 — §33 (E): დამატებითი გვერდები `card__title`-ზე
+
+- **`styles.css` §33:** `messages-page`, `banned-page`, `follow-list-page`, `admin-page`, `admin-moderation-page`, `admin-reports-page`, `chat-page`; **`MessagesPage`**, **`BannedPage`**, **`UserFollowListPage`** — შესაბამისი wrapper `stack`-ზე.
+- **შემოწმება:** `npm run build` — OK.
+
+### 2026-04-03 — Supabase: `20260401350900` live
+
+- **D++** RPC `user_commented_post_ids` — მიგრაცია გაშვებულია წარმატებით production Supabase-ზე (დადასტურებული მომხმარებლის მიერ).
+
+### 2026-04-03 — Profile D++: Posts / Commented ტაბები
+
+- **Migration:** `20260401350900_add_user_commented_post_ids_rpc.sql` — RPC `user_commented_post_ids`; **აპი:** `ProfilePage` / `UserProfilePage` — `useSearchParams` (`tab=commented`), `useInfiniteQuery`, i18n `tabPosts` / `tabCommented` / `sectionCommented` / `emptyCommented*`; **`SCHEMA.md`**, **`verify_schema.sql`**, **`reziizi.mdc`**, **`project.md`** განახლებული.
+- **შემოწმება:** `npm run build`, `npm test` — OK. **Supabase:** migration უნდა გაეშვას production-ზე (CLI ან SQL Editor).
+
+### 2026-04-03 — §33 გაგრძელება: card__title ერთიანი სტილი
+
+- **გვერდები:** `login-page`, `home-page`, `settings-page`, `notifications-page` (wrapper class); **`styles.css`** — საერთო სელექტორი §33 ბლოკში; **შემოწმება:** `npm run build` — OK.
+
+### 2026-04-03 — §33 ფოკუსირებული pass (კრიტიკული ზედაპირი)
+
+- **D++ (წინა შენიშვნა):** იმ დღეს Replies არ იყო განსაზღვრული; **შემდეგ** დაემატა **Posts / Commented** + RPC `user_commented_post_ids` — იხილე ზემოთ **2026-04-03 — Profile D++**.
+- **`styles.css`:** `home-feed-toolbar--sticky` → `top: env(safe-area-inset-top)`; `.feed__more .btn` — `min-width: min(100%, 14rem)`; `.profile-page .card__title` — `font-weight` / `letter-spacing`.
+- **`project.md`** — ჩანაწერი roadmap **E**; **შემოწმება:** `npm run build` — OK.
+
+### 2026-04-03 — Profile D+: Copy public profile link
+
+- **`copyToClipboard.ts`** — `getPublicProfileAbsoluteUrl`, `copyToClipboard`; **`ProfilePage`** / **`UserProfilePage`** — `profile-hero__toolbar` + toast; i18n `pages.profile.copyProfileLink*`.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Profile ფაზა D: display_name + bio (DB + UI)
+
+- **SQL:** `20260401350800_add_profiles_display_name_bio.sql` — `profiles.display_name` (≤80), `profiles.bio` (≤500); RLS უცვლელი (`profiles_update_own`).
+- **აპი:** `profileAbout.ts` (`fetchProfileDisplay`, `updateProfileAbout`); `profileView.ts` / `fetchPublicProfile`; **Settings** სექცია; **ProfilePage** / **UserProfilePage**; `UserFollowListPage` `PublicProfileView` stub.
+- **დოკი:** `SCHEMA.md`, `verify_schema.sql` (სვეტების შემოწმება), `reziizi.mdc` migrations ცხრილი, `project.md` roadmap.
+- **Production:** migration Supabase-ში SQL Editor / `db push` — სანამ არ გაეშვება, პროფილის query შეიძლება დაერხილოს (სვეტები არ არსებობს).
+
+### 2026-04-03 — Profile: post list skeleton (ფაზა C)
+
+- **`ProfilePostListSkeleton`** — სამი მიმდევრული პლეისჰოლდერი (header/avatar + body + footer strip), `styles.css` — `profile-post-skeleton*`; **`ProfilePage`** / **`UserProfilePage`** — `postsQuery.isPending` / `postsLoading`; a11y: `role="status"` + `sr-only` + `aria-busy`; `prefers-reduced-motion` იგივე პრინციპით რაც `profile-skeleton`.
+- **`project.md`** — roadmap ფაზა C ✅; **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Profile UX: roadmap + skeleton + empty-state CTA
+
+- **გეგმა:** `project.md` → **„Profile UX — roadmap (polish)“** (ფაზა A/B დასრულებული; C–E მომავალი).
+- **კოდი:** `profile-skeleton` (a11y: `sr-only` + `aria-hidden`), `emptyPostsCta` / `emptyPostsOther` (`en`/`ka`/`ru`); `ProfilePage` ცარიელი პოსტების ბმული `/`-ზე; `UserProfilePage` — სხვისი ცარიელი ტექსტი.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Profile UI polish (hero + stats grid)
+
+- **`ProfilePage` / `UserProfilePage`:** `profile-hero__layout`, `profile-stats` (რიცხვები + მოკლე ლეიბლები), `profile-empty` ცარიელი feed-ისთვის; **`styles.css`** ტოკენებზე დაფუძნებული სტილი; **`messages.ts`** — `statsPosts`, `statsFollowers`, `statsFollowing`.
+- **შემოწმება:** `npm run build`, `npm test` — OK.
+
+### 2026-04-03 — Premium: migration live; Stripe live — მომავალი ფაზა (ლანჩი)
+
+- **დადასტურება:** `20260401350700_allow_service_role_premium_update.sql` **წარმატებით გაშვებულია** Supabase-ზე.
+- **პროდუქტი:** რეალური Stripe (webhook deploy, secrets, Checkout) **არ იწყება** სანამ საიტი რეალურად არ გაიშვება — დოკი განახლებულია (`project.md` CURRENT WORK, `README.md`, `SCHEMA.md`, `AGENTS.md`).
+
+### 2026-04-03 — Rate limit API + Stripe premium webhook (baseline)
+
+- **SQL:** `20260401350700_allow_service_role_premium_update.sql` — `profiles_enforce_premium_only_admin`: `service_role` JWT-ით `premium_until` შეცვლა (Stripe).
+- **Vercel:** `api/lib/rateLimitByIp.ts` + `api/delete-account.ts` (429, env `DELETE_ACCOUNT_RATE_LIMIT_*`).
+- **Edge:** `supabase/functions/stripe-webhook` — `checkout.session.completed`, metadata `user_id` / `premium_days`; secrets `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`.
+- **დოკი:** `README.md`, `SCHEMA.md`, `project.md` §24/§48/CURRENT WORK, `reziizi.mdc`.
+- **Production:** migration + `supabase functions deploy stripe-webhook --no-verify-jwt` + Stripe webhook URL.
+
 ### 2026-04-03 — Anti-spam: body UPDATE → იგივე ევრისტიკა
 
 - **SQL:** `20260401350600_antispam_recheck_on_body_update.sql` — `prevent_user_editing_spam_columns_posts/comments`: `body` შეცვლისას score/flag ხელახლა; `abuse_flags` AFTER UPDATE (unflag→flag), `skip_spam_guard`-ზე არ იმეორებს report-threshold ჩანაწერს.

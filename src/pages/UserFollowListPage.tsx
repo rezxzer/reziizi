@@ -20,6 +20,8 @@ function memberLabel(m: FollowListMember, viewerId: string | null): string {
     id: m.userId,
     email: m.email,
     avatar_url: m.avatar_url,
+    display_name: null,
+    bio: null,
     searchable: m.searchable,
     is_banned: m.is_banned,
   };
@@ -67,7 +69,7 @@ export function UserFollowListPage(): ReactElement {
 
   if (!isValidUuid(targetId)) {
     return (
-      <div className="stack">
+      <div className="stack follow-list-page">
         <section className="card">
           <h1 className="card__title">{t("pages.userProfile.invalidTitle")}</h1>
           <div className="card__body">
@@ -84,7 +86,7 @@ export function UserFollowListPage(): ReactElement {
     mode === "followers" ? t("pages.followList.followersHeading") : t("pages.followList.followingHeading");
 
   return (
-    <div className="stack">
+    <div className="stack follow-list-page">
       <section className="card">
         <h1 className="card__title">{title}</h1>
         <div className="card__body">

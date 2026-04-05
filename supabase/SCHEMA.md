@@ -30,17 +30,18 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 
 - `id` (PK, FK → `auth.users`)
 - `email`, `created_at`
+- `display_name` (nullable; public; max 80 chars), `bio` (nullable; public; max 500 chars) — migration `20260401350800_add_profiles_display_name_bio.sql`
 - `avatar_url` (nullable; public Storage URL, bucket `avatars`)
 - `is_admin`, `is_banned`
 - `ban_reason`, `banned_at` (ban UX; cleared on unban)
-- `premium_until` (monetization / admin grant)
+- `premium_until` (monetization: admin RPC, or **service_role** update after Stripe webhook — `20260401350700_allow_service_role_premium_update.sql`)
 - `searchable` (privacy: email search opt-out)
 - `notify_on_comment`, `notify_on_reaction`, `notify_on_follow` (default `true`; when `false`, triggers skip creating that notification type — see `20260401350200_add_notification_preferences.sql`)
 - Triggers: `profiles_lock_is_admin…`, `profiles_premium_guard`, `on_auth_user_created` → `handle_new_user`
 
 ### `posts`
 
-- `id`, `user_id`, `body`, `image_url` (nullable; bucket `post-images`), `video_url` (nullable; bucket `post-videos`) — **at most one** of `image_url` / `video_url` non-null (`posts_one_media_type` CHECK), `created_at`, `updated_at`
+- `id`, `user_id`, `body` (hard cap **1–5000** chars, `posts_body_length_check`; tier: **free 1000** / **premium or admin 5000** via `posts_enforce_tier_limits` — `20260401351300_posts_tier_free_premium.sql`), `image_url` (nullable; bucket `post-images`), `video_url` (nullable; bucket `post-videos`) — **at most one** of `image_url` / `video_url` non-null (`posts_one_media_type` CHECK); **`video_url` only for premium or admin** (same trigger + Storage insert/update on `post-videos`)
 - `is_flagged` (boolean; when true, row is hidden from public SELECT via RLS except author + admins), `spam_score` (int; heuristic)
 
 ### `follows`
@@ -71,6 +72,7 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 
 - `tags`: `id`, `slug`, `created_at`
 - `post_tags`: `post_id`, `tag_id` (composite PK in migration)
+- **Tier limit (insert):** trigger `post_tags_bi_tier_limit` — free users **4** tags per post; premium or admin **8** (`20260401351400_post_tags_tier_limit.sql`). Client: `getMaxTagsPerPost` / `parseTagsFromInput` in `tagParse.ts`.
 
 ### `conversations`
 
@@ -110,15 +112,15 @@ Errors surface as PostgREST messages (e.g. `Too many posts. Wait a minute and tr
 
 ## Anti-spam (DB triggers)
 
-Migrations: `20260401350000_add_anti_spam_flags.sql` (MVP), `20260401350600_antispam_recheck_on_body_update.sql` (recompute on edit).
+Migrations: `20260401350000_add_anti_spam_flags.sql` (MVP), `20260401350600_antispam_recheck_on_body_update.sql` (recompute on edit), `20260401351000_antispam_duplicate_min_body_length.sql` (baseline min length), `20260401351100_antispam_tune_window_7_min_len_15.sql` (current: **7 min** window, length ≥ **15**).
 
-- **BEFORE INSERT** (`posts_zz_antispam_before_insert`, `comments_zz_antispam_before_insert`): duplicate text within **5 minutes** (normalized body) → flag + score; **link count** over limit (posts: more than 2 URL-like patterns, comments: more than 1) → flag + score.
+- **BEFORE INSERT** (`posts_zz_antispam_before_insert`, `comments_zz_antispam_before_insert`): duplicate text within **7 minutes** (normalized body) → flag + score **only if** `spam_duplicate_eligible(body)` (normalized length ≥ 15 — avoids flagging repeated very short text); **link count** over limit (posts: more than 2 URL-like patterns, comments: more than 1) → flag + score.
 - **BEFORE UPDATE** (`prevent_user_editing_spam_columns_*`): non-admins cannot set `is_flagged` / `spam_score` directly; when **`body` changes**, spam fields are recomputed from scratch (same duplicate/link rules as INSERT; duplicate check excludes current row `id`). Honors `reziizi.skip_spam_guard` (e.g. report auto-flag).
 - **AFTER INSERT**: optional row in `abuse_flags` when `is_flagged`.
 - **AFTER UPDATE** (`abuse_flags_after_post_update`, `abuse_flags_after_comment_update`): if `is_flagged` becomes true and was false, insert `abuse_flags` with `reason = auto` — skipped when `skip_spam_guard = 1` (avoids duplicate row with report-threshold path).
 - **SELECT RLS**: `posts` / `comments` — unflagged rows visible to all; flagged visible to **author** and **admins** only (soft hide for others).
 
-Helpers: `normalize_body_for_spam`, `count_url_indicators` (uses `regexp_count(text, pattern, 1, 'i')` — no `g` flag (`regexp_count` does not support global); PostgreSQL 15+).
+Helpers: `normalize_body_for_spam`, `spam_duplicate_eligible`, `count_url_indicators` (uses `regexp_count(text, pattern, 1, 'i')` — no `g` flag (`regexp_count` does not support global); PostgreSQL 15+).
 
 ## RPCs (invoked from web client)
 
@@ -128,9 +130,14 @@ Helpers: `normalize_body_for_spam`, `count_url_indicators` (uses `regexp_count(t
 | `feed_trending_post_ids` | Trending feed — score = (net reactions + 0.15×non-flagged comment count) / (age_hours + 2)^1.5 (age floor 15 min); unflagged posts only; see migration `20260401350300_improve_feed_trending_ranking.sql` |
 | `search_post_ids` | Search v2 — ranked post ids: FTS (`simple`) + `ts_rank_cd`, ILIKE fallback; excludes `is_flagged`; GIN on `to_tsvector('simple', body)` — `20260401350400_add_search_v2_rpcs.sql` |
 | `search_profile_ids` | Search v2 — ranked profile ids by email match (exact / prefix / substring); `searchable` or self row; same privacy as legacy client query |
+| `user_commented_post_ids` | Profile “Commented” tab — distinct `post_id`s the user commented on, ordered by latest comment activity (`max(created_at)` per post); `20260401350900_add_user_commented_post_ids_rpc.sql` |
 | `get_or_create_conversation` | Chat thread id |
 | `admin_set_user_banned` | Admin ban/unban (+ reason) |
 | `admin_set_user_premium_until` | Admin premium window |
+
+### Billing (Stripe — Edge Function, not an RPC)
+
+- **`stripe-webhook`** (`supabase/functions/stripe-webhook`): when deployed and configured, Stripe → `checkout.session.completed` → updates `profiles.premium_until` using **service role** (after migration `20260401350700_allow_service_role_premium_update.sql`). **Live Stripe setup is optional** until launch; see **`README.md` → „Stripe Premium“**.
 
 Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_post_owner_on_*`, `notify_followed_user_on_follow`, `enforce_*_rate_limit`, anti-spam helpers above); not called directly from the app.
 

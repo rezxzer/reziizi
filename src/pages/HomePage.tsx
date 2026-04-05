@@ -76,7 +76,7 @@ export function HomePage(): ReactElement {
   const latestHref: string = effectiveTag ? `/?tag=${encodeURIComponent(effectiveTag)}` : "/";
 
   return (
-    <div className="stack">
+    <div className="stack home-page">
       <section className="card">
         <h2 className="card__title">{t("pages.home.title")}</h2>
         <div className="card__body">

@@ -33,7 +33,7 @@ export function ForgotPasswordPage(): ReactElement {
   }
 
   return (
-    <div className="stack">
+    <div className="stack auth-flow-page">
       <section className="card">
         <h1 className="card__title">{t("pages.forgotPassword.title")}</h1>
         <div className="card__body">

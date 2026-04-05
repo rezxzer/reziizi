@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
@@ -23,10 +23,40 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
   const { t } = useI18n();
   const { user } = useAuth();
   const [deleting, setDeleting] = useState(false);
+  const [bodyExpanded, setBodyExpanded] = useState(false);
+  const [bodyOverflows, setBodyOverflows] = useState(false);
+  const bodyRef = useRef<HTMLParagraphElement>(null);
   const isOwner = user?.id === post.user_id;
+  const hasMedia: boolean = Boolean(post.image_url || post.video_url);
   const display = post.authorEmail ?? post.user_id.slice(0, 8);
   const created = new Date(post.created_at).toLocaleString();
   const netScore: number = post.thumbsUp - post.thumbsDown;
+
+  useLayoutEffect(() => {
+    if (!hasMedia) {
+      setBodyOverflows(false);
+      return;
+    }
+    const el = bodyRef.current;
+    if (!el) {
+      return;
+    }
+    const measure = (): void => {
+      if (bodyExpanded) {
+        setBodyOverflows(true);
+        return;
+      }
+      setBodyOverflows(el.scrollHeight > el.clientHeight + 1);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [hasMedia, bodyExpanded, post.body, post.id]);
 
   async function handleDelete(): Promise<void> {
     if (!user || !isOwner || deleting) {
@@ -87,7 +117,44 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
           {t("pages.postCard.flaggedAuthorHint")}
         </p>
       ) : null}
-      <p className="post-card__body">{post.body}</p>
+      {hasMedia ? (
+        <div className="post-card__body-block">
+          <p
+            ref={bodyRef}
+            className={
+              bodyExpanded
+                ? "post-card__body"
+                : "post-card__body post-card__body--clamped"
+            }
+          >
+            {post.body}
+          </p>
+          {bodyExpanded || bodyOverflows ? (
+            <button
+              type="button"
+              className="post-card__body-toggle"
+              aria-expanded={bodyExpanded}
+              aria-label={
+                bodyExpanded
+                  ? t("pages.postCard.collapseBodyAria")
+                  : t("pages.postCard.expandBodyAria")
+              }
+              title={
+                bodyExpanded
+                  ? t("pages.postCard.collapseBodyAria")
+                  : t("pages.postCard.expandBodyAria")
+              }
+              onClick={() => setBodyExpanded((v) => !v)}
+            >
+              <span className="post-card__body-toggle-icon" aria-hidden="true">
+                {bodyExpanded ? "▲" : "▼"}
+              </span>
+            </button>
+          ) : null}
+        </div>
+      ) : (
+        <p className="post-card__body">{post.body}</p>
+      )}
       {post.tagSlugs.length > 0 ? (
         <ul className="tag-list">
           {post.tagSlugs.map((slug) => (

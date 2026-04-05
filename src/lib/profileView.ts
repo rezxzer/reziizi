@@ -4,6 +4,8 @@ export type PublicProfileView = {
   id: string;
   email: string | null;
   avatar_url: string | null;
+  display_name: string | null;
+  bio: string | null;
   searchable: boolean;
   is_banned: boolean;
 };
@@ -15,7 +17,7 @@ export type PublicProfileView = {
 export async function fetchPublicProfile(userId: string): Promise<PublicProfileView | null> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, avatar_url, searchable, is_banned")
+    .select("id, email, avatar_url, display_name, bio, searchable, is_banned")
     .eq("id", userId)
     .maybeSingle();
 
@@ -29,6 +31,8 @@ export async function fetchPublicProfile(userId: string): Promise<PublicProfileV
     id: string;
     email: string | null;
     avatar_url: string | null;
+    display_name: string | null;
+    bio: string | null;
     searchable: boolean | null;
     is_banned: boolean | null;
   };
@@ -36,6 +40,8 @@ export async function fetchPublicProfile(userId: string): Promise<PublicProfileV
     id: r.id,
     email: r.email ?? null,
     avatar_url: r.avatar_url ?? null,
+    display_name: r.display_name ?? null,
+    bio: r.bio ?? null,
     searchable: Boolean(r.searchable),
     is_banned: Boolean(r.is_banned),
   };

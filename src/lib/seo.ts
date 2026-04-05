@@ -37,6 +37,30 @@ const ROUTE_DEFS: readonly { pattern: string; key: RouteKey; robots: RobotsDirec
   { pattern: "/", key: "home", robots: "index,follow" },
 ];
 
+/** Strip control chars / angle brackets; cap length for meta title/description. */
+function sanitizeSeoFragment(raw: string): string {
+  return raw.replace(/[\u0000-\u001F<>]/g, "").slice(0, 120);
+}
+
+/** Returns trimmed `q` when it meets the same minimum length as live search (2+). */
+function parseSearchQueryForSeo(search: string): string | null {
+  if (search.length < 2) {
+    return null;
+  }
+  try {
+    const qs: string = search.startsWith("?") ? search.slice(1) : search;
+    const p: URLSearchParams = new URLSearchParams(qs);
+    const raw: string = p.get("q")?.trim() ?? "";
+    if (raw.length < 2) {
+      return null;
+    }
+    const s: string = sanitizeSeoFragment(raw);
+    return s.length >= 2 ? s : null;
+  } catch {
+    return null;
+  }
+}
+
 function pageFromRouteKey(locale: Locale, key: RouteKey, robots: RobotsDirective): PageSeo {
   const title: string =
     resolveMessage(locale, `seo.routes.${key}.title`) ?? resolveMessage("en", `seo.routes.${key}.title`) ?? "";
@@ -62,9 +86,25 @@ function adminSeo(locale: Locale): PageSeo {
 }
 
 /** Resolve SEO for the current pathname (first matching route wins; admin prefix first). */
-export function getSeoForPath(pathname: string, locale: Locale): PageSeo {
+export function getSeoForPath(pathname: string, locale: Locale, search: string = ""): PageSeo {
   if (pathname.startsWith("/admin")) {
     return adminSeo(locale);
+  }
+  const q: string | null = pathname === "/search" ? parseSearchQueryForSeo(search) : null;
+  if (q) {
+    const titleTpl: string =
+      resolveMessage(locale, "seo.searchWithQueryTitle") ??
+      resolveMessage("en", "seo.searchWithQueryTitle") ??
+      "Search: {q}";
+    const descTpl: string =
+      resolveMessage(locale, "seo.searchWithQueryDescription") ??
+      resolveMessage("en", "seo.searchWithQueryDescription") ??
+      "";
+    return {
+      title: interpolate(titleTpl, { q }),
+      description: interpolate(descTpl, { q }),
+      robots: "index,follow",
+    };
   }
   for (const entry of ROUTE_DEFS) {
     const m = matchPath({ path: entry.pattern, end: true }, pathname);
@@ -72,22 +112,15 @@ export function getSeoForPath(pathname: string, locale: Locale): PageSeo {
       return pageFromRouteKey(locale, entry.key, entry.robots);
     }
   }
-  return {
-    title: SITE_NAME,
-    description:
-      resolveMessage(locale, "seo.defaultDescription") ??
-      resolveMessage("en", "seo.defaultDescription") ??
-      DEFAULT_DESCRIPTION,
-    robots: "index,follow",
-  };
+  return pageFromRouteKey(locale, "notFound", "noindex,nofollow");
 }
 
 /**
  * Phrase for screen readers when the client-side route changes (aria-live).
  * Uses `seo.announcer` from messages (`{title}` placeholder).
  */
-export function getRouteAnnouncement(pathname: string, locale: Locale): string {
-  const page: PageSeo = getSeoForPath(pathname, locale);
+export function getRouteAnnouncement(pathname: string, locale: Locale, search: string = ""): string {
+  const page: PageSeo = getSeoForPath(pathname, locale, search);
   const tmpl: string =
     resolveMessage(locale, "seo.announcer") ?? resolveMessage("en", "seo.announcer") ?? "Navigated to {title}";
   return interpolate(tmpl, { title: page.title });
@@ -127,8 +160,8 @@ function ensureCanonical(href: string): void {
  * Updates document title, meta description, robots, Open Graph, Twitter card, and canonical URL.
  * Safe to call on every client navigation.
  */
-export function applyPageSeo(pathname: string, locale: Locale): void {
-  const page: PageSeo = getSeoForPath(pathname, locale);
+export function applyPageSeo(pathname: string, locale: Locale, search: string = ""): void {
+  const page: PageSeo = getSeoForPath(pathname, locale, search);
   const fullTitle: string =
     page.title === SITE_NAME ? SITE_NAME : `${page.title} · ${SITE_NAME}`;
   document.title = fullTitle;
@@ -147,7 +180,8 @@ export function applyPageSeo(pathname: string, locale: Locale): void {
 
   const origin: string = typeof window !== "undefined" ? window.location.origin : "";
   const path: string = pathname || "/";
-  const url: string = origin ? `${origin}${path === "" ? "/" : path}` : path;
+  const query: string = search.startsWith("?") ? search : search.length > 0 ? `?${search}` : "";
+  const url: string = origin ? `${origin}${path === "" ? "/" : path}${query}` : `${path}${query}`;
   ensureMetaByProperty("og:url", url);
   ensureCanonical(url);
 }

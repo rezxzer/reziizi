@@ -22,10 +22,16 @@ type SeoRoutes = {
   search: SeoPage;
   legal: SeoPage;
   security: SeoPage;
+  notFound: SeoPage;
 };
 
 type PagesBundle = {
-  common: { loading: string };
+  common: {
+    loading: string;
+    /** PlaceholderCard / future scaffold UI badge. */
+    scaffoldInProgress: string;
+    scaffoldInProgressHint: string;
+  };
   home: {
     title: string;
     feedSortAria: string;
@@ -39,6 +45,9 @@ type PagesBundle = {
     emptyTagged: string;
     emptyFeed: string;
     loadMore: string;
+    /** Feed-top ad strip (FeedAdSlot). */
+    feedAdSponsored: string;
+    feedAdSponsoredContent: string;
   };
   login: {
     titleSignIn: string;
@@ -80,6 +89,8 @@ type PagesBundle = {
     placeholder: string;
     submit: string;
     hintMinChars: string;
+    /** Shown when there is no `q` yet — what Search covers. */
+    introHint: string;
     searching: string;
     usersWithCount: string;
     usersPrivacyNote: string;
@@ -89,27 +100,51 @@ type PagesBundle = {
     postsWithCount: string;
     noPosts: string;
     rankingHint: string;
+    /** Both result lists empty for a valid query (`{q}` = trimmed term). */
+    noResultsAny: string;
+    /** `aria-label` for the results landmark (loading + lists). */
+    resultsRegionLabel: string;
   };
   postForm: {
     signInPrompt: string;
     signInLink: string;
     banned: string;
     bodyLength: string;
+    /** Server rejected body length for current plan. */
+    bodyTierLimit: string;
     createFailed: string;
     label: string;
     placeholder: string;
     attachAria: string;
+    /** Free tier: image-only file picker label. */
+    attachImageAria: string;
     addMedia: string;
+    /** Free tier: button label without video. */
+    addMediaImage: string;
     removeMedia: string;
     mediaInvalidType: string;
+    videoRequiresPremium: string;
     previewAlt: string;
     tagsLabel: string;
     tagsPlaceholder: string;
     tagsHint: string;
+    /** Server rejected tag count for current plan (should be rare if client matches tier). */
+    tagsTierLimit: string;
+    /** Live preview: resolved tag slugs before submit. */
+    tagsPreviewLabel: string;
+    /** Shown when input has text but no valid slugs (e.g. non-Latin only). */
+    tagsPreviewInvalid: string;
     posting: string;
     post: string;
+    /** Info toast when anti-spam auto-flagged the new post (author still sees it). */
+    flaggedAfterPost: string;
   };
   chrome: { backHome: string };
+  notFoundPage: {
+    title: string;
+    body: string;
+    homeLink: string;
+  };
   profile: {
     title: string;
     premiumBadge: string;
@@ -119,9 +154,22 @@ type PagesBundle = {
     uploadPhoto: string;
     settingsPhotoHint: string;
     postsCount: string;
+    /** Short label for stats row (number shown above). */
+    statsPosts: string;
+    statsFollowers: string;
+    statsFollowing: string;
     yourPosts: string;
     emptyPosts: string;
+    /** CTA under empty own posts (link to home feed). */
+    emptyPostsCta: string;
     avatarLabel: string;
+    copyProfileLink: string;
+    copyProfileLinkSuccess: string;
+    copyProfileLinkFailed: string;
+    tabPosts: string;
+    tabCommented: string;
+    sectionCommented: string;
+    emptyCommented: string;
   };
   userProfile: {
     invalidTitle: string;
@@ -140,6 +188,10 @@ type PagesBundle = {
     signInToFollow: string;
     theirPosts: string;
     postsHiddenBanned: string;
+    /** Empty posts list when viewing someone else's profile. */
+    emptyPostsOther: string;
+    sectionCommented: string;
+    emptyCommentedOther: string;
   };
     followList: {
       followersHeading: string;
@@ -155,6 +207,18 @@ type PagesBundle = {
       introBefore: string;
       introAfter: string;
       empty: string;
+    };
+    /** /banned — account restriction notice (signed-in banned user). */
+    bannedPage: {
+      title: string;
+      intro: string;
+      loadingDetails: string;
+      whyHeading: string;
+      activeSincePrefix: string;
+      signedInAsPrefix: string;
+      contactSupport: string;
+      signOut: string;
+      legalLink: string;
     };
     chat: {
       chatHeading: string;
@@ -310,6 +374,12 @@ type PagesBundle = {
     netScoreTitle: string;
     /** Shown to the author when the post was auto-flagged (still visible to them). */
     flaggedAuthorHint: string;
+    /** Long text under image/video — expand in place (legacy copy; primary control is arrow). */
+    readMore: string;
+    showLess: string;
+    /** Icon-only expand button aria-label (caption under media). */
+    expandBodyAria: string;
+    collapseBodyAria: string;
   };
   comment: {
     comments: string;
@@ -324,6 +394,8 @@ type PagesBundle = {
     deleteCommentConfirm: string;
     delete: string;
     commentFailed: string;
+    /** Info toast when anti-spam auto-flagged the new comment. */
+    flaggedAfterComment: string;
   };
   report: {
     report: string;
@@ -399,6 +471,9 @@ export type Bundle = {
     routeBody: string;
     tryAgain: string;
     homeLink: string;
+    /** Root `ErrorBoundary` in `main.tsx` (full app failure). */
+    appBoundaryBody: string;
+    reload: string;
   };
   theme: {
     auto: string;
@@ -414,6 +489,18 @@ export type Bundle = {
     languageRu: string;
     appearance: string;
     appearanceHint: string;
+    profileAbout: string;
+    profileAboutHint: string;
+    profileAboutLoading: string;
+    displayName: string;
+    displayNamePlaceholder: string;
+    displayNameTooLong: string;
+    bio: string;
+    bioPlaceholder: string;
+    bioTooLong: string;
+    profileAboutSave: string;
+    profileAboutSaving: string;
+    profileAboutSaved: string;
     account: string;
     signedInAs: string;
     premium: string;
@@ -452,12 +539,26 @@ export type Bundle = {
     deleteAccountSubmit: string;
     deleteAccountDeleting: string;
     deleteAccountFailed: string;
+    /** Settings → profile photo upload (AvatarUploadSection). */
+    avatarSectionTitle: string;
+    avatarFormatHint: string;
+    avatarChooseAria: string;
+    avatarUpload: string;
+    avatarRemove: string;
+    avatarUpdated: string;
+    avatarRemoved: string;
+    avatarRemoveConfirm: string;
+    avatarUserFallback: string;
     termsLink: string;
   };
   pages: PagesBundle;
   seo: {
     announcer: string;
     defaultDescription: string;
+    /** `/search?q=` when `q` is valid (min length) — `{q}` in title. */
+    searchWithQueryTitle: string;
+    /** Meta description for search with `q`. */
+    searchWithQueryDescription: string;
     admin: SeoPage;
     routes: SeoRoutes;
   };
@@ -497,6 +598,8 @@ const en: Bundle = {
     routeBody: "This part of the page hit an unexpected error. You can try again or go home.",
     tryAgain: "Try again",
     homeLink: "← Home",
+    appBoundaryBody: "The app hit an unexpected error. You can try reloading the page.",
+    reload: "Reload",
   },
   theme: {
     auto: "Auto",
@@ -512,6 +615,18 @@ const en: Bundle = {
     languageRu: "Russian",
     appearance: "Appearance",
     appearanceHint: "Color theme (stored on this device).",
+    profileAbout: "Name & bio",
+    profileAboutHint: "Shown on your public profile. Leave fields empty to show only your email in the header.",
+    profileAboutLoading: "Loading…",
+    displayName: "Display name",
+    displayNamePlaceholder: "Optional",
+    displayNameTooLong: "Display name must be at most {max} characters.",
+    bio: "Bio",
+    bioPlaceholder: "Short introduction (optional)",
+    bioTooLong: "Bio must be at most {max} characters.",
+    profileAboutSave: "Save name & bio",
+    profileAboutSaving: "Saving…",
+    profileAboutSaved: "Profile details saved.",
     account: "Account",
     signedInAs: "Signed in as",
     premium: "Premium",
@@ -552,11 +667,22 @@ const en: Bundle = {
     deleteAccountSubmit: "Delete my account permanently",
     deleteAccountDeleting: "Deleting account…",
     deleteAccountFailed: "Could not delete account: {message}",
+    avatarSectionTitle: "Profile photo",
+    avatarFormatHint: "JPEG, PNG, WebP, or GIF — max 2 MB.",
+    avatarChooseAria: "Choose profile photo",
+    avatarUpload: "Upload photo",
+    avatarRemove: "Remove photo",
+    avatarUpdated: "Profile photo updated.",
+    avatarRemoved: "Profile photo removed.",
+    avatarRemoveConfirm: "Remove your profile photo?",
+    avatarUserFallback: "User",
     termsLink: "Terms & Privacy",
   },
   pages: {
     common: {
       loading: "Loading…",
+      scaffoldInProgress: "In progress",
+      scaffoldInProgressHint: "Scaffold — in progress",
     },
     home: {
       title: "Feed",
@@ -572,6 +698,8 @@ const en: Bundle = {
       emptyTagged: "No posts with this tag yet.",
       emptyFeed: "No posts yet. Be the first to post.",
       loadMore: "Load more ({pageSize} per page)",
+      feedAdSponsored: "Sponsored",
+      feedAdSponsoredContent: "Sponsored content",
     },
     login: {
       titleSignIn: "Log in",
@@ -616,6 +744,8 @@ const en: Bundle = {
       placeholder: "Posts (body) or users (email)…",
       submit: "Search",
       hintMinChars: "Enter at least 2 characters (after trimming).",
+      introHint:
+        "Search post bodies by keyword and users by email. Results update after you submit.",
       searching: "Searching…",
       usersWithCount: "Users ({count})",
       usersPrivacyNote:
@@ -627,28 +757,46 @@ const en: Bundle = {
       noPosts: "No matching posts.",
       rankingHint:
         "Results are ordered by relevance (full-text match, where the term appears) and recency. Flagged posts are excluded.",
+      noResultsAny:
+        "No posts or users matched “{q}”. Try other words or check email spelling (for profiles).",
+      resultsRegionLabel: "Search results",
     },
     postForm: {
       signInPrompt: "Sign in to create posts.",
       signInLink: "Log in",
       banned: "Your account cannot create posts right now.",
       bodyLength: "Body must be 1–{max} characters.",
+      bodyTierLimit: "Your plan allows up to {max} characters per post.",
       createFailed: "Could not create post",
       label: "New post",
       placeholder: "Write something…",
       attachAria: "Attach image or video",
+      attachImageAria: "Attach image",
       addMedia: "Add image or video",
+      addMediaImage: "Add image",
       removeMedia: "Remove attachment",
       mediaInvalidType: "Choose an image (JPEG, PNG, WebP, GIF) or a video (MP4, WebM).",
+      videoRequiresPremium: "Video posts require Premium.",
       previewAlt: "Selected attachment preview",
       tagsLabel: "Tags (optional)",
       tagsPlaceholder: "e.g. news, dev, release-notes",
-      tagsHint: "Comma-separated. Lowercase letters, numbers, hyphens. Up to 8 tags.",
+      tagsHint: "Comma-separated. Lowercase letters, numbers, hyphens. Up to {max} tags.",
+      tagsPreviewLabel: "Will be saved as:",
+      tagsPreviewInvalid:
+        "No tags will be saved — use Latin letters (a–z), digits, and hyphens only.",
+      tagsTierLimit: "Your plan allows up to {max} tags per post.",
       posting: "Posting…",
       post: "Post",
+      flaggedAfterPost:
+        "This post was flagged by automated checks. It is hidden from others until reviewed — you still see it on your profile.",
     },
     chrome: {
       backHome: "← Home",
+    },
+    notFoundPage: {
+      title: "Page not found",
+      body: "This link may be broken or the page was removed.",
+      homeLink: "← Home",
     },
     profile: {
       title: "Profile",
@@ -659,9 +807,20 @@ const en: Bundle = {
       uploadPhoto: "Upload profile photo",
       settingsPhotoHint: "Settings → Profile photo",
       postsCount: "Posts: {count}",
+      statsPosts: "Posts",
+      statsFollowers: "Followers",
+      statsFollowing: "Following",
       yourPosts: "Your posts",
       emptyPosts: "You have not posted yet.",
+      emptyPostsCta: "Go to home feed",
       avatarLabel: "Profile",
+      copyProfileLink: "Copy profile link",
+      copyProfileLinkSuccess: "Link copied to clipboard.",
+      copyProfileLinkFailed: "Could not copy link.",
+      tabPosts: "Posts",
+      tabCommented: "Commented",
+      sectionCommented: "Posts you commented on",
+      emptyCommented: "You have not commented on any posts yet.",
     },
     userProfile: {
       invalidTitle: "Profile",
@@ -679,6 +838,9 @@ const en: Bundle = {
       signInToFollow: "Sign in to follow this user.",
       theirPosts: "Posts",
       postsHiddenBanned: "Posts are hidden for restricted accounts.",
+      emptyPostsOther: "This member hasn't posted yet.",
+      sectionCommented: "Posts they commented on",
+      emptyCommentedOther: "This member has not commented on any posts yet.",
     },
     followList: {
       followersHeading: "Followers",
@@ -694,6 +856,18 @@ const en: Bundle = {
       introBefore: "Open a chat from ",
       introAfter: " (user results) or pick a thread below.",
       empty: "No conversations yet.",
+    },
+    bannedPage: {
+      title: "Account restricted",
+      intro:
+        "Your account cannot post, comment, react, or send messages until this restriction is lifted.",
+      loadingDetails: "Loading details…",
+      whyHeading: "Why",
+      activeSincePrefix: "Restriction active since",
+      signedInAsPrefix: "Signed in as",
+      contactSupport: "If you think this is a mistake, contact support.",
+      signOut: "Sign out",
+      legalLink: "Legal",
     },
     chat: {
       chatHeading: "Chat",
@@ -853,6 +1027,10 @@ const en: Bundle = {
       deleting: "…",
       netScoreTitle: "Net score (thumbs up minus thumbs down)",
       flaggedAuthorHint: "Under review — only you and moderators see this in the public feed.",
+      readMore: "Read more",
+      showLess: "Show less",
+      expandBodyAria: "Show full text",
+      collapseBodyAria: "Collapse text",
     },
     comment: {
       comments: "Comments",
@@ -867,6 +1045,8 @@ const en: Bundle = {
       deleteCommentConfirm: "Delete this comment?",
       delete: "Delete",
       commentFailed: "Could not post comment",
+      flaggedAfterComment:
+        "This comment was flagged by automated checks. Others may not see it until reviewed.",
     },
     report: {
       report: "Report",
@@ -915,6 +1095,9 @@ const en: Bundle = {
     announcer: "Navigated to {title}",
     defaultDescription:
       "REZIIZI — social feed: posts, reactions, comments, tags, search, and messages.",
+    searchWithQueryTitle: "Search: {q}",
+    searchWithQueryDescription:
+      "Search results for “{q}” on REZIIZI — posts and profiles.",
     admin: {
       title: "Admin",
       description: "Administration tools for REZIIZI.",
@@ -985,6 +1168,10 @@ const en: Bundle = {
         title: "Security",
         description: "Security tips and account safety on REZIIZI.",
       },
+      notFound: {
+        title: "Page not found",
+        description: "This page does not exist or was moved on REZIIZI.",
+      },
     },
   },
 };
@@ -1023,6 +1210,8 @@ const ka: Bundle = {
     routeBody: "ამ ნაწილმა მოულოდნელი შეცდომა გამოიწვია. სცადეთ ხელახლა ან დაბრუნდით მთავარზე.",
     tryAgain: "ხელახლა",
     homeLink: "← მთავარი",
+    appBoundaryBody: "აპმა მოულოდნელი შეცდომა განიცადა. ცადეთ გვერდის გადატვირთვა.",
+    reload: "გადატვირთვა",
   },
   theme: {
     auto: "ავტო",
@@ -1038,6 +1227,18 @@ const ka: Bundle = {
     languageRu: "რუსული",
     appearance: "გარეგნობა",
     appearanceHint: "ფერის თემა (ინახება ამ მოწყობილობაზე).",
+    profileAbout: "სახელი და ბიო",
+    profileAboutHint: "ჩანს საჯარო პროფილზე. ცარიელი დატოვება — ზედა ზოლში უპირატესოდ ელფოსტა.",
+    profileAboutLoading: "იტვირთება…",
+    displayName: "საჩვენებელი სახელი",
+    displayNamePlaceholder: "არასავალდებულო",
+    displayNameTooLong: "საჩვენებელი სახელი არაუმეტეს {max} სიმბოლოს.",
+    bio: "ბიო",
+    bioPlaceholder: "მოკლე შესავალი (არასავალდებულო)",
+    bioTooLong: "ბიო არაუმეტეს {max} სიმბოლოს.",
+    profileAboutSave: "სახელისა და ბიოს შენახვა",
+    profileAboutSaving: "ინახება…",
+    profileAboutSaved: "პროფილი შენახულია.",
     account: "ანგარიში",
     signedInAs: "შესული ხართ როგორც",
     premium: "პრემიუმი",
@@ -1079,11 +1280,22 @@ const ka: Bundle = {
     deleteAccountSubmit: "ანგარიშის სამუდამო წაშლა",
     deleteAccountDeleting: "იშლება…",
     deleteAccountFailed: "ანგარიშის წაშლა ვერ მოხერხდა: {message}",
+    avatarSectionTitle: "პროფილის ფოტო",
+    avatarFormatHint: "JPEG, PNG, WebP ან GIF — მაქს. 2 მბ.",
+    avatarChooseAria: "აირჩიეთ პროფილის ფოტო",
+    avatarUpload: "ფოტოს ატვირთვა",
+    avatarRemove: "ფოტოს წაშლა",
+    avatarUpdated: "პროფილის ფოტო განახლდა.",
+    avatarRemoved: "პროფილის ფოტო წაიშალა.",
+    avatarRemoveConfirm: "წავშალოთ პროფილის ფოტო?",
+    avatarUserFallback: "მომხმარებელი",
     termsLink: "წესები და კონფიდენციალურობა",
   },
   pages: {
     common: {
       loading: "იტვირთება…",
+      scaffoldInProgress: "მიმდინარე",
+      scaffoldInProgressHint: "საკანდიდატო — მიმდინარე",
     },
     home: {
       title: "ლენტა",
@@ -1099,6 +1311,8 @@ const ka: Bundle = {
       emptyTagged: "ამ თეგით პოსტები ჯერ არ არის.",
       emptyFeed: "პოსტები ჯერ არ არის. იყავით პირველი.",
       loadMore: "კიდევ ({pageSize} გვერდზე)",
+      feedAdSponsored: "სპონსორი",
+      feedAdSponsoredContent: "სპონსორის კონტენტი",
     },
     login: {
       titleSignIn: "შესვლა",
@@ -1143,6 +1357,8 @@ const ka: Bundle = {
       placeholder: "პოსტები (ტექსტი) ან მომხმარებლები (ელფოსტა)…",
       submit: "ძიება",
       hintMinChars: "შეიყვანეთ მინიმუმ 2 სიმბოლო (გაფართოების შემდეგ).",
+      introHint:
+        "ძებნა: პოსტების ტექსტი საკვანძო სიტყვით და მომხმარებლები ელფოსტით. შედეგი განახლდება გაგზავნის შემდეგ.",
       searching: "ძიება…",
       usersWithCount: "მომხმარებლები ({count})",
       usersPrivacyNote:
@@ -1154,28 +1370,46 @@ const ka: Bundle = {
       noPosts: "შესაბამისი პოსტები არ არის.",
       rankingHint:
         "შედეგები დალაგებულია რელევანტურობით (სრული ტექსტური შესაბამისობა, სად ჩანს ტერმინი) და ახლობლობით. დაფლაგული პოსტები არ შედის.",
+      noResultsAny:
+        "„{q}“-ისთვის პოსტი ან მომხმარებელი არ მოიძებნა. სცადეთ სხვა სიტყვები ან ელფოსტის მართვა (პროფილებისთვის).",
+      resultsRegionLabel: "ძიების შედეგები",
     },
     postForm: {
       signInPrompt: "პოსტისთვის შედით.",
       signInLink: "შესვლა",
       banned: "თქვენი ანგარიში ახლა პოსტებს ვერ ქმნის.",
       bodyLength: "ტექსტი იყოს 1–{max} სიმბოლო.",
+      bodyTierLimit: "თქვენი გეგმით პოსტზე მაქსიმუმ {max} სიმბოლოა.",
       createFailed: "პოსტის შექმნა ვერ მოხერხდა",
       label: "ახალი პოსტი",
       placeholder: "დაწერეთ…",
       attachAria: "სურათი ან ვიდეო",
+      attachImageAria: "სურათი",
       addMedia: "სურათი ან ვიდეო",
+      addMediaImage: "სურათი",
       removeMedia: "მიმაგრების მოშორება",
       mediaInvalidType: "აირჩიეთ სურათი (JPEG, PNG, WebP, GIF) ან ვიდეო (MP4, WebM).",
+      videoRequiresPremium: "ვიდეო პოსტზე საჭიროა პრემიუმი.",
       previewAlt: "არჩეული ფაილის გადახედვა",
       tagsLabel: "თეგები (არასავალდებულო)",
       tagsPlaceholder: "მაგ. news, dev, release-notes",
-      tagsHint: "მძიმით გამოყოფილი. პატარა ასოები, ციფრები, ტირე. მაქს. 8 თეგი.",
+      tagsHint: "მძიმით გამოყოფილი. პატარა ასოები, ციფრები, ტირე. მაქს. {max} თეგი.",
+      tagsPreviewLabel: "შეინახება როგორც:",
+      tagsPreviewInvalid:
+        "თეგი არ შეინახება — გამოიყენეთ მხოლოდ ლათინური ასოები (a–z), ციფრები და ტირე.",
+      tagsTierLimit: "თქვენი გეგმით პოსტზე მაქსიმუმ {max} თეგია.",
       posting: "იგზავნება…",
       post: "გამოქვეყნება",
+      flaggedAfterPost:
+        "პოსტი ავტომატურმა შემოწმებამ მონიშნა. სხვებისთვის დამალულია მოდერაციამდე — თქვენ კვლავ ხედავთ პროფილზე.",
     },
     chrome: {
       backHome: "← მთავარი",
+    },
+    notFoundPage: {
+      title: "გვერდი ვერ მოიძებნა",
+      body: "ბმული შეიძლება დაზიანებული იყოს ან გვერდი ამოღებულია.",
+      homeLink: "← მთავარი",
     },
     profile: {
       title: "პროფილი",
@@ -1186,9 +1420,20 @@ const ka: Bundle = {
       uploadPhoto: "პროფილის ფოტის ატვირთვა",
       settingsPhotoHint: "პარამეტრები → პროფილის ფოტო",
       postsCount: "პოსტები: {count}",
+      statsPosts: "პოსტები",
+      statsFollowers: "გამომწერები",
+      statsFollowing: "გამოწერები",
       yourPosts: "თქვენი პოსტები",
       emptyPosts: "ჯერ პოსტი არ გაქვთ.",
+      emptyPostsCta: "მთავარ ფიდზე",
       avatarLabel: "პროფილი",
+      copyProfileLink: "პროფილის ბმულის კოპირება",
+      copyProfileLinkSuccess: "ბმული დაკოპირდა.",
+      copyProfileLinkFailed: "ბმულის კოპირება ვერ მოხერხდა.",
+      tabPosts: "პოსტები",
+      tabCommented: "კომენტარები",
+      sectionCommented: "პოსტები, სადაც დაგიწერით",
+      emptyCommented: "ჯერ პოსტზე კომენტარი არ გაქვთ.",
     },
     userProfile: {
       invalidTitle: "პროფილი",
@@ -1206,6 +1451,9 @@ const ka: Bundle = {
       signInToFollow: "გამოსაწერად შედით.",
       theirPosts: "პოსტები",
       postsHiddenBanned: "შეზღუდული ანგარიშის პოსტები დამალულია.",
+      emptyPostsOther: "ამ წევრს ჯერ პოსტი არ აქვს.",
+      sectionCommented: "პოსტები, სადაც დაწერა",
+      emptyCommentedOther: "ამ წევრს ჯერ პოსტზე კომენტარი არ აქვს.",
     },
     followList: {
       followersHeading: "გამომწერები",
@@ -1221,6 +1469,18 @@ const ka: Bundle = {
       introBefore: "ჩატი გახსენით ",
       introAfter: " გვერდიდან (მომხმარებლის შედეგები) ან აირჩიეთ თრედი ქვემოთ.",
       empty: "საუბრები ჯერ არაა.",
+    },
+    bannedPage: {
+      title: "ანგარიში შეზღუდულია",
+      intro:
+        "სანამ შეზღუდვა არ მოიხსნება, ვერ შეძლებთ პოსტების, კომენტარების, რეაქციების ან შეტყობინებების გაგზავნას.",
+      loadingDetails: "დეტალები იტვირთება…",
+      whyHeading: "მიზეზი",
+      activeSincePrefix: "შეზღუდვა აქტიურია",
+      signedInAsPrefix: "შესული ხართ როგორც",
+      contactSupport: "თუ ფიქრობთ, რომ ეს შეცდომაა, დაუკავშირდით მხარდაჭერას.",
+      signOut: "გამოსვლა",
+      legalLink: "იურიდიული",
     },
     chat: {
       chatHeading: "ჩატი",
@@ -1379,6 +1639,10 @@ const ka: Bundle = {
       deleting: "…",
       netScoreTitle: "ქულა (მოწონება მინუს არ მოწონება)",
       flaggedAuthorHint: "შემოწმება — საჯარო ლენტაში ხედავთ მხოლოდ თქვენ და მოდერატორები.",
+      readMore: "კიდევ",
+      showLess: "ჩაკეცვა",
+      expandBodyAria: "სრული ტექსტის ჩვენება",
+      collapseBodyAria: "ტექსტის ჩაკეცვა",
     },
     comment: {
       comments: "კომენტარები",
@@ -1393,6 +1657,8 @@ const ka: Bundle = {
       deleteCommentConfirm: "წავშალოთ ეს კომენტარი?",
       delete: "წაშლა",
       commentFailed: "კომენტარის გაგზავნა ვერ მოხერხდა",
+      flaggedAfterComment:
+        "კომენტარი ავტომატურმა შემოწმებამ მონიშნა. სხვებისთვის შეიძლება არ ჩანდეს მოდერაციამდე.",
     },
     report: {
       report: "რეპორტი",
@@ -1441,6 +1707,9 @@ const ka: Bundle = {
     announcer: "გადასვლა: {title}",
     defaultDescription:
       "REZIIZI — სოციალური ლენტა: პოსტები, რეაქციები, კომენტარები, თეგები, ძიება და მესიჯები.",
+    searchWithQueryTitle: "ძიება: {q}",
+    searchWithQueryDescription:
+      "შედეგები „{q}“-ისთვის REZIIZI-ზე — პოსტები და პროფილები.",
     admin: {
       title: "ადმინისტრაცია",
       description: "REZIIZI-ის ადმინისტრაციული ინსტრუმენტები.",
@@ -1511,6 +1780,10 @@ const ka: Bundle = {
         title: "უსაფრთხოება",
         description: "რჩევები ანგარიშის უსაფრთხოებისთვის REZIIZI-ზე.",
       },
+      notFound: {
+        title: "გვერდი ვერ მოიძებნა",
+        description: "ეს გვერდი არ არსებობს ან გადატანილია REZIIZI-ზე.",
+      },
     },
   },
 };
@@ -1549,6 +1822,8 @@ const ru: Bundle = {
     routeBody: "В этой части страницы произошла ошибка. Попробуйте снова или перейдите на главную.",
     tryAgain: "Повторить",
     homeLink: "← Главная",
+    appBoundaryBody: "Приложение столкнулось с неожиданной ошибкой. Попробуйте перезагрузить страницу.",
+    reload: "Перезагрузить",
   },
   theme: {
     auto: "Авто",
@@ -1564,6 +1839,19 @@ const ru: Bundle = {
     languageRu: "Русский",
     appearance: "Оформление",
     appearanceHint: "Цветовая тема (сохраняется на этом устройстве).",
+    profileAbout: "Имя и описание",
+    profileAboutHint:
+      "Отображается в публичном профиле. Оставьте пустым — в шапке будет только email.",
+    profileAboutLoading: "Загрузка…",
+    displayName: "Отображаемое имя",
+    displayNamePlaceholder: "Необязательно",
+    displayNameTooLong: "Имя не длиннее {max} символов.",
+    bio: "О себе",
+    bioPlaceholder: "Краткое описание (необязательно)",
+    bioTooLong: "Описание не длиннее {max} символов.",
+    profileAboutSave: "Сохранить имя и описание",
+    profileAboutSaving: "Сохранение…",
+    profileAboutSaved: "Данные профиля сохранены.",
     account: "Аккаунт",
     signedInAs: "Вы вошли как",
     premium: "Премиум",
@@ -1604,11 +1892,22 @@ const ru: Bundle = {
     deleteAccountSubmit: "Удалить аккаунт навсегда",
     deleteAccountDeleting: "Удаление…",
     deleteAccountFailed: "Не удалось удалить аккаунт: {message}",
+    avatarSectionTitle: "Фото профиля",
+    avatarFormatHint: "JPEG, PNG, WebP или GIF — макс. 2 МБ.",
+    avatarChooseAria: "Выбрать фото профиля",
+    avatarUpload: "Загрузить фото",
+    avatarRemove: "Удалить фото",
+    avatarUpdated: "Фото профиля обновлено.",
+    avatarRemoved: "Фото профиля удалено.",
+    avatarRemoveConfirm: "Удалить фото профиля?",
+    avatarUserFallback: "Пользователь",
     termsLink: "Условия и конфиденциальность",
   },
   pages: {
     common: {
       loading: "Загрузка…",
+      scaffoldInProgress: "В разработке",
+      scaffoldInProgressHint: "Черновик — в разработке",
     },
     home: {
       title: "Лента",
@@ -1624,6 +1923,8 @@ const ru: Bundle = {
       emptyTagged: "Постов с этим тегом пока нет.",
       emptyFeed: "Пока нет постов. Создайте первый.",
       loadMore: "Ещё (по {pageSize} на страницу)",
+      feedAdSponsored: "Реклама",
+      feedAdSponsoredContent: "Рекламный контент",
     },
     login: {
       titleSignIn: "Вход",
@@ -1668,6 +1969,8 @@ const ru: Bundle = {
       placeholder: "Посты (текст) или пользователи (email)…",
       submit: "Найти",
       hintMinChars: "Введите не менее 2 символов (после обрезки пробелов).",
+      introHint:
+        "Ищите по тексту постов и по email пользователей. Результаты появятся после отправки формы.",
       searching: "Поиск…",
       usersWithCount: "Пользователи ({count})",
       usersPrivacyNote:
@@ -1679,28 +1982,46 @@ const ru: Bundle = {
       noPosts: "Подходящих постов нет.",
       rankingHint:
         "Результаты упорядочены по релевантности (полнотекстовое совпадение, позиция в тексте) и дате. Помеченные посты исключены.",
+      noResultsAny:
+        "Нет постов и пользователей по запросу «{q}». Попробуйте другие слова или проверьте написание email.",
+      resultsRegionLabel: "Результаты поиска",
     },
     postForm: {
       signInPrompt: "Войдите, чтобы публиковать посты.",
       signInLink: "Вход",
       banned: "Сейчас вы не можете создавать посты.",
       bodyLength: "Текст: от 1 до {max} символов.",
+      bodyTierLimit: "На вашем тарифе до {max} символов в посте.",
       createFailed: "Не удалось создать пост",
       label: "Новый пост",
       placeholder: "Напишите что-нибудь…",
       attachAria: "Прикрепить фото или видео",
+      attachImageAria: "Прикрепить фото",
       addMedia: "Добавить фото или видео",
+      addMediaImage: "Добавить фото",
       removeMedia: "Убрать вложение",
       mediaInvalidType: "Выберите изображение (JPEG, PNG, WebP, GIF) или видео (MP4, WebM).",
+      videoRequiresPremium: "Видео в постах доступны с Premium.",
       previewAlt: "Предпросмотр вложения",
       tagsLabel: "Теги (необязательно)",
       tagsPlaceholder: "напр. news, dev, release-notes",
-      tagsHint: "Через запятую. Строчные буквы, цифры, дефис. До 8 тегов.",
+      tagsHint: "Через запятую. Строчные буквы, цифры, дефис. До {max} тегов.",
+      tagsPreviewLabel: "Будут сохранены как:",
+      tagsPreviewInvalid:
+        "Теги не сохранятся — только латиница (a–z), цифры и дефис.",
+      tagsTierLimit: "На вашем тарифе не больше {max} тегов на пост.",
       posting: "Публикация…",
       post: "Опубликовать",
+      flaggedAfterPost:
+        "Пост отмечен автоматической проверкой. Для других он скрыт до модерации — вы всё ещё видите его в профиле.",
     },
     chrome: {
       backHome: "← Главная",
+    },
+    notFoundPage: {
+      title: "Страница не найдена",
+      body: "Ссылка могла устареть или страница удалена.",
+      homeLink: "← Главная",
     },
     profile: {
       title: "Профиль",
@@ -1711,9 +2032,20 @@ const ru: Bundle = {
       uploadPhoto: "Загрузить фото профиля",
       settingsPhotoHint: "Настройки → Фото профиля",
       postsCount: "Посты: {count}",
+      statsPosts: "Посты",
+      statsFollowers: "Подписчики",
+      statsFollowing: "Подписки",
       yourPosts: "Ваши посты",
       emptyPosts: "Вы ещё ничего не опубликовали.",
+      emptyPostsCta: "На главную ленту",
       avatarLabel: "Профиль",
+      copyProfileLink: "Копировать ссылку на профиль",
+      copyProfileLinkSuccess: "Ссылка скопирована.",
+      copyProfileLinkFailed: "Не удалось скопировать ссылку.",
+      tabPosts: "Посты",
+      tabCommented: "Комментарии",
+      sectionCommented: "Посты, где вы оставили комментарии",
+      emptyCommented: "Вы ещё не комментировали посты.",
     },
     userProfile: {
       invalidTitle: "Профиль",
@@ -1731,6 +2063,9 @@ const ru: Bundle = {
       signInToFollow: "Войдите, чтобы подписаться.",
       theirPosts: "Посты",
       postsHiddenBanned: "Посты скрыты для ограниченных аккаунтов.",
+      emptyPostsOther: "У этого участника пока нет постов.",
+      sectionCommented: "Посты с комментариями участника",
+      emptyCommentedOther: "Этот участник ещё не комментировал посты.",
     },
     followList: {
       followersHeading: "Подписчики",
@@ -1746,6 +2081,18 @@ const ru: Bundle = {
       introBefore: "Откройте чат из ",
       introAfter: " (результаты пользователей) или выберите диалог ниже.",
       empty: "Пока нет переписок.",
+    },
+    bannedPage: {
+      title: "Аккаунт ограничен",
+      intro:
+        "Пока ограничение действует, вы не можете публиковать посты, комментировать, ставить реакции и отправлять сообщения.",
+      loadingDetails: "Загрузка сведений…",
+      whyHeading: "Причина",
+      activeSincePrefix: "Ограничение действует с",
+      signedInAsPrefix: "Вы вошли как",
+      contactSupport: "Если считаете, что это ошибка, свяжитесь с поддержкой.",
+      signOut: "Выйти",
+      legalLink: "Правовая информация",
     },
     chat: {
       chatHeading: "Чат",
@@ -1905,6 +2252,10 @@ const ru: Bundle = {
       deleting: "…",
       netScoreTitle: "Итог (лайки минус дизлайки)",
       flaggedAuthorHint: "На проверке — в общей ленте видите только вы и модераторы.",
+      readMore: "Ещё",
+      showLess: "Свернуть",
+      expandBodyAria: "Показать полный текст",
+      collapseBodyAria: "Свернуть текст",
     },
     comment: {
       comments: "Комментарии",
@@ -1919,6 +2270,8 @@ const ru: Bundle = {
       deleteCommentConfirm: "Удалить этот комментарий?",
       delete: "Удалить",
       commentFailed: "Не удалось отправить комментарий",
+      flaggedAfterComment:
+        "Комментарий отмечен автоматической проверкой. Другие могут не видеть его до модерации.",
     },
     report: {
       report: "Пожаловаться",
@@ -1967,6 +2320,9 @@ const ru: Bundle = {
     announcer: "Переход: {title}",
     defaultDescription:
       "REZIIZI — социальная лента: посты, реакции, комментарии, теги, поиск и сообщения.",
+    searchWithQueryTitle: "Поиск: {q}",
+    searchWithQueryDescription:
+      "Результаты по запросу «{q}» в REZIIZI — посты и профили.",
     admin: {
       title: "Админ",
       description: "Инструменты администрирования REZIIZI.",
@@ -2036,6 +2392,10 @@ const ru: Bundle = {
       security: {
         title: "Безопасность",
         description: "Советы по безопасности аккаунта в REZIIZI.",
+      },
+      notFound: {
+        title: "Страница не найдена",
+        description: "Эта страница не существует или была перенесена на REZIIZI.",
       },
     },
   },

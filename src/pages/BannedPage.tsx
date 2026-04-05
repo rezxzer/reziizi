@@ -2,9 +2,11 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
+import { useI18n } from "../contexts/I18nContext.tsx";
 import { supabase } from "../lib/supabaseClient.ts";
 
 export function BannedPage(): ReactElement {
+  const { t } = useI18n();
   const { user } = useAuth();
   const [banReason, setBanReason] = useState<string | null>(null);
   const [bannedAt, setBannedAt] = useState<string | null>(null);
@@ -55,44 +57,44 @@ export function BannedPage(): ReactElement {
   }
 
   return (
-    <div className="stack">
+    <div className="stack banned-page">
       <section className="card">
-        <h1 className="card__title">Account restricted</h1>
+        <h1 className="card__title">{t("pages.bannedPage.title")}</h1>
         <div className="card__body">
-          <p>
-            Your account cannot post, comment, react, or send messages until this restriction is lifted.
-          </p>
+          <p>{t("pages.bannedPage.intro")}</p>
           {detailLoading ? (
             <p className="muted" role="status">
-              Loading details…
+              {t("pages.bannedPage.loadingDetails")}
             </p>
           ) : null}
           {!detailLoading && banReason != null ? (
             <section className="banned-page__why" aria-labelledby="banned-why-heading">
               <h2 id="banned-why-heading" className="banned-page__why-title">
-                Why
+                {t("pages.bannedPage.whyHeading")}
               </h2>
               <p className="banned-page__why-body">{banReason}</p>
             </section>
           ) : null}
           {!detailLoading && bannedAtLabel != null ? (
             <p className="muted">
-              Restriction active since <strong>{bannedAtLabel}</strong>
+              {t("pages.bannedPage.activeSincePrefix")}{" "}
+              <strong>{bannedAtLabel}</strong>
             </p>
           ) : null}
           {user?.email ? (
             <p className="muted">
-              Signed in as <strong>{user.email}</strong>
+              {t("pages.bannedPage.signedInAsPrefix")}{" "}
+              <strong>{user.email}</strong>
             </p>
           ) : null}
-          <p className="muted">If you think this is a mistake, contact support.</p>
+          <p className="muted">{t("pages.bannedPage.contactSupport")}</p>
           <p>
             <button type="button" className="btn btn--primary" onClick={() => void handleSignOut()}>
-              Sign out
+              {t("pages.bannedPage.signOut")}
             </button>
           </p>
           <p>
-            <Link to="/legal">Legal</Link>
+            <Link to="/legal">{t("pages.bannedPage.legalLink")}</Link>
           </p>
         </div>
       </section>
