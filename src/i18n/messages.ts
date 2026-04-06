@@ -33,7 +33,6 @@ type PagesBundle = {
     scaffoldInProgressHint: string;
   };
   home: {
-    title: string;
     feedSortAria: string;
     latest: string;
     trending: string;
@@ -764,7 +763,6 @@ const en: Bundle = {
       scaffoldInProgressHint: "Scaffold — in progress",
     },
     home: {
-      title: "Feed",
       feedSortAria: "Feed order",
       latest: "Latest",
       trending: "Trending",
@@ -1431,7 +1429,6 @@ const ka: Bundle = {
       scaffoldInProgressHint: "საკანდიდატო — მიმდინარე",
     },
     home: {
-      title: "ლენტა",
       feedSortAria: "ლენტის რიგი",
       latest: "ბოლო",
       trending: "ტრენდი",
@@ -2097,7 +2094,6 @@ const ru: Bundle = {
       scaffoldInProgressHint: "Черновик — в разработке",
     },
     home: {
-      title: "Лента",
       feedSortAria: "Порядок ленты",
       latest: "Свежие",
       trending: "В тренде",

@@ -31,7 +31,6 @@ export function HomePage(): ReactElement {
 
   const featureFlagsQuery = useAppFeatureFlags();
 
-  const showTrendingTab = isFeatureEnabled(featureFlagsQuery.data, FEATURE_FLAG_KEYS.feedTrendingTab);
   const showFeedAds = isFeatureEnabled(featureFlagsQuery.data, FEATURE_FLAG_KEYS.feedAds);
   const showHomePremiumCta = isFeatureEnabled(featureFlagsQuery.data, FEATURE_FLAG_KEYS.homePremiumCta);
   /** Show while logged out, or logged in and not Premium (no wait on profile flags — avoids hidden card). */
@@ -78,7 +77,7 @@ export function HomePage(): ReactElement {
   const tagInvalid = Boolean(rawTag && !tagSlug);
   const effectiveTag = tagInvalid ? null : tagSlug;
   const wantsTrendingFromUrl = searchParams.get("sort") === "trending";
-  const wantsTrending = showTrendingTab && wantsTrendingFromUrl;
+  const wantsTrending = wantsTrendingFromUrl;
   const effectiveSort: FeedSortMode = effectiveTag ? "latest" : wantsTrending ? "trending" : "latest";
 
   const feedQuery = useInfiniteQuery({
@@ -127,90 +126,100 @@ export function HomePage(): ReactElement {
     void feedQuery.fetchNextPage();
   }
 
-  const latestHref: string = effectiveTag ? `/?tag=${encodeURIComponent(effectiveTag)}` : "/";
+  const handleFeedSort = useCallback(
+    (mode: FeedSortMode) => {
+      const next = new URLSearchParams(searchParams);
+      if (mode === "latest") {
+        next.delete("sort");
+      } else {
+        next.set("sort", "trending");
+        next.delete("tag");
+      }
+      setSearchParams(next, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
 
   return (
     <div className="home-page">
       <div className="home-feed">
-        <section className="card">
-          <h2 className="card__title">{t("pages.home.title")}</h2>
-          <div className="card__body">
-            <div className="home-feed-toolbar home-feed-toolbar--sticky">
-              {showTrendingTab ? (
-                <div className="feed-tabs" role="tablist" aria-label={t("pages.home.feedSortAria")}>
-                  <Link
-                    to={latestHref}
-                    className={`feed-tabs__tab${effectiveSort === "latest" ? " active" : ""}`}
-                    role="tab"
-                    aria-selected={effectiveSort === "latest"}
-                  >
-                    {t("pages.home.latest")}
-                  </Link>
-                  <Link
-                    to="/?sort=trending"
-                    className={`feed-tabs__tab${effectiveSort === "trending" ? " active" : ""}`}
-                    role="tab"
-                    aria-selected={effectiveSort === "trending"}
-                  >
-                    {t("pages.home.trending")}
-                  </Link>
-                </div>
-              ) : null}
-              {effectiveTag && wantsTrending ? (
-                <p className="muted form__hint">{t("pages.home.trendingTagHint")}</p>
-              ) : null}
-              {effectiveTag ? (
-                <p className="feed-filter">
-                  {t("pages.home.filterTag", { tag: effectiveTag })}{" "}
-                  <Link to={effectiveSort === "trending" ? "/?sort=trending" : "/"} className="inline-link">
-                    {t("pages.home.clear")}
-                  </Link>
-                </p>
-              ) : null}
-              {tagInvalid ? (
-                <p className="form__error" role="alert">
-                  {t("pages.home.invalidTag")}
-                </p>
-              ) : null}
-            </div>
-            <div className="home-composer">
-              <PostForm onPosted={onPosted} />
-            </div>
+        <div className="home-feed-toolbar home-feed-toolbar--sticky">
+          <div className="feed-tabs" role="tablist" aria-label={t("pages.home.feedSortAria")}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!wantsTrending}
+              className={`feed-tabs__tab${!wantsTrending ? " active" : ""}`}
+              onClick={() => handleFeedSort("latest")}
+            >
+              {t("pages.home.latest")}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={wantsTrending}
+              className={`feed-tabs__tab${wantsTrending ? " active" : ""}`}
+              onClick={() => handleFeedSort("trending")}
+            >
+              {t("pages.home.trending")}
+            </button>
           </div>
+        </div>
+        {effectiveTag && wantsTrendingFromUrl ? (
+          <p className="muted form__hint">{t("pages.home.trendingTagHint")}</p>
+        ) : null}
+        {effectiveTag ? (
+          <p className="feed-filter">
+            {t("pages.home.filterTag", { tag: effectiveTag })}{" "}
+            <Link to={effectiveSort === "trending" ? "/?sort=trending" : "/"} className="inline-link">
+              {t("pages.home.clear")}
+            </Link>
+          </p>
+        ) : null}
+        {tagInvalid ? (
+          <p className="form__error" role="alert">
+            {t("pages.home.invalidTag")}
+          </p>
+        ) : null}
+
+        <section className="card home-composer">
+          <PostForm onPosted={onPosted} />
         </section>
 
         {showPremiumPromo ? (
-          <aside className="home-premium-cta card" aria-label={t("pages.home.premiumCtaTitle")}>
-            <h3 className="home-premium-cta__title">{t("pages.home.premiumCtaTitle")}</h3>
-            <p className="muted home-premium-cta__body">
-              {isBillingCheckoutEnabled() ? t("pages.home.premiumCtaBody") : t("pages.home.premiumCtaBodyNoBilling")}
-            </p>
-            <div className="home-premium-cta__actions">
-              {!user ? (
-                <Link to="/login" state={{ from: "/settings" }} className="btn btn--primary btn--small">
-                  {t("pages.home.premiumCtaLinkLogin")}
-                </Link>
-              ) : isBillingCheckoutEnabled() ? (
-                <>
-                  <button
-                    type="button"
-                    className="btn btn--primary btn--small"
-                    disabled={checkoutBusy}
-                    onClick={() => void handleHomePremiumCheckout()}
-                  >
-                    {checkoutBusy ? t("settings.premiumCheckoutBusy") : t("settings.premiumCheckoutSubscribe")}
-                  </button>
-                  <Link to="/settings" className="inline-link home-premium-cta__settings-link">
+          <div style={{ opacity: 0.6, fontSize: "13px" }}>
+            <aside className="home-premium-cta card" aria-label={t("pages.home.premiumCtaTitle")}>
+              <h3 className="home-premium-cta__title">{t("pages.home.premiumCtaTitle")}</h3>
+              <p className="muted home-premium-cta__body">
+                {isBillingCheckoutEnabled() ? t("pages.home.premiumCtaBody") : t("pages.home.premiumCtaBodyNoBilling")}
+              </p>
+              <div className="home-premium-cta__actions">
+                {!user ? (
+                  <Link to="/login" state={{ from: "/settings" }} className="btn btn--primary btn--small">
+                    {t("pages.home.premiumCtaLinkLogin")}
+                  </Link>
+                ) : isBillingCheckoutEnabled() ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn--primary btn--small"
+                      disabled={checkoutBusy}
+                      onClick={() => void handleHomePremiumCheckout()}
+                    >
+                      {checkoutBusy ? t("settings.premiumCheckoutBusy") : t("settings.premiumCheckoutSubscribe")}
+                    </button>
+                    <Link to="/settings" className="inline-link home-premium-cta__settings-link">
+                      {t("pages.home.premiumCtaLinkSettings")}
+                    </Link>
+                  </>
+                ) : (
+                  <Link to="/settings" className="btn btn--primary btn--small">
                     {t("pages.home.premiumCtaLinkSettings")}
                   </Link>
-                </>
-              ) : (
-                <Link to="/settings" className="btn btn--primary btn--small">
-                  {t("pages.home.premiumCtaLinkSettings")}
-                </Link>
-              )}
-            </div>
-          </aside>
+                )}
+              </div>
+            </aside>
+          </div>
         ) : null}
 
         {showFeedAds ? <FeedAdSlot /> : null}

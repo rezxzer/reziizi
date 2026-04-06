@@ -495,8 +495,9 @@ body {
 /* Home — Premium promo (`feature_flags.home_premium_cta`). */
 .home-premium-cta {
   padding: var(--space-md) var(--space-lg);
-  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid var(--rz-border);
+  background: var(--rz-surface2);
+  opacity: 0.75;
 }
 
 .home-premium-cta__title {
@@ -846,7 +847,11 @@ code {
   font: inherit;
 }
 
-.feed-tabs__tab.active,
+.feed-tabs__tab.active {
+  background: var(--rz-surface2);
+  color: var(--rz-text1);
+}
+
 .feed-tabs__tab[aria-selected="true"] {
   background: var(--rz-surface2);
   color: var(--rz-text1);
@@ -861,11 +866,16 @@ code {
   box-shadow: var(--focus-ring);
 }
 
+/* Composer card on home: match rz border (parent .card may also set border below). */
 .home-composer {
   background: var(--rz-surface2);
   border: 1px solid var(--rz-border);
   border-radius: 14px;
   padding: 14px 16px;
+}
+
+.home-feed > .card {
+  border: 1px solid var(--rz-border);
 }
 
 .home-composer .form--post {
