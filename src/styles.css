@@ -408,10 +408,11 @@ body {
 
 .layout__main {
   flex: 1;
-  padding: var(--space-md);
-  padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
-  max-width: var(--content-max);
-  margin: 0 auto;
+  /* Let route roots (e.g. .home-page) own max-width / horizontal padding + centering. */
+  /* padding: var(--space-md); */
+  /* padding-bottom: max(var(--space-md), env(safe-area-inset-bottom)); */
+  /* max-width: var(--content-max); */
+  /* margin: 0 auto; */
   width: 100%;
 }
 
@@ -824,10 +825,11 @@ code {
 
 .feed-tabs {
   display: flex;
-  background: var(--rz-surface3);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 3px;
   gap: 2px;
+  border: 1px solid var(--rz-border);
 }
 
 .feed-tabs__tab {
@@ -843,7 +845,7 @@ code {
 }
 
 .feed-tabs__tab.active {
-  background: var(--rz-surface2);
+  background: rgba(255, 255, 255, 0.12);
   color: var(--rz-text1);
 }
 
