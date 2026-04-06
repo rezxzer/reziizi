@@ -36,6 +36,7 @@ reziizi/
 ├── .env.example            # მაგალითი (კომიტდება)
 ├── project.md              # სრული სპეკი + CURRENT WORK
 ├── JOURNAL.md              # ჟურნალი
+├── CLAUDE.md               # მოკლე handoff (ასისტენტებს — იხილე JOURNAL)
 ├── AGENTS.md               # ეს ფაილი — ახალი ჩატისთვის
 └── README.md               # მოკლე quick start
 ```
@@ -49,6 +50,7 @@ reziizi/
 | **`README.md`** | Quick start, tests, **GitHub Actions (CI)**, **Production deployment (GitHub + Vercel + Supabase)** — სრული ნაბიჯები. |
 | **`project.md`** | სრული სპეკი: feature-ები 1–51, VERSIONS (MVP/v2/v3), **FEATURE BREAKDOWN**, **CURRENT WORK** (დასრულებული სტატუსი + **შემდეგი განვითარების გეგმა (შევსებადი)** ცხრილი). **ბიზნესი / Stripe:** **`#### ბიზნესი / §24 — განვითარების გადაწყვეტილება`** — P1/P2, გადადებული, რისკების დაზღვევა. |
 | **`JOURNAL.md`** | ქრონოლოგია — რა გაკეთდა, რა გადაწყვიტე (მოკლე ჩანაწერები). როცა მომხმარებელი ადასტურებს Supabase-ზე migration-ის გაშვებას — AI უნდა განაახლოს **`JOURNAL.md`** + **`project.md` CURRENT WORK** (იხილე `.cursor/rules/reziizi.mdc` → „დადასტურება, რიგი და ჩანაწერი“). |
+| **`CLAUDE.md`** | მოკლე handoff სხვა ასისტენტებისთვის (სტილი, ფაილის ინფუტი, dev `431`) — დეტალები **`JOURNAL.md`**-ში. |
 | **`supabase/SCHEMA.md`** | public DB სქემის მიმოხილვა (ცხრილები, RPC, Storage, rate limits). |
 | **`supabase/ACCOUNT_DELETION_DESIGN.md`** | ანგარიშის წაშლა (Supabase): Edge Function, CASCADE, Storage — **დეპლოი სავალდებულოა** (`README` → Edge Function სექცია). |
 | **`.cursor/rules/reziizi.mdc`** | Cursor წესები: ენა, მიდგომა, **პროექტის დაცვა** (არ გავაფუჭოთ / არ გავტეხოთ — სკოპი, რიგი, გარე ჩატი ≠ სპეკი), **v1/v2 იმპლემენტაციის რიგი**, **მიგრაციების თანმიმდევრობა**, **იმპლემენტაციამდე: შემოწმება → დოკუმენტი → მერე კოდი**, Supabase/Git. |

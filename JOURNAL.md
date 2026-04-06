@@ -21,6 +21,14 @@
 
 ## ჩანაწერები
 
+### 2026-04-07 — UI: ფაილის ინფუტის overlap (Settings) + კომპონენტური CSS + dev `431`
+
+- **პრობლემა:** `.post-form__file-input` (იგივე კლასი **`PostForm`**-სა და **`AvatarUploadSection`**-ში) ძველ კონფიგში იყო **`position: absolute; inset: 0; opacity: 0; cursor: pointer`** — უხილავი „დიდი“ დაჭერის ზონა შეიძლება გადაფარავდეს სხვა კონტროლებს (მაგ. ენის `select` Settings-ზე), თუ მშობელი არ არის სწორად `position: relative`.
+- **შეფასება (პატერნი):** გადაყვანა **`position: fixed; left/top: -9999px`**, `width/height: 0`, **`pointer-events: none`**, `overflow: hidden` — გახსნა მხოლოდ **`fileRef.current?.click()`** ღილაკიდან — **სწორი მიდგომაა** (არ იჭერს კლიკებს სხვა ელემენტებზე; პროგრამული `.click()` რჩება).
+- **CSS დაფარვა:** Instagram-inspired redesign-ის შემდეგ დამატებულია/გაფართოვებული კომპონენტული ბლოკები (`report-post`, კომენტარების/ლენტის chrome, sticky toolbar და სხვ.) — „გამოტოვებული კლასების“ შევსება ვიზუალური რეგრესიისთვის.
+- **Dev `431 Request Header Fields Too Large`:** `package.json` → `dev` სკრიპტი **`node --max-http-header-size=65536`** + `vite` — დიდი Cookie header-ები localhost-ზე (იხილე Vite troubleshooting).
+- **Git სინქი:** სანამ **`git commit` + `git push`** არ გაკეთდება, **GitHub-ის `main`-ზე** შეიძლება კვლავ ძველი `.post-form__file-input` წესი იყოს — **დაკომიტება რეკომენდებულია** ლოკალური `src/styles.css` / `package.json` ცვლილებებისთვის.
+
 ### 2026-04-03 — ტალღა 2: UI polish (rz tokens, Layout, Home grid, feed tabs, PostCard/PostForm, feed ad)
 
 - **`styles.css`:** `--rz-*` design tokens; `avatar-gradient` (+ `b` / `c`); navbar (`theme-pill`, `layout__user-avatar`, `notif-dot`); dark `html[data-theme="dark"] body`; post card + composer + **`feed-tabs`** / **`feed-tabs__tab`**; home layout (**`home-page`** grid, **`home-feed`**, **`home-sidebar`**, trending placeholder); **`feed-ad`** — rz ტოკენები, კომპაქტური ბლოკი, label + dot (`::before`).
