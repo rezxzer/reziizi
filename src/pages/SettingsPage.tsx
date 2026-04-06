@@ -1,6 +1,6 @@
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AvatarUploadSection } from "../components/AvatarUploadSection.tsx";
 import { ThemePreferenceControls } from "../components/ThemePreferenceControls.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
@@ -23,6 +23,8 @@ import {
   updateProfileAbout,
 } from "../lib/profileAbout.ts";
 import { fetchProfileSearchable, setProfileSearchable } from "../lib/profilePrivacy.ts";
+import { isBillingCheckoutEnabled } from "../lib/billingFlags.ts";
+import { createPremiumCheckoutRedirectUrl } from "../lib/createCheckoutSession.ts";
 import { deleteAccountViaEdgeFunction } from "../lib/deleteAccount.ts";
 import { queryClient } from "../lib/queryClient.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
@@ -35,6 +37,7 @@ export function SettingsPage(): ReactElement {
   const { t, locale, setLocale } = useI18n();
   const toast = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { isPremium, premiumUntil, loading: flagsLoading } = useProfileFlags();
   const [searchable, setSearchable] = useState<boolean>(true);
@@ -59,6 +62,7 @@ export function SettingsPage(): ReactElement {
   const [aboutLoading, setAboutLoading] = useState<boolean>(true);
   const [aboutBusy, setAboutBusy] = useState<boolean>(false);
   const [aboutMsg, setAboutMsg] = useState<string | null>(null);
+  const [checkoutBusy, setCheckoutBusy] = useState<boolean>(false);
 
   async function handlePassword(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -80,6 +84,20 @@ export function SettingsPage(): ReactElement {
 
   async function handleLogout(): Promise<void> {
     await supabase.auth.signOut();
+  }
+
+  async function handlePremiumCheckout(): Promise<void> {
+    if (!user || checkoutBusy) {
+      return;
+    }
+    setCheckoutBusy(true);
+    try {
+      const url = await createPremiumCheckoutRedirectUrl(30);
+      window.location.assign(url);
+    } catch (err: unknown) {
+      toast.error(errorMessage(err));
+      setCheckoutBusy(false);
+    }
   }
 
   async function handleDeleteAccount(): Promise<void> {
@@ -188,6 +206,28 @@ export function SettingsPage(): ReactElement {
       cancelled = true;
     };
   }, [user]);
+
+  useEffect(() => {
+    if (!isBillingCheckoutEnabled()) {
+      return;
+    }
+    const v = searchParams.get("checkout");
+    if (v !== "success" && v !== "cancelled") {
+      return;
+    }
+    if (!user) {
+      return;
+    }
+    if (v === "success") {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.profile.flags(user.id) });
+      toast.success(t("settings.premiumCheckoutSuccess"));
+    } else {
+      toast.show(t("settings.premiumCheckoutCancelled"), "info");
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete("checkout");
+    setSearchParams(next, { replace: true });
+  }, [user, searchParams, setSearchParams, t, toast]);
 
   async function handlePrivacySave(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -361,6 +401,38 @@ export function SettingsPage(): ReactElement {
               t("settings.premiumNone")
             )}
           </p>
+          <h3 className="settings-premium-billing-title">{t("settings.premiumBillingTitle")}</h3>
+          {isBillingCheckoutEnabled() ? (
+            <>
+              <p className="muted">{t("settings.premiumCheckoutHint")}</p>
+              <button
+                type="button"
+                className="btn btn--primary"
+                disabled={!user || checkoutBusy || flagsLoading}
+                onClick={() => void handlePremiumCheckout()}
+              >
+                {checkoutBusy ? t("settings.premiumCheckoutBusy") : t("settings.premiumCheckoutSubscribe")}
+              </button>
+            </>
+          ) : (
+            <div className="settings-premium-plan">
+              <h4 className="settings-premium-plan__title">{t("settings.premiumPlanSectionTitle")}</h4>
+              <p className="muted">{t("settings.premiumPlanLead")}</p>
+              <p className="settings-premium-plan__benefits-heading">{t("settings.premiumPlanBenefitsTitle")}</p>
+              <ul className="settings-premium-plan__list">
+                <li>{t("settings.premiumPlanBenefit1")}</li>
+                <li>{t("settings.premiumPlanBenefit2")}</li>
+                <li>{t("settings.premiumPlanBenefit3")}</li>
+                <li>{t("settings.premiumPlanBenefit4")}</li>
+              </ul>
+              <p className="settings-premium-plan__future-title">{t("settings.premiumPlanFutureTitle")}</p>
+              <p className="muted settings-premium-plan__future-body">{t("settings.premiumPlanFutureBody")}</p>
+              <p className="muted">{t("settings.premiumPlanDuration")}</p>
+              <p className="muted">{t("settings.premiumPlanPrice")}</p>
+              <p className="muted">{t("settings.premiumPlanWaitNote")}</p>
+              <p className="muted settings-premium-plan__readme">{t("settings.premiumCheckoutDisabledHint")}</p>
+            </div>
+          )}
         </div>
       </section>
 

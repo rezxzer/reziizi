@@ -107,6 +107,9 @@ alwaysApply: true
 | 36 | `20260401351200_posts_body_max_5000.sql` — `posts.body` CHECK **max 5000** chars (was 10000); upper bound for all tiers |
 | 37 | `20260401351300_posts_tier_free_premium.sql` — free **1000** / premium+admin **5000** body; `video_url` + Storage `post-videos` insert/update — premium or admin (`posts_enforce_tier_limits`) |
 | 38 | `20260401351400_post_tags_tier_limit.sql` — `post_tags` BEFORE INSERT: free **4** tags/post, premium or admin **8** (`post_tags_enforce_tier_limit`) |
+| 39 | `20260401351500_add_feature_flags.sql` — `feature_flags` (public read, admin update); home feed hides Trending tab / feed ads when off |
+| 40 | `20260401351600_add_feature_flags_comments_nav.sql` — flags: `post_comments`, `nav_search`, `nav_messages` |
+| 41 | `20260401351700_add_feature_flag_home_premium_cta.sql` — `home_premium_cta` (Premium promo card on home) |
 
 **შენიშვნა:** Security (27) — SQL migration არ არის; `vercel.json` Vercel-ისთვის (headers + SPA rewrites; **Deployment (37)**). **Production:** `README.md` → „Production (Vercel)“. API Layer (28) — `src/lib/api/` (migration არა; ახალი ცხრილი/RPC → `registry.ts`). Database Structure (29) — `supabase/SCHEMA.md` + `verify_schema.sql` განახლება. Performance (36) — კლიენტი: `src/lazy/chunks.ts`, `RouteFallback`, `App.tsx` Suspense (migration არა). Caching (30) — `@tanstack/react-query`, `queryClient.ts`, `queryKeys.ts` (migration არა). Error Handling (32) — `errorMessage` / `lib/errors.ts`, `InlineError` (migration არა). Logging (31) — `src/lib/logger.ts` (migration არა). Testing (41) — Vitest (`npm test`; migration არა). **GitHub CI** — `.github/workflows/ci.yml` (არა migration).
 

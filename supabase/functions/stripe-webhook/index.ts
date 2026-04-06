@@ -6,7 +6,7 @@
  * Checkout Session metadata: user_id (UUID), premium_days (optional, default 30)
  */
 import { createClient } from "@supabase/supabase-js";
-import Stripe from "npm:stripe@17.0.0";
+import Stripe from "stripe";
 
 function isUuid(s: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -52,7 +52,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const rawBody = await req.text();
-  const stripe = new Stripe(stripeSecret, { apiVersion: "2024-11-20.acacia" });
+  const stripe = new Stripe(stripeSecret, { apiVersion: "2024-09-30.acacia" });
 
   let event: Stripe.Event;
   try {

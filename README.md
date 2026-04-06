@@ -139,21 +139,31 @@ See `supabase/ACCOUNT_DELETION_DESIGN.md` for behavior (Storage + `auth.users`).
 
 **DB:** Migration `20260401350700_allow_service_role_premium_update.sql` lets the **service role** JWT update `profiles.premium_until` (for server-side billing). If you applied migrations in order, this is already on your Supabase project.
 
-**Edge Function (optional until billing):** `supabase/functions/stripe-webhook/` — verifies Stripe signatures and extends `premium_until` on `checkout.session.completed`. Deploy and configure only when you enable Stripe:
+**Edge Functions (optional until billing):**
 
-1. [Stripe Dashboard](https://dashboard.stripe.com/) → Developers → API keys: copy **Secret key**.
-2. Deploy: `supabase functions deploy stripe-webhook --no-verify-jwt`
-3. Supabase Dashboard → **Edge Functions** → `stripe-webhook` → **Secrets**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (from Stripe → Webhooks → Signing secret for this endpoint).
-4. Stripe → Webhooks → Add endpoint: `https://<PROJECT_REF>.supabase.co/functions/v1/stripe-webhook` — subscribe to `checkout.session.completed`.
+1. **`stripe-webhook`** — verifies Stripe signatures and extends `premium_until` on `checkout.session.completed`. Deploy and configure when you enable Stripe:
+   - [Stripe Dashboard](https://dashboard.stripe.com/) → Developers → API keys: copy **Secret key**.
+   - Deploy: `supabase functions deploy stripe-webhook --no-verify-jwt`
+   - Supabase Dashboard → **Edge Functions** → `stripe-webhook` → **Secrets**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (from Stripe → Webhooks → Signing secret for this endpoint).
+   - Stripe → Webhooks → Add endpoint: `https://<PROJECT_REF>.supabase.co/functions/v1/stripe-webhook` — subscribe to `checkout.session.completed`.
 
-**Checkout Session metadata** (required / optional):
+2. **`create-checkout-session`** — authenticated users get a Stripe Checkout URL (Settings → **Continue to checkout**). Deploy:
+   - `supabase functions deploy create-checkout-session`
+   - Same Edge secrets as above: **`STRIPE_SECRET_KEY`** (shared with webhook).
+   - **Pricing** (set at least one in Supabase → Edge Function `create-checkout-session` → Secrets):
+     - **`STRIPE_PRICE_ID`** — Price ID from Stripe Dashboard (Product/Price), **or**
+     - **`STRIPE_PRICE_UNIT_AMOUNT_CENTS`** — integer (e.g. `999` for $9.99); optional **`STRIPE_PRICE_CURRENCY`** (default `usd`), **`STRIPE_PRICE_PRODUCT_NAME`** (display name).
+   - **`SITE_URL`** — your app origin (e.g. `https://your-app.vercel.app`) if the browser does not send `Origin` (usually not needed when calling from the deployed site).
+   - The app uses `supabase.functions.invoke("create-checkout-session", { body: { premium_days: 30 } })`; the session includes `metadata.user_id` and `metadata.premium_days` for the webhook.
+
+**Checkout Session metadata** (webhook / server):
 
 | Key | Required | Description |
 |-----|----------|-------------|
-| `user_id` | yes | Supabase `auth.users` id / `profiles.id` (UUID) |
+| `user_id` | yes | Supabase `auth.users` id / `profiles.id` (UUID) — set by `create-checkout-session` |
 | `premium_days` | no | Days to add (default `30`, max `3650`). Extension starts from `max(now, current premium_until)`. |
 
-In-app Checkout / Customer Portal is **not** implemented here; create test sessions from the Stripe Dashboard or a future **Settings → Premium** flow.
+**Settings → Premium:** the checkout button is **hidden by default** (`VITE_BILLING_CHECKOUT_ENABLED` unset or not `true`) so you can ship without Stripe. When you deploy `create-checkout-session` + `stripe-webhook` and set Stripe/price secrets, set **`VITE_BILLING_CHECKOUT_ENABLED=true`** in Vercel (rebuild) to show **Continue to checkout**. Until then, users see a short notice; Premium can still be granted via **Admin**.
 
 ## Repo
 

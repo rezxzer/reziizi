@@ -28,4 +28,12 @@ export const queryKeys = {
     all: ["notifications"] as const,
     list: ["notifications", "list"] as const,
   },
+  /**
+   * Feature flags — **two keys**: public map vs admin rows (same Supabase table, different shapes).
+   * Do not share one key: React Query would cache an object where an array is expected (or vice versa).
+   */
+  featureFlags: {
+    map: ["featureFlags", "map"] as const,
+    adminRows: ["featureFlags", "adminRows"] as const,
+  },
 } as const;

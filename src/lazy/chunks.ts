@@ -39,6 +39,11 @@ export const AdminApiPage = lazy(async () => {
   return { default: m.AdminApiPage };
 });
 
+export const AdminFeatureFlagsPage = lazy(async () => {
+  const m = await import("../pages/AdminFeatureFlagsPage.tsx");
+  return { default: m.AdminFeatureFlagsPage };
+});
+
 export const MessagesPage = lazy(async () => {
   const m = await import("../pages/MessagesPage.tsx");
   return { default: m.MessagesPage };

@@ -48,6 +48,13 @@ type PagesBundle = {
     /** Feed-top ad strip (FeedAdSlot). */
     feedAdSponsored: string;
     feedAdSponsoredContent: string;
+    /** Premium promo on home (`feature_flags.home_premium_cta`). */
+    premiumCtaTitle: string;
+    premiumCtaBody: string;
+    /** When checkout env off — points users to Settings for full plan. */
+    premiumCtaBodyNoBilling: string;
+    premiumCtaLinkSettings: string;
+    premiumCtaLinkLogin: string;
   };
   login: {
     titleSignIn: string;
@@ -250,6 +257,27 @@ type PagesBundle = {
         statPosts: string;
         statComments: string;
         statReactions: string;
+        linkFeatures: string;
+      };
+      features: {
+        title: string;
+        listHeading: string;
+        intro: string;
+        feedTrendingTab: string;
+        feedTrendingTabHelp: string;
+        feedAds: string;
+        feedAdsHelp: string;
+        postComments: string;
+        postCommentsHelp: string;
+        navSearch: string;
+        navSearchHelp: string;
+        navMessages: string;
+        navMessagesHelp: string;
+        homePremiumCta: string;
+        homePremiumCtaHelp: string;
+        unknownKey: string;
+        saving: string;
+        savedToast: string;
       };
       moderation: {
         title: string;
@@ -458,6 +486,7 @@ export type Bundle = {
       reports: string;
       stats: string;
       ads: string;
+      features: string;
       api: string;
       security: string;
       legal: string;
@@ -507,6 +536,30 @@ export type Bundle = {
     premiumLoading: string;
     premiumActiveUntil: string;
     premiumNone: string;
+    /** Visible label under Account — Premium purchase / billing (not only muted body). */
+    premiumBillingTitle: string;
+    /** Stripe Checkout (P1) — Settings → account. */
+    premiumCheckoutHint: string;
+    premiumCheckoutSubscribe: string;
+    premiumCheckoutBusy: string;
+    premiumCheckoutSuccess: string;
+    premiumCheckoutCancelled: string;
+    /** When VITE_BILLING_CHECKOUT_ENABLED is not true — no Stripe yet (short; details in plan block). */
+    premiumCheckoutDisabledHint: string;
+    /** Preview plan before Stripe is live — Account section. */
+    premiumPlanSectionTitle: string;
+    premiumPlanLead: string;
+    premiumPlanBenefitsTitle: string;
+    premiumPlanBenefit1: string;
+    premiumPlanBenefit2: string;
+    premiumPlanBenefit3: string;
+    premiumPlanBenefit4: string;
+    /** Roadmap / ideas — not a product commitment. */
+    premiumPlanFutureTitle: string;
+    premiumPlanFutureBody: string;
+    premiumPlanDuration: string;
+    premiumPlanPrice: string;
+    premiumPlanWaitNote: string;
     privacy: string;
     privacyHint: string;
     privacyLoading: string;
@@ -585,6 +638,7 @@ const en: Bundle = {
       reports: "Reports",
       stats: "Stats",
       ads: "Ads",
+      features: "Features",
       api: "API",
       security: "Security",
       legal: "Legal",
@@ -633,6 +687,31 @@ const en: Bundle = {
     premiumLoading: "…",
     premiumActiveUntil: "active until",
     premiumNone: "none",
+    premiumBillingTitle: "Premium purchase",
+    premiumCheckoutHint:
+      "Extend Premium (+30 days) via secure checkout when billing is enabled on the server (Stripe).",
+    premiumCheckoutSubscribe: "Continue to checkout",
+    premiumCheckoutBusy: "Opening checkout…",
+    premiumCheckoutSuccess: "Payment received. Premium time will update in a moment.",
+    premiumCheckoutCancelled: "Checkout was cancelled.",
+    premiumCheckoutDisabledHint: "Setup details: README → Stripe Premium.",
+    premiumPlanSectionTitle: "Premium plan (preview)",
+    premiumPlanLead:
+      "Premium is for members who want more room for text, tags, and video. Below is what we are targeting before paid checkout goes live — final numbers may be tuned at launch.",
+    premiumPlanBenefitsTitle: "What Premium includes",
+    premiumPlanBenefit1: "Longer posts — up to 5,000 characters per post (free tier: 1,000).",
+    premiumPlanBenefit2: "More tags — up to 8 tags per post (free tier: 4).",
+    premiumPlanBenefit3: "Video posts — MP4/WebM in the feed (not available on the free tier).",
+    premiumPlanBenefit4: "Headroom for richer posts as REZIIZI adds features.",
+    premiumPlanFutureTitle: "Under consideration (not a commitment)",
+    premiumPlanFutureBody:
+      "We are reviewing additional Premium benefits — for example optional promotional placements in the feed for members who want to advertise their posts or business. Pricing could depend on placement size, duration, format, and legal/compliance rules in your region. Nothing is built or priced yet; if we ship it, we will announce clear terms and pricing beforehand.",
+    premiumPlanDuration:
+      "Billing: each successful Stripe checkout extends Premium by 30 days. You can purchase again before expiry to add more time.",
+    premiumPlanPrice:
+      "Price: not finalized yet — the exact amount and currency will be shown on the checkout screen before you pay. Nothing is charged until you confirm in Stripe.",
+    premiumPlanWaitNote:
+      "We are still wiring Stripe and final pricing. Until checkout is enabled here, Premium can be granted manually by admins. The “Continue to checkout” button will appear in this section when billing is turned on.",
     privacy: "Privacy",
     privacyHint:
       "Control whether your account appears when others search by email on the Search page.",
@@ -700,6 +779,12 @@ const en: Bundle = {
       loadMore: "Load more ({pageSize} per page)",
       feedAdSponsored: "Sponsored",
       feedAdSponsoredContent: "Sponsored content",
+      premiumCtaTitle: "Premium",
+      premiumCtaBody: "Longer posts, more tags, video, and more. Manage your plan in Settings.",
+      premiumCtaBodyNoBilling:
+        "Longer posts, more tags, and video. Paid checkout is coming soon — open Settings → Account for the full plan, pricing preview, and timeline.",
+      premiumCtaLinkSettings: "Open Settings",
+      premiumCtaLinkLogin: "Sign in",
     },
     login: {
       titleSignIn: "Log in",
@@ -899,6 +984,28 @@ const en: Bundle = {
         statPosts: "Posts",
         statComments: "Comments",
         statReactions: "Reactions",
+        linkFeatures: "Feature flags — show/hide home feed parts",
+      },
+      features: {
+        title: "Feature flags",
+        listHeading: "Flags",
+        intro:
+          "When a flag is off, that part of the site is hidden from users (e.g. home feed). Nothing says “disabled” on the home page — it simply does not appear.",
+        feedTrendingTab: "Trending tab (home feed)",
+        feedTrendingTabHelp: "Hides the Latest / Trending switch and forces latest sort.",
+        feedAds: "Feed top sponsored strip",
+        feedAdsHelp: "Hides the ad block above the post list (independent of Ads admin content).",
+        postComments: "Comments under posts",
+        postCommentsHelp: "Hides the comment thread and composer on every post card (feed, profile, search).",
+        navSearch: "Search (header link)",
+        navSearchHelp: "Hides the Search nav link; direct /search URLs redirect home.",
+        navMessages: "Messages / chat",
+        navMessagesHelp: "Hides Messages in the header and blocks /messages and /messages/:id (redirect home).",
+        homePremiumCta: "Premium promo on home feed",
+        homePremiumCtaHelp: "Hides the Premium card above the feed (links to Settings or Sign in).",
+        unknownKey: "Flag",
+        saving: "Saving…",
+        savedToast: "Saved.",
       },
       moderation: {
         title: "Moderation",
@@ -1197,6 +1304,7 @@ const ka: Bundle = {
       reports: "რეპორტები",
       stats: "სტატისტიკა",
       ads: "რეკლამა",
+      features: "ფლაგები",
       api: "API",
       security: "უსაფრთხოება",
       legal: "იურიდიული",
@@ -1245,6 +1353,31 @@ const ka: Bundle = {
     premiumLoading: "…",
     premiumActiveUntil: "აქტიურია",
     premiumNone: "არა",
+    premiumBillingTitle: "პრემიუმის ყიდვა",
+    premiumCheckoutHint:
+      "პრემიუმის გახანგრძლივება (+30 დღე) უსაფრთხო გადახდით, როცა სერვერზე ჩართულია ბილინგი (Stripe).",
+    premiumCheckoutSubscribe: "გადახდაზე გადასვლა",
+    premiumCheckoutBusy: "იხსნება გადახდა…",
+    premiumCheckoutSuccess: "გადახდა მიღებულია. პრემიუმი მალე განახლდება.",
+    premiumCheckoutCancelled: "გადახდა გაუქმდა.",
+    premiumCheckoutDisabledHint: "დეტალები დაყენებაზე: README → Stripe Premium.",
+    premiumPlanSectionTitle: "პრემიუმის გეგმა (წინასწარი)",
+    premiumPlanLead:
+      "პრემიუმი განკუთვნილია იმისთვის, ვინც მეტი ადგილს ითხოვს ტექსტზე, თეგებსა და ვიდეოზე. ქვემოთ არის ის, რას ვამიზნებთ გადახდიანი checkout-მდე — ციფრები შეიძლება გაშვებამდე დაზუსტდეს.",
+    premiumPlanBenefitsTitle: "რას მოიცავს პრემიუმი",
+    premiumPlanBenefit1: "უფრო გრძელი პოსტები — ერთ პოსტზე 5000 სიმბოლომდე (უფასო: 1000).",
+    premiumPlanBenefit2: "მეტი თეგი — ერთ პოსტზე 8 თეგამდე (უფასო: 4).",
+    premiumPlanBenefit3: "ვიდეო პოსტები — MP4/WebM ლენტაში (უფასო ტარიფზე არაა).",
+    premiumPlanBenefit4: "სივრცე განვითარებადი ფუნქციებისთვის.",
+    premiumPlanFutureTitle: "განხილვაშია (არა გარანტია)",
+    premiumPlanFutureBody:
+      "ვიკვლევთ დამატებით უპირატესობებს Premium-ისთვის — მაგალითად არჩევით სარეკლამო განთავსებას ლენტაში იმისთვის, ვისაც სურს პოსტის ან ბიზნესის ხილვადობა. ფასი შეიძლება დამოკიდებული იყოს ზომაზე, ხანგრძლივობაზე, ფორმატზე და იურიდიულ/რეგულაციულ მოთხოვნებზე. ჯერ არაფერია დაფასოებული ან გაშვებული; თუ გამოვა, წინასწარ გამოვაცხადებთ წესებსა და ფასებს.",
+    premiumPlanDuration:
+      "გადახდა: წარმატებული Stripe checkout ყოველ ჯერზე ახანგრძლივებს პრემიუმს 30 დღით. ვადამდე შეგიძლიათ ისევ იყიდოთ და დრო დაიმატოთ.",
+    premiumPlanPrice:
+      "ფასი: ჯერ არ არის გაფიქსირებული — ზუსტი თანხა და ვალუტა checkout-ის ეკრანზე გამოჩნდება გადახდამდე. Stripe-ში დადასტურებამდე თანხა არ ჩამოიჭრება.",
+    premiumPlanWaitNote:
+      "Stripe-სა და საბოლოო ფასს ვაბოლოებთ. სანამ აქ checkout არ ჩაირთვება, პრემიუმს ადმინი შეუძლია ხელით მიანიჭოს. „გადახდაზე გადასვლა“ ამ ბლოკში გამოჩნდება, როცა ბილინგი ჩაირთვება.",
     privacy: "პირადულობა",
     privacyHint:
       "განსაზღვრეთ, ჩანდება თუ არა თქვენი პროფილი სხვების ელფოსტით ძიებისას (ძიების გვერდი).",
@@ -1313,6 +1446,12 @@ const ka: Bundle = {
       loadMore: "კიდევ ({pageSize} გვერდზე)",
       feedAdSponsored: "სპონსორი",
       feedAdSponsoredContent: "სპონსორის კონტენტი",
+      premiumCtaTitle: "პრემიუმი",
+      premiumCtaBody: "უფრო გრძელი პოსტები, მეტი თეგი, ვიდეო და სხვა. მართეთ პარამეტრებში.",
+      premiumCtaBodyNoBilling:
+        "უფრო გრძელი პოსტები, მეტი თეგი და ვიდეო. გადახდიანი checkout მალე — გახსენით პარამეტრები → ანგარიში სრული გეგმის, ფასის წინასწარი ხედისა და ვადებისთვის.",
+      premiumCtaLinkSettings: "პარამეტრების გახსნა",
+      premiumCtaLinkLogin: "შესვლა",
     },
     login: {
       titleSignIn: "შესვლა",
@@ -1512,6 +1651,28 @@ const ka: Bundle = {
         statPosts: "პოსტები",
         statComments: "კომენტარები",
         statReactions: "რეაქციები",
+        linkFeatures: "ფუნქციის ფლაგები — მთავარი ლენტის ნაწილების ჩვენება/დამალვა",
+      },
+      features: {
+        title: "ფუნქციის ფლაგები",
+        listHeading: "ფლაგები",
+        intro:
+          "როცა ფლაგი გამორთულია, შესაბამისი ნაწილი მომხმარებლებს არ ჩანს (მაგ. მთავარი ლენტი). მთავარ გვერდზე არ ჩანს „გამორთულია“ — უბრალოდ არ ჩანს.",
+        feedTrendingTab: "Trending ჩანართი (მთავარი ლენტი)",
+        feedTrendingTabHelp: "ფარავს „ბოლო / Trending“ გადამრთველს და იძულებით „ბოლო“ სორტს.",
+        feedAds: "ლენტის ზედა სპონსორის ზოლი",
+        feedAdsHelp: "ფარავს რეკლამის ბლოკს პოსტების სიის ზემოთ (დამოუკიდებელია Ads ადმინის შიგთავსისგან).",
+        postComments: "კომენტარები პოსტის ქვეშ",
+        postCommentsHelp: "ფარავს კომენტარების თრედს და ფორმას ყველა პოსტზე (ლენტი, პროფილი, ძებნა).",
+        navSearch: "ძებნა (ნავიგაციის ბმული)",
+        navSearchHelp: "ფარავს „ძებნა“-ს ჰედერში; პირდაპირ /search მთავარზე გადამისამართდება.",
+        navMessages: "მესიჯები / ჩატი",
+        navMessagesHelp: "ფარავს „მესიჯებს“ ჰედერში და /messages · /messages/:id მთავარზე გადაყავს.",
+        homePremiumCta: "პრემიუმის ბლოკი მთავარ ლენტაზე",
+        homePremiumCtaHelp: "ფარავს პრემიუმის ბარათს ლენტის ზემოთ (ბმული პარამეტრებზე ან შესვლაზე).",
+        unknownKey: "ფლაგი",
+        saving: "ინახება…",
+        savedToast: "შენახულია.",
       },
       moderation: {
         title: "მოდერაცია",
@@ -1809,6 +1970,7 @@ const ru: Bundle = {
       reports: "Жалобы",
       stats: "Статистика",
       ads: "Реклама",
+      features: "Флаги",
       api: "API",
       security: "Безопасность",
       legal: "Правовая информация",
@@ -1858,6 +2020,31 @@ const ru: Bundle = {
     premiumLoading: "…",
     premiumActiveUntil: "активен до",
     premiumNone: "нет",
+    premiumBillingTitle: "Покупка Premium",
+    premiumCheckoutHint:
+      "Продление Premium (+30 дней) через безопасную оплату, когда на сервере включён биллинг (Stripe).",
+    premiumCheckoutSubscribe: "Перейти к оплате",
+    premiumCheckoutBusy: "Открывается оплата…",
+    premiumCheckoutSuccess: "Платёж получен. Статус Premium обновится через мгновение.",
+    premiumCheckoutCancelled: "Оплата отменена.",
+    premiumCheckoutDisabledHint: "Подробности настройки: README → Stripe Premium.",
+    premiumPlanSectionTitle: "План Premium (черновик)",
+    premiumPlanLead:
+      "Premium даёт больше места для текста, тегов и видео. Ниже — что планируем до запуска оплаты; цифры могут уточняться к релизу.",
+    premiumPlanBenefitsTitle: "Что входит в Premium",
+    premiumPlanBenefit1: "Длиннее посты — до 5 000 символов (бесплатно: 1 000).",
+    premiumPlanBenefit2: "Больше тегов — до 8 на пост (бесплатно: 4).",
+    premiumPlanBenefit3: "Видео в ленте — MP4/WebM (на бесплатном уровне недоступно).",
+    premiumPlanBenefit4: "Запас под новые функции по мере развития REZIIZI.",
+    premiumPlanFutureTitle: "На рассмотрении (без обязательств)",
+    premiumPlanFutureBody:
+      "Мы рассматриваем дополнительные возможности для Premium — например опциональное продвижение постов или бизнеса в ленте. Стоимость может зависеть от размера слота, срока, формата и юридических требований в вашем регионе. Пока это не реализовано и не оценено; если запустим, заранее опубликуем условия и цены.",
+    premiumPlanDuration:
+      "Оплата: каждая успешная оплата в Stripe продлевает Premium на 30 дней. Можно покупать снова до истечения срока.",
+    premiumPlanPrice:
+      "Цена: пока не финальна — точная сумма и валюта будут на экране checkout до оплаты. Списания не будет, пока вы не подтвердите в Stripe.",
+    premiumPlanWaitNote:
+      "Мы подключаем Stripe и финальные цены. Пока оплата здесь не включена, Premium может выдать админ. Кнопка «Перейти к оплате» появится, когда включим биллинг.",
     privacy: "Конфиденциальность",
     privacyHint:
       "Управляйте видимостью профиля при поиске по email на странице «Поиск».",
@@ -1925,6 +2112,12 @@ const ru: Bundle = {
       loadMore: "Ещё (по {pageSize} на страницу)",
       feedAdSponsored: "Реклама",
       feedAdSponsoredContent: "Рекламный контент",
+      premiumCtaTitle: "Premium",
+      premiumCtaBody: "Длиннее посты, больше тегов, видео и другое. Управление в Настройках.",
+      premiumCtaBodyNoBilling:
+        "Длиннее посты, больше тегов и видео. Оплата скоро — откройте Настройки → Аккаунт: там черновик плана, цены и сроки.",
+      premiumCtaLinkSettings: "Открыть настройки",
+      premiumCtaLinkLogin: "Войти",
     },
     login: {
       titleSignIn: "Вход",
@@ -2124,6 +2317,28 @@ const ru: Bundle = {
         statPosts: "Посты",
         statComments: "Комментарии",
         statReactions: "Реакции",
+        linkFeatures: "Флаги функций — показ/скрытие частей ленты",
+      },
+      features: {
+        title: "Флаги функций",
+        listHeading: "Флаги",
+        intro:
+          "Если флаг выключен, соответствующая часть сайта скрыта для пользователей (например, лента). На главной нет текста «отключено» — блок просто не показывается.",
+        feedTrendingTab: "Вкладка Trending (лента)",
+        feedTrendingTabHelp: "Скрывает переключатель «Последние / Trending» и принудительно сортирует по последним.",
+        feedAds: "Верхний спонсорский блок в ленте",
+        feedAdsHelp: "Скрывает рекламный блок над списком постов (независимо от содержимого в Ads).",
+        postComments: "Комментарии под постами",
+        postCommentsHelp: "Скрывает ветку комментариев и форму на каждой карточке (лента, профиль, поиск).",
+        navSearch: "Поиск (ссылка в шапке)",
+        navSearchHelp: "Скрывает пункт «Поиск»; прямой заход на /search ведёт на главную.",
+        navMessages: "Сообщения / чат",
+        navMessagesHelp: "Скрывает «Сообщения» в шапке и блокирует /messages и /messages/:id (редирект на главную).",
+        homePremiumCta: "Блок Premium на главной ленте",
+        homePremiumCtaHelp: "Скрывает карточку Premium над лентой (ссылка в Настройки или Вход).",
+        unknownKey: "Флаг",
+        saving: "Сохранение…",
+        savedToast: "Сохранено.",
       },
       moderation: {
         title: "Модерация",

@@ -12,7 +12,8 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@supabase/supabase-js": ["../../node_modules/@supabase/supabase-js"]
+      "@supabase/supabase-js": ["../../node_modules/@supabase/supabase-js"],
+      "stripe": ["../../node_modules/stripe"]
     }
   },
   "include": ["./**/*.ts", "./**/*.d.ts"]

@@ -1,9 +1,11 @@
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { Avatar } from "../components/Avatar.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
+import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { fetchMyConversations, type ConversationWithPeer } from "../lib/chat.ts";
 import { errorMessage } from "../lib/errors.ts";
@@ -11,6 +13,7 @@ import { errorMessage } from "../lib/errors.ts";
 export function MessagesPage(): ReactElement {
   const { t } = useI18n();
   const { user } = useAuth();
+  const featureFlags = useAppFeatureFlags();
   const toast = useToast();
   const [items, setItems] = useState<ConversationWithPeer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,10 @@ export function MessagesPage(): ReactElement {
   useEffect(() => {
     void load();
   }, [load]);
+
+  if (!isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navMessages)) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="stack messages-page">

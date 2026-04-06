@@ -366,11 +366,11 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           )}
         </div>
       ) : null}
-      <div className="form__row">
+      <div className="post-form__footer">
         <span className="muted">
           {body.length}/{maxLen}
         </span>
-        <button type="submit" className="btn btn--primary" disabled={submitting}>
+        <button type="submit" className="btn--post-submit" disabled={submitting}>
           {submitting ? t("pages.postForm.posting") : t("pages.postForm.post")}
         </button>
       </div>

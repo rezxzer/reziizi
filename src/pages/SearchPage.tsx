@@ -1,12 +1,14 @@
 import type { FormEvent, ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar } from "../components/Avatar.tsx";
 import { PostCard } from "../components/PostCard";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { errorMessage } from "../lib/errors.ts";
+import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { prefersReducedMotion } from "../lib/prefersReducedMotion.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
 import {
@@ -21,6 +23,7 @@ import type { ProfileRow } from "../types/db";
 export function SearchPage(): ReactElement {
   const { t } = useI18n();
   const { user } = useAuth();
+  const featureFlags = useAppFeatureFlags();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const qParam: string = searchParams.get("q") ?? "";
@@ -79,6 +82,10 @@ export function SearchPage(): ReactElement {
       el.focus({ preventScroll: true });
     });
   }, [qParam, pattern, loading]);
+
+  if (!isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navSearch)) {
+    return <Navigate to="/" replace />;
+  }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault();

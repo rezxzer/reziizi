@@ -4,7 +4,9 @@ import { Link, NavLink, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useUnreadNotificationCount } from "../hooks/useUnreadNotificationCount.ts";
+import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
+import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { RouteAnnouncer } from "./RouteAnnouncer.tsx";
 import { RouteSeo } from "./RouteSeo.tsx";
 import { LayoutOutlet } from "./LayoutOutlet.tsx";
@@ -12,12 +14,19 @@ import { ThemePreferenceControls } from "./ThemePreferenceControls.tsx";
 
 const ALLOWED_WHEN_BANNED: readonly string[] = ["/banned", "/login", "/legal"];
 
+function navLinkClass({ isActive }: { isActive: boolean }): string {
+  return isActive ? "layout__nav-link active" : "layout__nav-link";
+}
+
 export function Layout(): ReactElement {
   const { pathname } = useLocation();
   const { t } = useI18n();
   const { user, loading } = useAuth();
   const { isAdmin, isBanned, loading: flagsLoading } = useProfileFlags();
   const unreadNotifications = useUnreadNotificationCount();
+  const featureFlags = useAppFeatureFlags();
+  const showNavSearch = isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navSearch);
+  const showNavMessages = isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navMessages);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const isAdminRoute: boolean = pathname.startsWith("/admin");
 
@@ -45,25 +54,36 @@ export function Layout(): ReactElement {
       </a>
       <header className="layout__header" translate="no">
         <Link className="layout__brand" to="/" aria-label={t("layout.brandAria")}>
-          REZIIZI
+          REZ<span>IIZI</span>
         </Link>
-        <div className="layout__theme">
-          <ThemePreferenceControls />
-        </div>
         <nav className="layout__nav" aria-label={t("layout.navAria")}>
-          <NavLink to="/" end>
+          <NavLink to="/" end className={navLinkClass}>
             {t("layout.nav.home")}
           </NavLink>
-          <NavLink to="/search">{t("layout.nav.search")}</NavLink>
+          {showNavSearch ? (
+            <NavLink to="/search" className={navLinkClass}>
+              {t("layout.nav.search")}
+            </NavLink>
+          ) : null}
           {!loading && !user ? (
-            <NavLink to="/login">{t("layout.nav.login")}</NavLink>
+            <NavLink to="/login" className={navLinkClass}>
+              {t("layout.nav.login")}
+            </NavLink>
+          ) : null}
+          {user && showNavMessages ? (
+            <NavLink to="/messages" className={navLinkClass}>
+              {t("layout.nav.messages")}
+            </NavLink>
           ) : null}
           {user ? (
-            <NavLink to="/messages">{t("layout.nav.messages")}</NavLink>
-          ) : null}
-          {user ? (
-            <NavLink to="/notifications" className="layout__nav-notify">
+            <NavLink
+              to="/notifications"
+              className={({ isActive }) =>
+                `layout__nav-link layout__nav-notify${isActive ? " active" : ""}`
+              }
+            >
               {t("layout.nav.notifications")}
+              <span className="notif-dot" />
               {unreadNotifications > 0 ? (
                 <span
                   className="nav-badge"
@@ -74,8 +94,12 @@ export function Layout(): ReactElement {
               ) : null}
             </NavLink>
           ) : null}
-          <NavLink to="/profile">{t("layout.nav.profile")}</NavLink>
-          <NavLink to="/settings">{t("layout.nav.settings")}</NavLink>
+          <NavLink to="/profile" className={navLinkClass}>
+            {t("layout.nav.profile")}
+          </NavLink>
+          <NavLink to="/settings" className={navLinkClass}>
+            {t("layout.nav.settings")}
+          </NavLink>
           {user && !flagsLoading && isAdmin ? (
             <details
               className="layout__nav-details"
@@ -106,13 +130,24 @@ export function Layout(): ReactElement {
                 <NavLink to="/admin/reports">{t("layout.nav.reports")}</NavLink>
                 <NavLink to="/admin/stats">{t("layout.nav.stats")}</NavLink>
                 <NavLink to="/admin/ads">{t("layout.nav.ads")}</NavLink>
+                <NavLink to="/admin/features">{t("layout.nav.features")}</NavLink>
                 <NavLink to="/admin/api">{t("layout.nav.api")}</NavLink>
               </div>
             </details>
           ) : null}
-          <NavLink to="/security">{t("layout.nav.security")}</NavLink>
-          <NavLink to="/legal">{t("layout.nav.legal")}</NavLink>
+          <NavLink to="/security" className={navLinkClass}>
+            {t("layout.nav.security")}
+          </NavLink>
+          <NavLink to="/legal" className={navLinkClass}>
+            {t("layout.nav.legal")}
+          </NavLink>
         </nav>
+        <div className="layout__nav-right">
+          <div className="theme-pill">
+            <ThemePreferenceControls />
+          </div>
+          <div className="layout__user-avatar">{user?.email?.slice(0, 2).toUpperCase() ?? "RZ"}</div>
+        </div>
       </header>
       <main id="main-content" className="layout__main" tabIndex={-1}>
         <LayoutOutlet />

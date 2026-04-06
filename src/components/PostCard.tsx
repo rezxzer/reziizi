@@ -3,9 +3,10 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
+import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { logger } from "../lib/logger.ts";
 import { supabase } from "../lib/supabaseClient.ts";
-import { Avatar } from "./Avatar.tsx";
 import { postImageAltFromBody } from "../lib/postImageAlt.ts";
 import { removeStoredPostImageByPublicUrl } from "../lib/postImageStorage.ts";
 import { removeStoredPostVideoByPublicUrl } from "../lib/postVideoStorage.ts";
@@ -19,9 +20,17 @@ type PostCardProps = {
   onChanged: () => void;
 };
 
+function avatarVariant(email: string): string {
+  const s = email.trim() || "RZ";
+  const code = s.charCodeAt(0) % 3;
+  return code === 0 ? "" : code === 1 ? "b" : "c";
+}
+
 export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
   const { t } = useI18n();
   const { user } = useAuth();
+  const featureFlags = useAppFeatureFlags();
+  const showComments = isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.postComments);
   const [deleting, setDeleting] = useState(false);
   const [bodyExpanded, setBodyExpanded] = useState(false);
   const [bodyOverflows, setBodyOverflows] = useState(false);
@@ -31,6 +40,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
   const display = post.authorEmail ?? post.user_id.slice(0, 8);
   const created = new Date(post.created_at).toLocaleString();
   const netScore: number = post.thumbsUp - post.thumbsDown;
+  const avatarGradClass: string = avatarVariant(post.authorEmail ?? "");
 
   useLayoutEffect(() => {
     if (!hasMedia) {
@@ -81,7 +91,11 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
     <article className="post-card">
       <header className="post-card__header">
         <div className="post-card__author-row">
-          <Avatar imageUrl={post.authorAvatarUrl} label={display} size="sm" />
+          <div
+            className={`post-card__avatar avatar-gradient${avatarGradClass ? ` ${avatarGradClass}` : ""}`}
+          >
+            {(post.authorEmail ?? "RZ").slice(0, 2).toUpperCase()}
+          </div>
           <Link className="post-card__author-link" to={`/u/${post.user_id}`}>
             <span className="post-card__author">{display}</span>
           </Link>
@@ -196,7 +210,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
         </div>
         <ReportPostControl postId={post.id} isOwner={isOwner} />
       </footer>
-      <CommentSection postId={post.id} />
+      {showComments ? <CommentSection postId={post.id} /> : null}
     </article>
   );
 }

@@ -1,9 +1,11 @@
 import type { FormEvent, ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { Avatar } from "../components/Avatar.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
+import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { useToast } from "../contexts/ToastContext.tsx";
 import {
   fetchMessages,
@@ -20,6 +22,7 @@ export function ChatThreadPage(): ReactElement {
   const { peerId } = useParams<{ peerId: string }>();
   const { user } = useAuth();
   const { t } = useI18n();
+  const featureFlags = useAppFeatureFlags();
   const toast = useToast();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [peerEmail, setPeerEmail] = useState<string | null>(null);
@@ -115,6 +118,10 @@ export function ChatThreadPage(): ReactElement {
       unsub?.();
     };
   }, [peerId, user, t]);
+
+  if (!isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navMessages)) {
+    return <Navigate to="/" replace />;
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();

@@ -23,6 +23,7 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 | `chat_messages` | Messages in a conversation |
 | `reports` | User reports on posts |
 | `ad_slots` | Sponsored slots (e.g. `feed_top`) |
+| `feature_flags` | Admin-toggled flags (`key`, `enabled`); public `SELECT`, app hides UI when off — migrations `20260401351500` … `20260401351700` |
 | `follows` | User A follows user B (directed) |
 | `abuse_flags` | Audit rows when content is auto-flagged (FK to post, comment, or optional `message_id`) |
 
@@ -97,6 +98,11 @@ Migration: `20260401350500_add_report_threshold_auto_flag.sql`.
 
 - `id`, `placement` (unique), `title`, `body`, `link_url`, `is_active`, `updated_at`
 
+### `feature_flags`
+
+- `key` (PK), `enabled`, `description` (admin hint; app uses i18n for user-facing copy)
+- Public `SELECT`; admin-only `UPDATE`. Seeded keys include `feed_trending_tab`, `feed_ads`, `post_comments`, `nav_search`, `nav_messages`, `home_premium_cta` — see `src/lib/featureFlags.ts` / `AdminFeatureFlagsPage`.
+
 ## Rate limits (DB triggers)
 
 BEFORE INSERT on **`posts`**, **`comments`**, **`chat_messages`**, **`reports`**. Counts existing rows in a rolling window; `SECURITY DEFINER` counts bypass RLS edge cases. Migration: `20260401310000_add_rate_limit_triggers.sql`.
@@ -135,9 +141,10 @@ Helpers: `normalize_body_for_spam`, `spam_duplicate_eligible`, `count_url_indica
 | `admin_set_user_banned` | Admin ban/unban (+ reason) |
 | `admin_set_user_premium_until` | Admin premium window |
 
-### Billing (Stripe — Edge Function, not an RPC)
+### Billing (Stripe — Edge Functions, not an RPC)
 
 - **`stripe-webhook`** (`supabase/functions/stripe-webhook`): when deployed and configured, Stripe → `checkout.session.completed` → updates `profiles.premium_until` using **service role** (after migration `20260401350700_allow_service_role_premium_update.sql`). **Live Stripe setup is optional** until launch; see **`README.md` → „Stripe Premium“**.
+- **`create-checkout-session`** (`supabase/functions/create-checkout-session`): authenticated POST (via `supabase.functions.invoke`) creates a **Stripe Checkout** session with `metadata.user_id` / `metadata.premium_days`; user is redirected to Stripe; webhook applies the extension. Requires **`STRIPE_PRICE_ID`** or **`STRIPE_PRICE_UNIT_AMOUNT_CENTS`** (+ optional currency/product name). Deploy: `supabase functions deploy create-checkout-session`.
 
 Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_post_owner_on_*`, `notify_followed_user_on_follow`, `enforce_*_rate_limit`, anti-spam helpers above); not called directly from the app.
 

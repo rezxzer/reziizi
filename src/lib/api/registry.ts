@@ -18,6 +18,8 @@ export const TABLE = {
   follows: "follows",
   /** Audit rows for auto-flagged content (admin SELECT only). */
   abuse_flags: "abuse_flags",
+  /** Admin-toggled; public SELECT — home feed hides UI when off. */
+  feature_flags: "feature_flags",
 } as const;
 
 export type TableName = (typeof TABLE)[keyof typeof TABLE];

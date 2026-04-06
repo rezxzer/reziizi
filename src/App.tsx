@@ -17,6 +17,7 @@ import { BannedPage } from "./pages/BannedPage.tsx";
 import { AdminRoute } from "./components/AdminRoute.tsx";
 import {
   AdminAdsPage,
+  AdminFeatureFlagsPage,
   AdminApiPage,
   AdminModerationPage,
   AdminPage,
@@ -132,6 +133,14 @@ export default function App(): ReactElement {
             element={
               <AdminRoute>
                 <AdminAdsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/features"
+            element={
+              <AdminRoute>
+                <AdminFeatureFlagsPage />
               </AdminRoute>
             }
           />

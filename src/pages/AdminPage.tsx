@@ -71,6 +71,9 @@ export function AdminPage(): ReactElement {
             <Link to="/admin/api">{t("pages.admin.overview.linkApi")}</Link>
           </p>
           <p>
+            <Link to="/admin/features">{t("pages.admin.overview.linkFeatures")}</Link>
+          </p>
+          <p>
             <Link to="/">{t("pages.admin.backToHome")}</Link>
           </p>
         </div>
