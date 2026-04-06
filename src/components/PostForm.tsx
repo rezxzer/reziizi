@@ -261,7 +261,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   return (
     <form className="form form--post" onSubmit={(e) => void handleSubmit(e)}>
       <label className="form__label">
-        {t("pages.postForm.label")}
+        <span className="sr-only">{t("pages.postForm.label")}</span>
         <textarea
           className="form__textarea"
           name="body"

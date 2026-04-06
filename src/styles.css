@@ -408,12 +408,13 @@ body {
 
 .layout__main {
   flex: 1;
-  /* Let route roots (e.g. .home-page) own max-width / horizontal padding + centering. */
-  /* padding: var(--space-md); */
-  /* padding-bottom: max(var(--space-md), env(safe-area-inset-bottom)); */
-  /* max-width: var(--content-max); */
-  /* margin: 0 auto; */
   width: 100%;
+  padding: 1.5rem 1rem;
+  padding-bottom: 2rem;
+}
+
+.layout__main:has(.home-page) {
+  padding: 0;
 }
 
 .stack {
@@ -796,11 +797,8 @@ code {
 
 .home-feed-toolbar {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
   padding-bottom: 4px;
-  flex-wrap: wrap;
-  gap: 0.75rem;
 }
 
 .home-feed-toolbar .feed-filter,
