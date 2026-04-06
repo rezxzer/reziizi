@@ -21,6 +21,38 @@
 
 ## ჩანაწერები
 
+### 2026-04-03 — ტალღა 2: UI polish (rz tokens, Layout, Home grid, feed tabs, PostCard/PostForm, feed ad)
+
+- **`styles.css`:** `--rz-*` design tokens; `avatar-gradient` (+ `b` / `c`); navbar (`theme-pill`, `layout__user-avatar`, `notif-dot`); dark `html[data-theme="dark"] body`; post card + composer + **`feed-tabs`** / **`feed-tabs__tab`**; home layout (**`home-page`** grid, **`home-feed`**, **`home-sidebar`**, trending placeholder); **`feed-ad`** — rz ტოკენები, კომპაქტური ბლოკი, label + dot (`::before`).
+- **`Layout.tsx`**, **`PostCard.tsx`**, **`PostForm.tsx`**, **`HomePage.tsx`** — კლასები/სტრუქტურა; ბიზნეს-ლოგიკა და query-ები უცვლელი.
+- **შემოწმება:** `npm run build`, `npm test` — OK. Production UI: Vercel-ზე ვიზუალური audit ხელით (navbar, sticky tabs, cards, composer, sidebar, sponsored).
+
+### 2026-04-03 — Admin feature flags: `feature_flags` + `/admin/features`
+
+- Migration `20260401351500_add_feature_flags.sql`: public `SELECT`, admin `UPDATE`; seed `feed_trending_tab`, `feed_ads`. Home: hides Trending tab and `FeedAdSlot` when off (no disabled message). **Production:** გაუშვი migration Supabase-ზე სანამ UI-ს დაყვანდები.
+- Admin overview + layout nav: ლინკი „Features“ / ფლაგები.
+- Migration `20260401351600_add_feature_flags_comments_nav.sql`: `post_comments` (PostCard `CommentSection`), `nav_search` (Layout + `/search` redirect), `nav_messages` (Layout + `/messages` routes redirect). `useAppFeatureFlags` hook — ერთი query მთელ აპში.
+- **ფიქსი:** `queryKeys.featureFlags` გაყოფილია `map` vs `adminRows` — იგივე key-ზე სხვა `queryFn` (ობიექტი vs მასივი) იწვევდა `/admin/features`-ზე `listQuery.data.map is not a function`.
+- Migration `20260401351700`: `home_premium_cta` — მთავარი ლენტის პრემიუმის ბარათი (Settings / Sign in); ადმინში გამორთვა. უკვე Premium მომხმარებელს არ ეჩვენება.
+- **Home Premium CTA polish:** `profileFlagsLoading`-ით ბარათი აღარ იმალება შესულ მომხმარებლებზე; `VITE_BILLING_CHECKOUT_ENABLED=true`-ზე მთავარზე **Continue to checkout** + ლინკი Settings; `?checkout=` success/cancel იგივე ლოგიკით რაც Settings.
+- **Premium plan preview (checkout გამორთული):** Settings → Account — სია უპორტოები (5000/1000 სიმბოლო, თეგები 8/4, ვიდეო), 30 დღის გახანგრძლივება, ფასი TBD, როდის ჩაირთვება checkout; მთავარზე `premiumCtaBodyNoBilling`.
+
+### 2026-04-05 — Billing: `VITE_BILLING_CHECKOUT_ENABLED` (ნაგულისხმევად გამორთული)
+
+- **`src/lib/billingFlags.ts`:** checkout ღილაკი Settings-ში მხოლოდ `=== "true"`-ზე; სანამ Stripe არ ჩაირთვება — ინფო ტექსტი (`premiumCheckoutDisabledHint`).
+- **`.env.example`**, **`README.md`**, **`project.md`** P1.
+
+### 2026-04-05 — P1: Stripe Checkout (Settings) + Edge `create-checkout-session`
+
+- **`supabase/functions/create-checkout-session`:** JWT → Stripe Checkout Session (`metadata.user_id`, `premium_days`); `STRIPE_PRICE_ID` ან `STRIPE_PRICE_UNIT_AMOUNT_CENTS`; `SITE_URL` ოფციონალური.
+- **`src/lib/createCheckoutSession.ts`**, **`SettingsPage`:** ღილაკი, `?checkout=success|cancelled`, invalidate `queryKeys.profile.flags`.
+- **`README.md`**, **`SCHEMA.md`**, **`.env.example`**, **`project.md`** P1 სტატუსი.
+- **Production:** `supabase functions deploy create-checkout-session` + იგივე Stripe secrets რაც webhook-ს; ტესტი Stripe test mode.
+
+### 2026-04-05 — `project.md`: რეკლამა (#23 baseline) vs ბიზნეს P1/P2
+
+- **`#### ბიზნესი / §24`:** დაემატა პარაგრაფი **„რეკლამის განთავსება და ბიზნეს გეგმა“** — ადმინისტრაციული `ad_slots` / `FeedAdSlot` (უკვე baseline) გამიჯნულია **P1** (Stripe Premium)-სგან; **P2** — გადახდიანი პრომოცია იმავე მოდელთან დაკავშირებით.
+
 ### 2026-04-03 — `styles.css`: Problems (CSS linter) გასწორება
 
 - **`.post-card__video` / `.mod-list__video`:** `vertical-align` ამოღებული — `display: block`-ზე უქმია და linter აფრთხილებდა.
