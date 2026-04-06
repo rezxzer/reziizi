@@ -823,11 +823,11 @@ code {
 
 .feed-tabs {
   display: flex;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   padding: 3px;
   gap: 2px;
-  border: 1px solid var(--rz-border);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .feed-tabs__tab {
@@ -843,8 +843,8 @@ code {
 }
 
 .feed-tabs__tab.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--rz-text1);
+  background: var(--rz-accent);
+  color: #fff;
 }
 
 .feed-tabs__tab:hover:not(.active) {
