@@ -21,6 +21,18 @@
 
 ## ჩანაწერები
 
+### 2026-04-07 — Admin pages: სრული რედიზაინი + ფუნქციონალის გაფართოება
+
+- **AdminPage (Dashboard):** ტექსტური ლინკების ნაცვლად — ვიზუალური nav კარტები (emoji icon + accent border), 4 სტატ-ბლოკი (profiles/posts/comments/reactions) + 4 extra metric, responsive grid (2-col mobile), promote hint ქვემოთ.
+- **AdminUsersPage:** დამატებულია **search bar** (email/ID/ban_reason), **filter chips** (All/Banned/Admins/Premium counts), **pagination** (25/page), **mobile card layout** (ცხრილის ნაცვლად კარტები <768px-ზე), status **badges** (Admin ლურჯი, Banned წითელი), banned row highlight.
+- **AdminModerationPage:** დამატებულია **media preview** — პოსტის `image_url` და `video_url` ჩანს moderation-ის კარტში, **filter chips** (All/Flagged/Clean + counts), flagged item-ების **left-border accent** (წითელი), **spam score** ცალკე styled, flagged count badge სათაურში.
+- **AdminReportsPage:** დამატებულია **report count per post** (ნაჩვენებია "3x reported" badge-ით), **hot report highlight** (3+ reports = orange left-border), **moderation ლინკი** (reports → moderation სწრაფი გადასვლა), total count badge სათაურში.
+- **AdminStatsPage:** metric კარტებს დაემატა **emoji icons**, hover effect, rounded corners, formatted numbers (K/M).
+- **AdminFeatureFlagsPage:** სტილი **`styles.css`**-ში (`.admin-feature-flags__item:hover` და სხვ.) — TSX უცვლელი; ვიზუალური polish.
+- **არ შეცვლილა ამ commit-ში:** `AdminAdsPage.tsx`, `AdminApiPage.tsx` (მხოლოდ Dashboard-ის nav ბმულები იგივე რჩება).
+- **CSS:** ახალი კლასები — `admin-dashboard*`, `admin-stat-card*`, `admin-nav-card*`, `admin-extra-stat*`, `admin-users-toolbar*`, `admin-filter-chip*`, `admin-user-card*` (mobile), `admin-pagination*`, `admin-moderation-count*`, `admin-moderation-list__media/image/video`, `admin-reports-list__count/post-id/item--hot`. Responsive: admin pages mobile padding, users table→cards, dashboard grid 2-col.
+- **TypeScript:** `npm run build` (`tsc -b`) — passes (0 errors).
+
 ### 2026-04-07 — UI: ფაილის ინფუტის overlap (Settings) + კომპონენტური CSS + dev `431`
 
 - **პრობლემა:** `.post-form__file-input` (იგივე კლასი **`PostForm`**-სა და **`AvatarUploadSection`**-ში) ძველ კონფიგში იყო **`position: absolute; inset: 0; opacity: 0; cursor: pointer`** — უხილავი „დიდი“ დაჭერის ზონა შეიძლება გადაფარავდეს სხვა კონტროლებს (მაგ. ენის `select` Settings-ზე), თუ მშობელი არ არის სწორად `position: relative`.

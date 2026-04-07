@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
@@ -15,12 +15,16 @@ import {
 } from "../lib/adminModeration.ts";
 import { errorMessage } from "../lib/errors.ts";
 
+type ModerationFilter = "all" | "flagged" | "clean";
+
 export function AdminModerationPage(): ReactElement {
   const { t } = useI18n();
   const toast = useToast();
   const [posts, setPosts] = useState<ModerationPostRow[]>([]);
   const [comments, setComments] = useState<ModerationCommentRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [postFilter, setPostFilter] = useState<ModerationFilter>("all");
+  const [commentFilter, setCommentFilter] = useState<ModerationFilter>("all");
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -40,6 +44,21 @@ export function AdminModerationPage(): ReactElement {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const filteredPosts = useMemo(() => {
+    if (postFilter === "flagged") return posts.filter((p) => p.is_flagged);
+    if (postFilter === "clean") return posts.filter((p) => !p.is_flagged);
+    return posts;
+  }, [posts, postFilter]);
+
+  const filteredComments = useMemo(() => {
+    if (commentFilter === "flagged") return comments.filter((c) => c.is_flagged);
+    if (commentFilter === "clean") return comments.filter((c) => !c.is_flagged);
+    return comments;
+  }, [comments, commentFilter]);
+
+  const postFlaggedCount = useMemo(() => posts.filter((p) => p.is_flagged).length, [posts]);
+  const commentFlaggedCount = useMemo(() => comments.filter((c) => c.is_flagged).length, [comments]);
 
   async function onApprovePost(row: ModerationPostRow): Promise<void> {
     try {
@@ -91,6 +110,39 @@ export function AdminModerationPage(): ReactElement {
     }
   }
 
+  function renderFilterChips(
+    current: ModerationFilter,
+    setter: (f: ModerationFilter) => void,
+    flaggedCount: number,
+    totalCount: number,
+  ): ReactElement {
+    return (
+      <div className="admin-users-toolbar__filters">
+        <button
+          type="button"
+          className={`admin-filter-chip${current === "all" ? " admin-filter-chip--active" : ""}`}
+          onClick={() => setter("all")}
+        >
+          All <span className="admin-filter-chip__count">{totalCount}</span>
+        </button>
+        <button
+          type="button"
+          className={`admin-filter-chip${current === "flagged" ? " admin-filter-chip--active" : ""}`}
+          onClick={() => setter("flagged")}
+        >
+          Flagged <span className="admin-filter-chip__count">{flaggedCount}</span>
+        </button>
+        <button
+          type="button"
+          className={`admin-filter-chip${current === "clean" ? " admin-filter-chip--active" : ""}`}
+          onClick={() => setter("clean")}
+        >
+          Clean <span className="admin-filter-chip__count">{totalCount - flaggedCount}</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="stack admin-moderation-page">
       <section className="card">
@@ -120,27 +172,60 @@ export function AdminModerationPage(): ReactElement {
       </section>
 
       <section className="card">
-        <h2 className="card__title">{t("pages.admin.moderation.postsHeading")}</h2>
+        <h2 className="card__title">
+          {t("pages.admin.moderation.postsHeading")}
+          {postFlaggedCount > 0 ? (
+            <span className="admin-moderation-count admin-moderation-count--flagged">
+              {postFlaggedCount} flagged
+            </span>
+          ) : null}
+        </h2>
         <div className="card__body">
-          {posts.length === 0 ? (
+          {renderFilterChips(postFilter, setPostFilter, postFlaggedCount, posts.length)}
+
+          {filteredPosts.length === 0 ? (
             <p className="muted">{t("pages.admin.moderation.noPosts")}</p>
           ) : (
             <ul className="admin-moderation-list">
-              {posts.map((p) => (
-                <li key={p.id} className="admin-moderation-list__item">
+              {filteredPosts.map((p) => (
+                <li key={p.id} className={`admin-moderation-list__item${p.is_flagged ? " admin-moderation-list__item--flagged" : ""}`}>
                   <div className="admin-moderation-list__meta">
                     <span className="muted">{new Date(p.created_at).toLocaleString()}</span>
                     {p.authorEmail ? (
                       <span className="muted"> · {p.authorEmail}</span>
                     ) : null}
                     {p.is_flagged ? (
-                      <span className="admin-moderation-list__badge"> · {t("pages.admin.moderation.flaggedLabel")}</span>
+                      <span className="admin-moderation-list__badge admin-moderation-list__badge--flagged">
+                        {t("pages.admin.moderation.flaggedLabel")}
+                      </span>
                     ) : null}
-                    <span className="muted">
-                      {" "}
-                      · {t("pages.admin.moderation.spamScoreLabel")}: {p.spam_score}
+                    <span className="admin-moderation-list__spam-score">
+                      {t("pages.admin.moderation.spamScoreLabel")}: {p.spam_score}
                     </span>
                   </div>
+
+                  {/* Media preview */}
+                  {p.image_url ? (
+                    <div className="admin-moderation-list__media">
+                      <img
+                        src={p.image_url}
+                        alt="Post image"
+                        className="admin-moderation-list__image"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : null}
+                  {p.video_url ? (
+                    <div className="admin-moderation-list__media">
+                      <video
+                        src={p.video_url}
+                        className="admin-moderation-list__video"
+                        controls
+                        preload="metadata"
+                      />
+                    </div>
+                  ) : null}
+
                   <div className="admin-moderation-list__body">{p.body}</div>
                   <div className="admin-moderation-list__actions">
                     {p.is_flagged ? (
@@ -168,14 +253,23 @@ export function AdminModerationPage(): ReactElement {
       </section>
 
       <section className="card">
-        <h2 className="card__title">{t("pages.admin.moderation.commentsHeading")}</h2>
+        <h2 className="card__title">
+          {t("pages.admin.moderation.commentsHeading")}
+          {commentFlaggedCount > 0 ? (
+            <span className="admin-moderation-count admin-moderation-count--flagged">
+              {commentFlaggedCount} flagged
+            </span>
+          ) : null}
+        </h2>
         <div className="card__body">
-          {comments.length === 0 ? (
+          {renderFilterChips(commentFilter, setCommentFilter, commentFlaggedCount, comments.length)}
+
+          {filteredComments.length === 0 ? (
             <p className="muted">{t("pages.admin.moderation.noComments")}</p>
           ) : (
             <ul className="admin-moderation-list">
-              {comments.map((c) => (
-                <li key={c.id} className="admin-moderation-list__item">
+              {filteredComments.map((c) => (
+                <li key={c.id} className={`admin-moderation-list__item${c.is_flagged ? " admin-moderation-list__item--flagged" : ""}`}>
                   <div className="admin-moderation-list__meta">
                     <span className="muted">{new Date(c.created_at).toLocaleString()}</span>
                     {c.authorEmail ? (
@@ -185,11 +279,12 @@ export function AdminModerationPage(): ReactElement {
                       · {t("pages.admin.moderation.postRefPrefix")} {c.post_id.slice(0, 8)}…
                     </span>
                     {c.is_flagged ? (
-                      <span className="admin-moderation-list__badge"> · {t("pages.admin.moderation.flaggedLabel")}</span>
+                      <span className="admin-moderation-list__badge admin-moderation-list__badge--flagged">
+                        {t("pages.admin.moderation.flaggedLabel")}
+                      </span>
                     ) : null}
-                    <span className="muted">
-                      {" "}
-                      · {t("pages.admin.moderation.spamScoreLabel")}: {c.spam_score}
+                    <span className="admin-moderation-list__spam-score">
+                      {t("pages.admin.moderation.spamScoreLabel")}: {c.spam_score}
                     </span>
                   </div>
                   <div className="admin-moderation-list__body">{c.body}</div>

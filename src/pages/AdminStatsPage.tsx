@@ -6,19 +6,29 @@ import { useToast } from "../contexts/ToastContext.tsx";
 import { fetchPlatformMetrics, type PlatformMetrics } from "../lib/adminStats.ts";
 import { errorMessage } from "../lib/errors.ts";
 
-const METRIC_CONFIG: { key: keyof PlatformMetrics; labelPath: string }[] = [
-  { key: "profiles", labelPath: "pages.admin.stats.metricProfiles" },
-  { key: "posts", labelPath: "pages.admin.stats.metricPosts" },
-  { key: "comments", labelPath: "pages.admin.stats.metricComments" },
-  { key: "reactions", labelPath: "pages.admin.stats.metricReactions" },
-  { key: "reports", labelPath: "pages.admin.stats.metricReports" },
-  { key: "tags", labelPath: "pages.admin.stats.metricTags" },
-  { key: "post_tags", labelPath: "pages.admin.stats.metricPostTags" },
-  { key: "conversations", labelPath: "pages.admin.stats.metricConversations" },
-  { key: "chat_messages", labelPath: "pages.admin.stats.metricChatMessages" },
-  { key: "notifications", labelPath: "pages.admin.stats.metricNotifications" },
-  { key: "ad_slots", labelPath: "pages.admin.stats.metricAdSlots" },
+const METRIC_CONFIG: { key: keyof PlatformMetrics; labelPath: string; icon: string }[] = [
+  { key: "profiles", labelPath: "pages.admin.stats.metricProfiles", icon: "\u{1F464}" },
+  { key: "posts", labelPath: "pages.admin.stats.metricPosts", icon: "\u{1F4DD}" },
+  { key: "comments", labelPath: "pages.admin.stats.metricComments", icon: "\u{1F4AC}" },
+  { key: "reactions", labelPath: "pages.admin.stats.metricReactions", icon: "\u{2764}" },
+  { key: "reports", labelPath: "pages.admin.stats.metricReports", icon: "\u{1F6A9}" },
+  { key: "tags", labelPath: "pages.admin.stats.metricTags", icon: "\u{1F3F7}" },
+  { key: "post_tags", labelPath: "pages.admin.stats.metricPostTags", icon: "\u{1F517}" },
+  { key: "conversations", labelPath: "pages.admin.stats.metricConversations", icon: "\u{1F4E8}" },
+  { key: "chat_messages", labelPath: "pages.admin.stats.metricChatMessages", icon: "\u{1F4E9}" },
+  { key: "notifications", labelPath: "pages.admin.stats.metricNotifications", icon: "\u{1F514}" },
+  { key: "ad_slots", labelPath: "pages.admin.stats.metricAdSlots", icon: "\u{1F4E2}" },
 ];
+
+function formatCount(n: number): string {
+  if (n >= 1_000_000) {
+    return `${(n / 1_000_000).toFixed(1)}M`;
+  }
+  if (n >= 1_000) {
+    return `${(n / 1_000).toFixed(1)}K`;
+  }
+  return String(n);
+}
 
 export function AdminStatsPage(): ReactElement {
   const { t } = useI18n();
@@ -27,7 +37,7 @@ export function AdminStatsPage(): ReactElement {
   const [loading, setLoading] = useState(true);
 
   const rows = useMemo(
-    () => METRIC_CONFIG.map(({ key, labelPath }) => ({ key, label: t(labelPath) })),
+    () => METRIC_CONFIG.map(({ key, labelPath, icon }) => ({ key, label: t(labelPath), icon })),
     [t],
   );
 
@@ -73,10 +83,11 @@ export function AdminStatsPage(): ReactElement {
           ) : null}
           {!loading && metrics ? (
             <ul className="admin-stats admin-stats--wide">
-              {rows.map(({ key, label }) => (
+              {rows.map(({ key, label, icon }) => (
                 <li key={key} className="admin-stats__item">
+                  <span className="admin-stats__icon">{icon}</span>
+                  <span className="admin-stats__value">{formatCount(metrics[key])}</span>
                   <span className="admin-stats__label">{label}</span>
-                  <span className="admin-stats__value">{metrics[key]}</span>
                 </li>
               ))}
             </ul>
