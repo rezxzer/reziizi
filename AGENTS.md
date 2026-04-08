@@ -18,6 +18,7 @@ reziizi/
 ├── src/
 │   ├── components/         # განმეორებადი UI (Layout, …)
 │   ├── pages/              # გვერდები = მარშრუტები (HomePage, LoginPage, …)
+│   ├── hooks/              # მაგ. useInfiniteScroll.ts (ინფინიტი სქროლი სენტინელით)
 │   ├── lib/                # კლიენტები (supabaseClient.ts, api/registry, …)
 │   ├── test/               # Vitest setup (jest-dom)
 │   ├── App.tsx             # Router
@@ -37,6 +38,12 @@ reziizi/
 ├── project.md              # სრული სპეკი + CURRENT WORK
 ├── JOURNAL.md              # ჟურნალი
 ├── CLAUDE.md               # მოკლე handoff (ასისტენტებს — იხილე JOURNAL)
+├── HOME_PAGE_POLISH.md     # მთავარი გვერდის სკოპი / უსაფრთხო polish (ინგლისური)
+├── NOTIFICATIONS_POLISH.md # /notifications სკოპი — UI polish, არა DB/Push (ინგლისური)
+├── MESSAGES_POLISH.md      # /messages + thread — UI polish, არა chat RPC (ინგლისური)
+├── SEARCH_POLISH.md        # /search — UI polish; ინოვაციის ზონა დოკში (ინგლისური)
+├── SETTINGS_POLISH.md      # /settings — UI polish + ინოვაცია (ინგლისური)
+├── PROFILE_POLISH.md       # /profile — UI polish + ინოვაცია (ინგლისური)
 ├── AGENTS.md               # ეს ფაილი — ახალი ჩატისთვის
 └── README.md               # მოკლე quick start
 ```
@@ -51,10 +58,31 @@ reziizi/
 | **`project.md`** | სრული სპეკი: feature-ები 1–51, VERSIONS (MVP/v2/v3), **FEATURE BREAKDOWN**, **CURRENT WORK** (დასრულებული სტატუსი + **შემდეგი განვითარების გეგმა (შევსებადი)** ცხრილი). **ბიზნესი / Stripe:** **`#### ბიზნესი / §24 — განვითარების გადაწყვეტილება`** — P1/P2, გადადებული, რისკების დაზღვევა. |
 | **`JOURNAL.md`** | ქრონოლოგია — რა გაკეთდა, რა გადაწყვიტე (მოკლე ჩანაწერები). როცა მომხმარებელი ადასტურებს Supabase-ზე migration-ის გაშვებას — AI უნდა განაახლოს **`JOURNAL.md`** + **`project.md` CURRENT WORK** (იხილე `.cursor/rules/reziizi.mdc` → „დადასტურება, რიგი და ჩანაწერი“). |
 | **`CLAUDE.md`** | მოკლე handoff სხვა ასისტენტებისთვის (სტილი, ფაილის ინფუტი, dev `431`) — დეტალები **`JOURNAL.md`**-ში. |
+| **`HOME_PAGE_POLISH.md`** | მთავარი გვერდის სკოპი / რა არ დაირღვეს / უსაფრთხო polish — ინგლისური, Cowork-ისთვის. |
+| **`NOTIFICATIONS_POLISH.md`** | **`/notifications`** — in-app notifications UI; არა Push (§46); ინგლისური სკოპი. |
+| **`MESSAGES_POLISH.md`** | **`/messages`**, **`/messages/:peerId`** — საუბრების სია + თრედი; `nav_messages` flag; ინგლისური სკოპი. |
+| **`SEARCH_POLISH.md`** | **`/search`** (`?q=`); `nav_search` flag; უსაფრთხო polish + **Innovation** სექცია დოკში. |
+| **`*_POLISH.md` (საერთო)** | **ინოვაცია polish-ში** = AI **თავად გამოიგონოს და ჩაამბედოს** მიკრო-ინტერაქციები (არა მხოლოდ სიის „მოხატვა“): მაგ. **hover** ნავიგაციის ღილაკებზე/ლინკებზე, **მაუსის რეაქცია** (`:hover` / `:active` — მსუბუქ `scale`, ჩრდილი), ბარათების მსუბუქი აწევა, **focus-visible** კლავიატურისთვის. ყოველთვის `prefers-reduced-motion`, არა ახალი RPC/URL. დეტალი — ინგლისურად თითო `*_POLISH.md` → **Innovation**. |
+| **`SETTINGS_POLISH.md`** | **`/settings`** — ანგარიში, პაროლი, თემა, პრივატულობა, Premium, წაშლა; ინგლისური სკოპი. |
+| **`PROFILE_POLISH.md`** | **`/profile`** (საკუთარი) — ჰერო, სტატისტიკა, ტაბები, პოსტების სია; ინგლისური სკოპი. |
+| **Cowork პრომპტი (polish)** | ქვემოთ **საერთო ინგლისური ბლოკი** — ჩასვი ყოველ polish სესიაში + შესაბამისი `*_POLISH.md` წაკითხვა. |
 | **`supabase/SCHEMA.md`** | public DB სქემის მიმოხილვა (ცხრილები, RPC, Storage, rate limits). |
 | **`supabase/ACCOUNT_DELETION_DESIGN.md`** | ანგარიშის წაშლა (Supabase): Edge Function, CASCADE, Storage — **დეპლოი სავალდებულოა** (`README` → Edge Function სექცია). |
 | **`.cursor/rules/reziizi.mdc`** | Cursor წესები: ენა, მიდგომა, **პროექტის დაცვა** (არ გავაფუჭოთ / არ გავტეხოთ — სკოპი, რიგი, გარე ჩატი ≠ სპეკი), **v1/v2 იმპლემენტაციის რიგი**, **მიგრაციების თანმიმდევრობა**, **იმპლემენტაციამდე: შემოწმება → დოკუმენტი → მერე კოდი**, Supabase/Git. |
-| **`src/`** | აპის კოდი — `pages/`, `components/`, `lib/supabaseClient.ts`. |
+| **`src/hooks/useInfiniteScroll.ts`** | ინფინიტი სქროლი: `IntersectionObserver` სენტინელი — **`HomePage`**, **`ProfilePage`** (Commented), **`UserProfilePage`**, **`UserFollowListPage`**; „Load More“ ღილაკი აღარ გამოიყენება ამ სიებში. |
+| **`src/`** | აპის კოდი — `pages/`, `components/`, `hooks/`, `lib/supabaseClient.ts`. |
+
+**Cowork / გარე AI — საერთო polish ნაწილი (ინგლისური, ჩასასმელი ყველა `*_POLISH.md` სესიაში):**
+
+```
+INNOVATION (required — invent, not only execute):
+- You must INVENT 1–3 tasteful micro-interactions for THIS page and implement what fits safely.
+  Examples: hover lift or shadow on buttons/links/tabs; :active “press” (scale) on primary actions; subtle card hover; stronger focus-visible for keyboard users — pointer + keyboard should both feel polished.
+- Do NOT only restyle spacing/colors — actively look for 1–2 “delight” moments (CSS-only where possible).
+- Still forbidden without spec: new RPCs, query keys, URL/query params, feature-flag semantics, heavy JS (e.g. staggered list animation with per-item delay).
+- All motion: respect prefers-reduced-motion: reduce (disable or instant).
+- In your summary: bullets for what you invented (done or skipped). If truly nothing fit: “No extra inventions — polish only.”
+```
 
 **ახალი ჩატის მინიმალური წესი:** ჯერ **`## CURRENT WORK`** `project.md`, შემდეგ **`reziizi.mdc`** (v1/v2 რიგი, migrations ცხრილი, **იმპლემენტაციამდე** 4 ნაბიჯი). ახალი ფიჩა: თანმიმდევრობა არ ემთხვევა სპეკს → **ჯერ დოკუმენტი**, მერე კოდი.
 

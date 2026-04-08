@@ -563,7 +563,7 @@ export function SettingsPage(): ReactElement {
       </section>
 
       {user ? (
-        <section className="card">
+        <section className="card settings-delete-zone">
           <h2 className="card__title">{t("settings.deleteAccount")}</h2>
           <div className="card__body">
             <p className="muted">{t("settings.deleteAccountHint")}</p>

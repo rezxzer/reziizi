@@ -21,6 +21,100 @@
 
 ## ჩანაწერები
 
+### 2026-04-08 — ინფინიტი სქროლი + CSS პოლირების ტალღა
+
+- **ინფინიტი სქროლი:** `src/hooks/useInfiniteScroll.ts` (`IntersectionObserver`, `rootMargin` ~200px). **Load More** ღილაკი მოხსნილი: **`HomePage`**, **`ProfilePage`** (Commented), **`UserProfilePage`** (Commented), **`UserFollowListPage`** — სენტინელი ბოლოში + ჩატვირთვის ინდიკატორი; `fetchNextPage` / იგივე ლოგიკა უცვლელი.
+- **მთავარი (`/`):** პოსტების cascade stagger, composer focus-glow, sidebar trending slide, feed ტაბები **`aria-selected`** (არა `.active`); `messages.ts` — `sidebarTrendingTitle` / `sidebarTrendingAria` (en/ka/ru).
+- **Notifications / Search / Messages:** notif row stagger + unread pulse; search form glow + profile row slide; conversation row slide + chat composer glow + send press (`styles.css`).
+
+### 2026-04-07 — Profile გვერდის პოლირება: ტაბები, სტატისტიკა, hero, premium
+
+- **ბაგფიქსი:** ტაბების აქტიური სტილი — `.active` არ გამოიყენება JSX-ში; სტილები გადატანილია **`[aria-selected="true"]`** + `::after` underline (ცენტრიდან გაშლა hover-ზე 25–75%, არჩეულზე სრული სიგანე).
+- **Stat ლინკები:** `.profile-stats__item--link` — hover `translateY(-2px)` + `surface-raised`; `:active` `scale(0.97)`; `focus-visible` ring.
+- **Hero:** `.profile-hero:focus-within` — accent border + რბილი გარე glow; toolbar ღილაკი `:active` `scale(0.93)`.
+- **Premium ბეიჯი:** `premium-shimmer` keyframes (გრადიენტის `background-position`), 3s loop.
+- **TSX:** უცვლელი; მხოლოდ `styles.css` + ჟურნალი. `prefers-reduced-motion` — გლობალური წესი.
+
+### 2026-04-07 — Settings გვერდის პოლირება: მიკრო-ინტერაქციები
+
+- **ბარათები:** `translateY(-2px)` + ჩრდილი hover-ზე; `focus-within` — accent border.
+- **ღილაკები:** primary/danger `:active` — `scale(0.95)` + inset shadow; logout — `scale(0.96)`; `focus-visible` — `--focus-ring`.
+- **Delete zone:** `.settings-delete-zone` — სუსტი წითელი border, hover-ზე ინტენსივობა + danger-tint shadow (`SettingsPage.tsx`-ში კლასი).
+- **Checkbox:** `.form__label--checkbox` hover — `surface-raised`.
+- **Locale select:** hover-ზე accent border.
+- **წარმატების შეტყობინება:** `settings-fade-in` keyframes (opacity + translateY); გლობალური `prefers-reduced-motion` უკვე აჩერებს ანიმაციას/transition-ს.
+- **ლოგიკა:** უცვლელი (auth, delete, checkout, query keys).
+
+### 2026-04-07 — ინოვაცია: განმარტება (მიკრო-ინტერაქცია) + SETTINGS/PROFILE სკოპ-დოკები
+
+- **ინოვაცია polish-ში:** AI **თავად გამოიგონოს და ჩაამბედოს** მიკრო-ინტერაქციები — hover / `:active` / `focus-visible` (ღილაკები, ლინკები, ტაბები), მაუსის რეაქცია; **არა** მხოლოდ ფერების/დაშორების გადახატვა. **`AGENTS.md`:** ქართული ახსნა ცხრილში + განახლებული ინგლისური **INNOVATION** ბლოკი.
+- **`HOME_PAGE_POLISH` / `NOTIFICATIONS` / `MESSAGES` / `SEARCH`:** „Innovation“ სექციები — **invent and embed** (ინგლისური).
+- **ახალი:** **`SETTINGS_POLISH.md`**, **`PROFILE_POLISH.md`**.
+
+### 2026-04-07 — ყველა გვერდი: innovation pass (CSS micro-interactions + a11y)
+
+- **Home:** feed tab `focus-visible` ring; sidebar widget hover lift (`translateY(-1px)` + `box-shadow`); premium CTA `prefers-reduced-motion` guard.
+- **Notifications:** unread dot indicator (accent `::before` pseudo); row transition `prefers-reduced-motion` guard.
+- **Messages/Chat:** bubble fade-in keyframe (`chat-bubble-in`, 200ms); scroller `overscroll-behavior: contain`; conversation link + bubble `prefers-reduced-motion` guards.
+- **Search:** submit button press micro-interaction (`scale(0.97)` on `:active`); `prefers-reduced-motion` guard.
+- **ყველგან:** ახალი ანიმაცია/transition → `prefers-reduced-motion: reduce` ბლოკი. ლოგიკა/RPC/URL უცვლელი.
+
+### 2026-04-03 — Polish დოკები: ინოვაციის სექცია + საერთო Cowork ბლოკი
+
+- **`HOME_PAGE_POLISH.md`**, **`NOTIFICATIONS_POLISH.md`**, **`MESSAGES_POLISH.md`**, **`SEARCH_POLISH.md`:** დაემატა **„Innovation — propose and (if safe) implement“** (შეჯამებაში 1–3 იდეა; იმპლემენტაცია მხოლოდ უსაფრთხო სკოპში; `prefers-reduced-motion`).
+- **`AGENTS.md`:** `*_POLISH.md` საერთო წესი ცხრილში + ინგლისური **INNOVATION** ბლოკი ჩასასმელად ყველა polish პრომპტში.
+
+### 2026-04-07 — Search: ვიზუალური polish (CSS-only)
+
+- **Search form:** `.search-form` horizontal layout (input + button ერთ ხაზზე), `focus-visible` ring input-სა და button-ზე; mobile column stacking 480px.
+- **Results region:** gap გადიდებული `space-lg`; focus outline ამოღებული (tabIndex container).
+- **Empty state:** dashed border, padding გადიდებული, font-size 15px — უფრო ძლიერი ვიზუალური იერარქია.
+- **Profile list:** კონტეინერი `.search-profile-list` (list reset); row-ები border-top/bottom, hover background (transition, `prefers-reduced-motion: reduce` პატივისცემა), email/id ellipsis overflow, actions `focus-visible` ring; mobile wrap 600px.
+- **ლოგიკა/RPC/URL:** უცვლელი; მხოლოდ `styles.css`.
+
+### 2026-04-07 — Messages / Chat: ვიზუალური polish (CSS-only)
+
+- **Conversation list:** კონტეინერი `.conversation-list` (list reset, flex column); link-row layout — avatar + peer + time ერთ ხაზზე, `border-top/bottom`, hover background, `focus-visible` ring; mobile stacking 600px.
+- **Chat thread:** bubble alignment — `.chat-bubble--mine` flex-end (accent background, თეთრი ტექსტი), `.chat-bubble--theirs` flex-start (surface bg); tail-radius (sm) ქვედა კუთხეში; scroller `radius-lg`.
+- **Composer:** `align-items: flex-end`, mobile-ზე column stacking; send button `focus-visible` ring.
+- **Header:** `justify-content: space-between`, title overflow ellipsis.
+- **ლოგიკა/data flow:** უცვლელი; მხოლოდ `styles.css`.
+
+### 2026-04-07 — Notifications: ვიზუალური polish (CSS-only)
+
+- **Notification list:** კონტეინერი `.notification-list` + `.notification-list__item` — row padding, border-bottom separators, hover background, mobile stacking (`@media max-width: 600px`).
+- **Unread highlight:** მარცხენა accent border (3px) + accent tint background (`color-mix`); unread msg `font-weight: 600`.
+- **Header:** `justify-content: space-between`, title margin ამოღებული (`.card__title` margin: 0 head-ის შიგნით).
+- **Focus:** `.btn:focus-visible` — `box-shadow: var(--focus-ring)` notification row-ში.
+- **ლოგიკა/query/URL:** უცვლელი; მხოლოდ `styles.css`.
+
+### 2026-04-03 — Messages: Cowork სკოპ-დოკი
+
+- **`MESSAGES_POLISH.md`:** `/messages` + `/messages/:peerId` — სია + chat thread; რა არ შეიცვალოს (`lib/chat.ts`, RLS, feature flag); უსაფრთხო polish (CSS, a11y); `AGENTS.md`-ში ლინკი.
+
+### 2026-04-03 — Search: Cowork სკოპ-დოკი
+
+- **`SEARCH_POLISH.md`:** `/search` — ფორმა, შედეგები, პროფილების სია; **Optional innovation** (მიკრო-ანიმაცია, empty state, `prefers-reduced-motion`); არა ახალი RPC/პარამეტრები; `AGENTS.md`.
+
+### 2026-04-03 — Notifications: Cowork სკოპ-დოკი
+
+- **`NOTIFICATIONS_POLISH.md`:** `/notifications` — რა არის სისტემაში, რა არ შეიცვალოს (DB, query keys, mark read), უსაფრთხო polish (CSS, a11y, i18n); `AGENTS.md`-ში ლინკი.
+
+### 2026-04-07 — Home: ვიზუალური polish (CSS-only)
+
+- **Feed tabs:** ტაბები full-width, ცენტრალური ტექსტი, underline inset-ით (radius 1px), `letter-spacing: 0.02em`.
+- **Composer card:** `margin-top: space-md`, `margin-bottom: space-lg` — უკეთესი რიტმი toolbar→composer→feed.
+- **Sidebar widget:** `border-radius: radius-lg`, trend-item separator (`border-bottom`), tag ფერი accent, hover underline.
+- **Premium CTA:** `radius-lg`, hover opacity transition (0.55 → 0.85), actions gap გადიდებული.
+- **feed__more:** padding შემცირებული (`space-lg 0 space-xl`).
+- **ლოგიკა/query/URL:** უცვლელი; მხოლოდ `styles.css` შეიცვალა.
+
+### 2026-04-07 — Home: Cowork handoff + პატარა polish
+
+- **`HOME_PAGE_POLISH.md`:** ინგლისური სკოპი — რა არის გაკეთებული, რა არ დაირღვეს, უსაფრთხო მიმართულებები (`AGENTS.md` ცხრილში ლინკი).
+- **`HomePage`:** საიდბარის სათაური/aria — `pages.home.sidebarTrendingTitle` / `sidebarTrendingAria` (`en`/`ka`/`ru`); Premium CTA wrapper — კლასი `.home-premium-cta-wrap` (`styles.css`), inline style ამოღებული.
+- **ლოგიკა/query/URL:** უცვლელი.
+
 ### 2026-04-07 — Admin pages: სრული რედიზაინი + ფუნქციონალის გაფართოება
 
 - **AdminPage (Dashboard):** ტექსტური ლინკების ნაცვლად — ვიზუალური nav კარტები (emoji icon + accent border), 4 სტატ-ბლოკი (profiles/posts/comments/reactions) + 4 extra metric, responsive grid (2-col mobile), promote hint ქვემოთ.
@@ -788,34 +882,4 @@
 ### 2026-04-01 — ფოლდერების აღწერა დოკუმენტში
 
 - **`AGENTS.md`:** დამატებულია სექცია „ფოლდერების განლაგება“ (ხის სტრუქტურა) — რომ არ მოჩანდეს „გაფანტული“; დოკუმენტაცია ფესვში, კოდი `src/`-ში — განზრახ არჩევანი.
-- **`README.md`:** Layout მოკლე ბმულით `AGENTS.md`-ზე.
-- **ლოკალურად:** წაშლილია `_scaffold_tmp/` (ზედმეტი ნაშთი).
-
-### 2026-04-01 — AGENTS.md + README (ახალი ჩატისთვის)
-
-- დამატებულია **`AGENTS.md`** — სწრაფი კონტექსტი: სად არის სპეკი, წესები, გაშვება, შემდეგი ეტაპი.
-- დამატებულია **`README.md`** — მოკლე quick start + ბმულები დოკუმენტებზე.
-- **`project.md`** თავში ბმული `AGENTS.md`-ზე.
-
-### 2026-04-01 — Git + GitHub
-
-- **Git** და **GitHub CLI (`gh`)** სისტემაში უკვე დაყენებული იყო — დამატებითი ინსტალაცია არ დასჭირდა.
-- **ლოკალური რეპო:** `git init`, `main`, პირველი კომიტი; `_scaffold_tmp/` ამოღებულია კომიტიდან და დამატებულია `.gitignore`-ში.
-- **Remote:** `origin` → `https://github.com/rezxzer/reziizi.git`; **`git push -u origin main`** წარმატებით.
-
-### 2026-04-01 — Supabase `.env` (ლოკალური)
-
-- რეალური პროექტის `VITE_SUPABASE_URL` და `VITE_SUPABASE_ANON_KEY` ჩასმულია `.env`-ში (ფაილი git-ში არ ეშვება).
-- **შემდეგი:** `npm run dev` გადატვირთვა საჭიროებისამებრ; შემდეგ — DB სქემა + RLS Supabase-ში.
-
-### 2026-04-01 — REZIIZI v1 scaffold
-
-- **Stack:** React 19 + Vite 6 + TypeScript; `react-router-dom`; `@supabase/supabase-js`.
-- **Structure:** `src/pages/`, `src/components/`, `src/lib/supabaseClient.ts`, `src/styles.css`.
-- **Routes:** `/`, `/login`, `/profile`, `/settings`, `/legal` — placeholder UI + Flow ტექსტები v1 critical path-ისთვის; Legal ლინკი login გვერდზე.
-- **Env:** `.env.example` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`); რეალური `.env` ლოკალურად.
-- **შემდეგი ნაბიჯი:** Supabase სქემა + RLS (`posts`, `reactions`), შემდეგ Auth / Feed / Reactions ინტეგრაცია.
-
-### 2026-04-01 — ჟურნალი გაიხსნა
-
-- დამატებულია `JOURNAL.md` როგორც ერთი სამუშაო ჟურნალი; შემდეგი ცვლილებები და გადაწყვეტილებები — აქ ჩაწერა.
+- **`README.md`:** Layout მ�

@@ -9,13 +9,13 @@ import { PostCard } from "../components/PostCard";
 import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { copyToClipboard, getPublicProfileAbsoluteUrl } from "../lib/copyToClipboard.ts";
 import { errorMessage } from "../lib/errors.ts";
 import {
   fetchUserCommentedPostsPage,
   fetchUserPosts,
-  getPageSize,
 } from "../lib/feed";
 import { fetchFollowCounts } from "../lib/follows.ts";
 import { fetchProfileDisplay } from "../lib/profileAbout.ts";
@@ -127,6 +127,12 @@ export function ProfilePage(): ReactElement {
     }
     void commentedQuery.fetchNextPage();
   }, [commentedQuery, commentedHasMore, commentedLoadingMore, commentedLoading]);
+
+  const commentedSentinelRef = useInfiniteScroll({
+    hasMore: commentedHasMore,
+    loading: commentedLoadingMore || commentedLoading,
+    onLoadMore: loadMoreCommented,
+  });
 
   const followersDisplay =
     followCountsQuery.isPending && followCounts == null ? "…" : (followCounts?.followers ?? "—");
@@ -297,17 +303,12 @@ export function ProfilePage(): ReactElement {
                     ))}
                   </ul>
                   {commentedHasMore ? (
-                    <div className="feed__more">
-                      <button
-                        type="button"
-                        className="btn"
-                        disabled={commentedLoadingMore}
-                        onClick={() => loadMoreCommented()}
-                      >
-                        {commentedLoadingMore
-                          ? t("pages.common.loading")
-                          : t("pages.home.loadMore", { pageSize: getPageSize() })}
-                      </button>
+                    <div className="feed__more" ref={commentedSentinelRef}>
+                      {commentedLoadingMore ? (
+                        <p className="feed__more-loading" role="status">
+                          {t("pages.common.loading")}
+                        </p>
+                      ) : null}
                     </div>
                   ) : null}
                 </>

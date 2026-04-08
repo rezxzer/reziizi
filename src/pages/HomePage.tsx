@@ -9,13 +9,14 @@ import { PostForm } from "../components/PostForm.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags";
 import { isBillingCheckoutEnabled } from "../lib/billingFlags.ts";
 import { createPremiumCheckoutRedirectUrl } from "../lib/createCheckoutSession.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
-import { fetchFeedPage, getPageSize, type FeedSortMode } from "../lib/feed.ts";
+import { fetchFeedPage, type FeedSortMode } from "../lib/feed.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
 import { slugifyTag } from "../lib/tagParse.ts";
 import type { FeedPost } from "../types/feed.ts";
@@ -119,12 +120,18 @@ export function HomePage(): ReactElement {
     [queryClient],
   );
 
-  function loadMore(): void {
+  const loadMore = useCallback((): void => {
     if (!hasMore || loadingMore || loading) {
       return;
     }
     void feedQuery.fetchNextPage();
-  }
+  }, [feedQuery, hasMore, loadingMore, loading]);
+
+  const scrollSentinelRef = useInfiniteScroll({
+    hasMore,
+    loading: loadingMore || loading,
+    onLoadMore: loadMore,
+  });
 
   const handleFeedSort = useCallback(
     (mode: FeedSortMode) => {
@@ -187,7 +194,7 @@ export function HomePage(): ReactElement {
         </section>
 
         {showPremiumPromo ? (
-          <div style={{ opacity: 0.6, fontSize: "13px" }}>
+          <div className="home-premium-cta-wrap">
             <aside className="home-premium-cta card" aria-label={t("pages.home.premiumCtaTitle")}>
               <h3 className="home-premium-cta__title">{t("pages.home.premiumCtaTitle")}</h3>
               <p className="muted home-premium-cta__body">
@@ -247,22 +254,19 @@ export function HomePage(): ReactElement {
         ) : null}
 
         {hasMore && posts.length > 0 ? (
-          <div className="feed__more">
-            <button
-              type="button"
-              className="btn"
-              disabled={loadingMore || loading}
-              onClick={() => loadMore()}
-            >
-              {loadingMore ? t("pages.common.loading") : t("pages.home.loadMore", { pageSize: getPageSize() })}
-            </button>
+          <div className="feed__more" ref={scrollSentinelRef}>
+            {loadingMore ? (
+              <p className="feed__more-loading" role="status">
+                {t("pages.common.loading")}
+              </p>
+            ) : null}
           </div>
         ) : null}
       </div>
 
-      <aside className="home-sidebar" aria-label="Trending tags">
+      <aside className="home-sidebar" aria-label={t("pages.home.sidebarTrendingAria")}>
         <div className="home-sidebar__widget">
-          <div className="home-sidebar__title">Trending tags</div>
+          <div className="home-sidebar__title">{t("pages.home.sidebarTrendingTitle")}</div>
           <div className="home-sidebar__trend-item">
             <Link className="home-sidebar__trend-tag" to="/?tag=dev">
               #dev

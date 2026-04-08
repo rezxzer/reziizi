@@ -1,15 +1,16 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
+import { useCallback } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Avatar } from "../components/Avatar.tsx";
 import { InlineError } from "../components/InlineError.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll.ts";
 import { errorMessage } from "../lib/errors.ts";
 import {
   fetchFollowersPage,
   fetchFollowingPage,
-  getFollowListPageSize,
   type FollowListMember,
 } from "../lib/follows.ts";
 import { isValidUuid } from "../lib/chat.ts";
@@ -65,7 +66,22 @@ export function UserFollowListPage(): ReactElement {
 
   const profile = profileQuery.data;
   const rows: FollowListMember[] = listQuery.data?.pages.flatMap((p) => p.rows) ?? [];
-  const pageSize = getFollowListPageSize();
+
+  const hasMore = Boolean(listQuery.hasNextPage);
+  const loadingMore = listQuery.isFetchingNextPage;
+
+  const loadMore = useCallback((): void => {
+    if (!hasMore || loadingMore) {
+      return;
+    }
+    void listQuery.fetchNextPage();
+  }, [listQuery, hasMore, loadingMore]);
+
+  const sentinelRef = useInfiniteScroll({
+    hasMore,
+    loading: loadingMore || listQuery.isPending,
+    onLoadMore: loadMore,
+  });
 
   if (!isValidUuid(targetId)) {
     return (
@@ -151,19 +167,14 @@ export function UserFollowListPage(): ReactElement {
                 })}
               </ul>
             ) : null}
-            {listQuery.hasNextPage ? (
-              <p className="follow-list__more">
-                <button
-                  type="button"
-                  className="btn btn--small"
-                  disabled={listQuery.isFetchingNextPage}
-                  onClick={() => void listQuery.fetchNextPage()}
-                >
-                  {listQuery.isFetchingNextPage
-                    ? t("pages.common.loading")
-                    : t("pages.followList.loadMore", { pageSize })}
-                </button>
-              </p>
+            {hasMore ? (
+              <div className="feed__more" ref={sentinelRef}>
+                {loadingMore ? (
+                  <p className="feed__more-loading" role="status">
+                    {t("pages.common.loading")}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
           </div>
         </section>

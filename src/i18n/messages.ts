@@ -54,6 +54,10 @@ type PagesBundle = {
     premiumCtaBodyNoBilling: string;
     premiumCtaLinkSettings: string;
     premiumCtaLinkLogin: string;
+    /** Home right column: trending tags widget title. */
+    sidebarTrendingTitle: string;
+    /** `aria-label` for the aside landmark. */
+    sidebarTrendingAria: string;
   };
   login: {
     titleSignIn: string;
@@ -783,6 +787,8 @@ const en: Bundle = {
         "Longer posts, more tags, and video. Paid checkout is coming soon — open Settings → Account for the full plan, pricing preview, and timeline.",
       premiumCtaLinkSettings: "Open Settings",
       premiumCtaLinkLogin: "Sign in",
+      sidebarTrendingTitle: "Trending tags",
+      sidebarTrendingAria: "Trending tags and shortcuts",
     },
     login: {
       titleSignIn: "Log in",
@@ -1449,6 +1455,8 @@ const ka: Bundle = {
         "უფრო გრძელი პოსტები, მეტი თეგი და ვიდეო. გადახდიანი checkout მალე — გახსენით პარამეტრები → ანგარიში სრული გეგმის, ფასის წინასწარი ხედისა და ვადებისთვის.",
       premiumCtaLinkSettings: "პარამეტრების გახსნა",
       premiumCtaLinkLogin: "შესვლა",
+      sidebarTrendingTitle: "ტრენდული თეგები",
+      sidebarTrendingAria: "ტრენდული თეგები და მალსახმობები",
     },
     login: {
       titleSignIn: "შესვლა",
@@ -2114,6 +2122,8 @@ const ru: Bundle = {
         "Длиннее посты, больше тегов и видео. Оплата скоро — откройте Настройки → Аккаунт: там черновик плана, цены и сроки.",
       premiumCtaLinkSettings: "Открыть настройки",
       premiumCtaLinkLogin: "Войти",
+      sidebarTrendingTitle: "Популярные теги",
+      sidebarTrendingAria: "Популярные теги и быстрые ссылки",
     },
     login: {
       titleSignIn: "Вход",

@@ -9,10 +9,11 @@ import { PostCard } from "../components/PostCard.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { fetchFollowCounts, fetchIsFollowing, followUser, unfollowUser } from "../lib/follows.ts";
-import { fetchUserCommentedPostsPage, fetchUserPosts, getPageSize } from "../lib/feed.ts";
+import { fetchUserCommentedPostsPage, fetchUserPosts } from "../lib/feed.ts";
 import { isValidUuid } from "../lib/chat.ts";
 import { copyToClipboard, getPublicProfileAbsoluteUrl } from "../lib/copyToClipboard.ts";
 import { canShowEmail, fetchPublicProfile } from "../lib/profileView.ts";
@@ -163,6 +164,12 @@ export function UserProfilePage(): ReactElement {
     }
     void commentedQuery.fetchNextPage();
   }, [commentedQuery, commentedHasMore, commentedLoadingMore, commentedLoading]);
+
+  const commentedSentinelRef = useInfiniteScroll({
+    hasMore: commentedHasMore,
+    loading: commentedLoadingMore || commentedLoading,
+    onLoadMore: loadMoreCommented,
+  });
 
   const onCopyProfileLink = useCallback(async (): Promise<void> => {
     try {
@@ -444,17 +451,12 @@ export function UserProfilePage(): ReactElement {
                           ))}
                         </ul>
                         {commentedHasMore ? (
-                          <div className="feed__more">
-                            <button
-                              type="button"
-                              className="btn"
-                              disabled={commentedLoadingMore}
-                              onClick={() => loadMoreCommented()}
-                            >
-                              {commentedLoadingMore
-                                ? t("pages.common.loading")
-                                : t("pages.home.loadMore", { pageSize: getPageSize() })}
-                            </button>
+                          <div className="feed__more" ref={commentedSentinelRef}>
+                            {commentedLoadingMore ? (
+                              <p className="feed__more-loading" role="status">
+                                {t("pages.common.loading")}
+                              </p>
+                            ) : null}
                           </div>
                         ) : null}
                       </>
