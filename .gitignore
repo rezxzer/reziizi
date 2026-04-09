@@ -43,6 +43,9 @@ coverage
 .vercel
 .netlify
 
+# Local Claude worktree artifacts (never commit)
+.claude/worktrees/
+
 # Certificates / keys (never commit)
 *.pem
 *.key
