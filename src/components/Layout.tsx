@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useCardTilt } from "../hooks/useCardTilt.ts";
+import { useHeartbeat } from "../hooks/useHeartbeat.ts";
+import { useScrollParallax } from "../hooks/useScrollParallax.ts";
 import { useUnreadNotificationCount } from "../hooks/useUnreadNotificationCount.ts";
 import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
@@ -10,6 +13,8 @@ import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { RouteAnnouncer } from "./RouteAnnouncer.tsx";
 import { RouteSeo } from "./RouteSeo.tsx";
 import { LayoutOutlet } from "./LayoutOutlet.tsx";
+import { CursorTrail } from "./CursorTrail.tsx";
+import { StarField } from "./StarField.tsx";
 import { ThemePreferenceControls } from "./ThemePreferenceControls.tsx";
 
 const ALLOWED_WHEN_BANNED: readonly string[] = ["/banned", "/login", "/legal"];
@@ -23,6 +28,9 @@ export function Layout(): ReactElement {
   const { t } = useI18n();
   const { user, loading } = useAuth();
   const { isAdmin, isBanned, loading: flagsLoading } = useProfileFlags();
+  useHeartbeat();
+  useCardTilt();
+  useScrollParallax();
   const unreadNotifications = useUnreadNotificationCount();
   const featureFlags = useAppFeatureFlags();
   const showNavSearch = isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navSearch);
@@ -47,6 +55,8 @@ export function Layout(): ReactElement {
 
   return (
     <div className="layout">
+      <StarField />
+      <CursorTrail />
       <RouteSeo />
       <RouteAnnouncer />
       <a className="skip-link" href="#main-content">

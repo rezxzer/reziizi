@@ -97,10 +97,20 @@ export function SearchPage(): ReactElement {
     setSearchParams({ q: next });
   }
 
+  function handleClear(): void {
+    setInput("");
+    setSearchParams({});
+  }
+
+  function handleRetry(): void {
+    void searchQuery.refetch();
+  }
+
   const patternForHint: string = sanitizeSearchQuery(qParam);
   const showHint: boolean = qParam.length > 0 && !isSearchQueryValid(patternForHint);
   const hasNoQuery: boolean = qParam.trim().length < 1;
   const bothEmpty: boolean = posts.length === 0 && profiles.length === 0;
+  const totalResults: number = posts.length + profiles.length;
 
   return (
     <div className="stack search-page">
@@ -122,9 +132,16 @@ export function SearchPage(): ReactElement {
                 onChange={(e) => setInput(e.target.value)}
               />
             </label>
-            <button type="submit" className="btn btn--primary">
-              {t("pages.search.submit")}
-            </button>
+            <span className="search-form__actions">
+              <button type="submit" className="btn btn--primary">
+                {t("pages.search.submit")}
+              </button>
+              {!hasNoQuery ? (
+                <button type="button" className="btn" onClick={handleClear}>
+                  {t("pages.search.clear")}
+                </button>
+              ) : null}
+            </span>
           </form>
           {hasNoQuery ? (
             <p className="muted form__hint">{t("pages.search.introHint")}</p>
@@ -134,6 +151,16 @@ export function SearchPage(): ReactElement {
           ) : null}
           {isSearchQueryValid(patternForHint) ? (
             <p className="muted form__hint">{t("pages.search.rankingHint")}</p>
+          ) : null}
+          {isSearchQueryValid(pattern) && !loading && !error ? (
+            <p className="muted form__hint search-page__summary" aria-live="polite">
+              {t("pages.search.resultsSummary", {
+                q: pattern,
+                total: totalResults,
+                posts: posts.length,
+                users: profiles.length,
+              })}
+            </p>
           ) : null}
         </div>
       </section>
@@ -153,27 +180,35 @@ export function SearchPage(): ReactElement {
           ) : null}
 
           {!loading && error ? (
-            <p className="form__error" role="alert">
-              {error}
-            </p>
+            <section className="card search-page__error" role="alert" aria-live="assertive">
+              <div className="card__body">
+                <p className="form__error">{t("pages.search.errorTitle")}</p>
+                <p className="muted">{error}</p>
+                <p className="muted form__hint">{t("pages.search.errorHint")}</p>
+                <button type="button" className="btn btn--small" onClick={handleRetry}>
+                  {t("pages.search.retry")}
+                </button>
+              </div>
+            </section>
           ) : null}
 
           {!loading && !error && bothEmpty ? (
             <section className="card search-page__empty-all" aria-live="polite" role="status">
               <div className="card__body">
                 <p className="muted">{t("pages.search.noResultsAny", { q: pattern })}</p>
+                <p className="muted form__hint">{t("pages.search.noResultsTips")}</p>
               </div>
             </section>
           ) : null}
 
           {!loading && !error && !bothEmpty ? (
             <>
-              <section className="card" aria-labelledby="users-heading">
-                <h2 id="users-heading" className="card__title">
+              <section className="card search-results-card" aria-labelledby="users-heading">
+                <h2 id="users-heading" className="card__title search-results-card__title">
                   {t("pages.search.usersWithCount", { count: profiles.length })}
                 </h2>
-                <div className="card__body">
-                  <p className="muted">{t("pages.search.usersPrivacyNote")}</p>
+                <div className="card__body search-results-card__body">
+                  <p className="muted search-results-card__intro">{t("pages.search.usersPrivacyNote")}</p>
                   {profiles.length === 0 ? (
                     <p className="muted">{t("pages.search.noProfiles")}</p>
                   ) : (
@@ -188,10 +223,16 @@ export function SearchPage(): ReactElement {
                             </div>
                             {user && user.id !== p.id ? (
                               <span className="search-profile-list__actions">
-                                <Link to={`/u/${p.id}`} className="btn btn--small">
+                                <Link
+                                  to={`/u/${p.id}`}
+                                  className="btn btn--small search-profile-list__btn search-profile-list__btn--profile"
+                                >
                                   {t("pages.search.viewProfile")}
                                 </Link>
-                                <Link to={`/messages/${p.id}`} className="btn btn--small">
+                                <Link
+                                  to={`/messages/${p.id}`}
+                                  className="btn btn--small search-profile-list__btn search-profile-list__btn--message"
+                                >
                                   {t("pages.search.message")}
                                 </Link>
                               </span>
@@ -204,11 +245,11 @@ export function SearchPage(): ReactElement {
                 </div>
               </section>
 
-              <section className="card" aria-labelledby="posts-heading">
-                <h2 id="posts-heading" className="card__title">
+              <section className="card search-results-card" aria-labelledby="posts-heading">
+                <h2 id="posts-heading" className="card__title search-results-card__title">
                   {t("pages.search.postsWithCount", { count: posts.length })}
                 </h2>
-                <div className="card__body search-posts">
+                <div className="card__body search-posts search-results-card__body">
                   {posts.length === 0 ? (
                     <p className="muted">{t("pages.search.noPosts")}</p>
                   ) : (

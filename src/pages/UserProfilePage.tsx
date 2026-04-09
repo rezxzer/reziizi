@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ReactElement } from "react";
-import { useCallback, useMemo } from "react";
+import type { FormEvent, ReactElement } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { Avatar } from "../components/Avatar.tsx";
 import { ProfilePostListSkeleton } from "../components/ProfilePostListSkeleton.tsx";
@@ -11,11 +11,16 @@ import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
+import { blockUser, unblockUser, fetchBlockRelation } from "../lib/blocks.ts";
 import { errorMessage } from "../lib/errors.ts";
+import { submitUserReport } from "../lib/userReports.ts";
 import { fetchFollowCounts, fetchIsFollowing, followUser, unfollowUser } from "../lib/follows.ts";
+import type { FollowResult } from "../lib/follows.ts";
+import { cancelFollowRequest, fetchHasRequested } from "../lib/followRequests.ts";
 import { fetchUserCommentedPostsPage, fetchUserPosts } from "../lib/feed.ts";
 import { isValidUuid } from "../lib/chat.ts";
 import { copyToClipboard, getPublicProfileAbsoluteUrl } from "../lib/copyToClipboard.ts";
+import { fetchLastSeen, formatLastSeen, isOnline } from "../lib/lastSeen.ts";
 import { canShowEmail, fetchPublicProfile } from "../lib/profileView.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
 
@@ -96,6 +101,42 @@ export function UserProfilePage(): ReactElement {
     enabled: isValidUuid(targetId) && Boolean(viewerId) && viewerId !== targetId && Boolean(profileQuery.data),
   });
 
+  /** Whether viewer has a pending follow request to this user. */
+  const requestedQuery = useQuery({
+    queryKey: queryKeys.follow.requested(viewerId ?? "__none__", targetId),
+    queryFn: () => fetchHasRequested(viewerId!, targetId),
+    enabled:
+      isValidUuid(targetId) &&
+      Boolean(viewerId) &&
+      viewerId !== targetId &&
+      Boolean(profile) &&
+      profile?.is_private === true &&
+      followingQuery.data !== true,
+  });
+
+  const hasRequested: boolean = requestedQuery.data === true;
+
+  /** Block relationship between viewer and target. */
+  const blockQuery = useQuery({
+    queryKey: queryKeys.block.relation(viewerId ?? "__none__", targetId),
+    queryFn: () => fetchBlockRelation(viewerId!, targetId),
+    enabled: isValidUuid(targetId) && Boolean(viewerId) && viewerId !== targetId,
+  });
+
+  const viewerBlockedTarget = blockQuery.data?.viewerBlockedTarget === true;
+  const targetBlockedViewer = blockQuery.data?.targetBlockedViewer === true;
+
+  /** Last seen / online status. */
+  const lastSeenQuery = useQuery({
+    queryKey: ["lastSeen", targetId],
+    queryFn: () => fetchLastSeen(targetId),
+    enabled: isValidUuid(targetId) && Boolean(profileQuery.data) && !profileQuery.data?.is_banned,
+    refetchInterval: 60_000, // refresh every minute
+  });
+
+  const userIsOnline = isOnline(lastSeenQuery.data ?? null);
+  const lastSeenText = formatLastSeen(lastSeenQuery.data ?? null, t);
+
   const showMutualFollow: boolean =
     Boolean(viewerId) &&
     viewerId !== targetId &&
@@ -105,21 +146,69 @@ export function UserProfilePage(): ReactElement {
     !targetFollowsViewerQuery.isPending;
 
   const followMut = useMutation({
+    mutationFn: async (): Promise<FollowResult> => {
+      return await followUser(targetId);
+    },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
+    },
+    onSuccess: (result: FollowResult): void => {
+      if (result === "requested") {
+        toast.success(t("pages.userProfile.followRequestSent"));
+        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.requested(viewerId ?? "", targetId) });
+      } else {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(targetId) });
+        if (viewerId != null) {
+          void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(viewerId) });
+          void queryClient.invalidateQueries({ queryKey: ["followList", "followers", targetId] });
+          void queryClient.invalidateQueries({ queryKey: ["followList", "following", viewerId] });
+        }
+        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(viewerId ?? "", targetId) });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(targetId, viewerId ?? "") });
+      }
+    },
+  });
+
+  const cancelRequestMut = useMutation({
     mutationFn: async (): Promise<void> => {
-      await followUser(targetId);
+      await cancelFollowRequest(targetId);
     },
     onError: (e: unknown): void => {
       toast.error(errorMessage(e));
     },
     onSuccess: (): void => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(targetId) });
-      if (viewerId != null) {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(viewerId) });
-        void queryClient.invalidateQueries({ queryKey: ["followList", "followers", targetId] });
-        void queryClient.invalidateQueries({ queryKey: ["followList", "following", viewerId] });
-      }
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.requested(viewerId ?? "", targetId) });
+    },
+  });
+
+  const blockMut = useMutation({
+    mutationFn: async (): Promise<void> => {
+      await blockUser(targetId);
+    },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
+    },
+    onSuccess: (): void => {
+      toast.success(t("pages.userProfile.blocked"));
+      void queryClient.invalidateQueries({ queryKey: queryKeys.block.relation(viewerId ?? "", targetId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(viewerId ?? "", targetId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(targetId, viewerId ?? "") });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(targetId) });
+      if (viewerId) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(viewerId) });
+      }
+    },
+  });
+
+  const unblockMut = useMutation({
+    mutationFn: async (): Promise<void> => {
+      await unblockUser(targetId);
+    },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
+    },
+    onSuccess: (): void => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.block.relation(viewerId ?? "", targetId) });
     },
   });
 
@@ -141,6 +230,29 @@ export function UserProfilePage(): ReactElement {
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.relation(targetId, viewerId ?? "") });
     },
   });
+
+  /* ── Report dialog state ── */
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportBusy, setReportBusy] = useState(false);
+
+  async function handleReportSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
+    e.preventDefault();
+    if (!reportReason.trim()) {
+      return;
+    }
+    setReportBusy(true);
+    try {
+      await submitUserReport(targetId, reportReason);
+      toast.success(t("pages.userProfile.reportSent"));
+      setReportOpen(false);
+      setReportReason("");
+    } catch (err: unknown) {
+      toast.error(errorMessage(err));
+    } finally {
+      setReportBusy(false);
+    }
+  }
 
   const onPostChanged = useCallback((): void => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.userPosts(targetId) });
@@ -220,13 +332,23 @@ export function UserProfilePage(): ReactElement {
         })()
       : "—";
 
+  /** Private profile and viewer is NOT a follower → content locked. */
+  const isPrivateAndLocked: boolean =
+    Boolean(profile) &&
+    profile!.is_private &&
+    !profile!.is_banned &&
+    viewerId !== targetId &&
+    followingQuery.data !== true;
+
   const showFollowUi: boolean =
     Boolean(viewerId) &&
     viewerId !== targetId &&
     Boolean(profile) &&
     !profile!.is_banned &&
     !viewerBanned &&
-    !flagsLoading;
+    !flagsLoading &&
+    !viewerBlockedTarget &&
+    !targetBlockedViewer;
 
   const postsStatDisplay = postsQuery.isPending
     ? "…"
@@ -292,6 +414,12 @@ export function UserProfilePage(): ReactElement {
                   {!profile.is_banned && profile.display_name?.trim() ? (
                     <p className="profile-hero__name">{profile.display_name.trim()}</p>
                   ) : null}
+                  {!profile.is_banned ? (
+                    <p className="user-profile__status">
+                      <span className={userIsOnline ? "online-dot online-dot--active" : "online-dot"} aria-hidden="true" />
+                      <span className="muted">{lastSeenText}</span>
+                    </p>
+                  ) : null}
                   <p className="profile-hero__line">
                     <strong>{t("pages.profile.emailLabel")}</strong>{" "}
                     {canShowEmail(profile, viewerId) ? profile.email ?? "—" : t("pages.userProfile.emailHidden")}
@@ -312,6 +440,17 @@ export function UserProfilePage(): ReactElement {
                         >
                           {unfollowMut.isPending ? t("pages.common.loading") : t("pages.userProfile.unfollow")}
                         </button>
+                      ) : hasRequested ? (
+                        <button
+                          type="button"
+                          className="btn btn--small"
+                          disabled={cancelRequestMut.isPending}
+                          onClick={() => void cancelRequestMut.mutateAsync()}
+                        >
+                          {cancelRequestMut.isPending
+                            ? t("pages.common.loading")
+                            : t("pages.userProfile.cancelRequest")}
+                        </button>
                       ) : (
                         <button
                           type="button"
@@ -319,7 +458,11 @@ export function UserProfilePage(): ReactElement {
                           disabled={followMut.isPending || unfollowMut.isPending}
                           onClick={() => void followMut.mutateAsync()}
                         >
-                          {followMut.isPending ? t("pages.common.loading") : t("pages.userProfile.follow")}
+                          {followMut.isPending
+                            ? t("pages.common.loading")
+                            : profile!.is_private
+                              ? t("pages.userProfile.requestFollow")
+                              : t("pages.userProfile.follow")}
                         </button>
                       )}
                     </div>
@@ -331,17 +474,90 @@ export function UserProfilePage(): ReactElement {
                       </Link>
                     </p>
                   ) : null}
-                  {user && viewerId !== targetId ? (
+                  {user && viewerId !== targetId && !viewerBlockedTarget && !targetBlockedViewer ? (
                     <p className="muted user-profile__message-link">
                       <Link to={`/messages/${targetId}`} className="inline-link">
                         {t("pages.search.message")}
                       </Link>
                     </p>
                   ) : null}
+                  {viewerBlockedTarget ? (
+                    <div className="user-profile__block-notice">
+                      <p className="muted">{t("pages.userProfile.youBlockedUser")}</p>
+                      <button
+                        type="button"
+                        className="btn btn--small"
+                        disabled={unblockMut.isPending}
+                        onClick={() => void unblockMut.mutateAsync()}
+                      >
+                        {unblockMut.isPending ? t("pages.common.loading") : t("pages.userProfile.unblock")}
+                      </button>
+                    </div>
+                  ) : targetBlockedViewer ? (
+                    <p className="muted">{t("pages.userProfile.blockedByUser")}</p>
+                  ) : user && viewerId !== targetId && !profile!.is_banned ? (
+                    <div className="user-profile__action-row">
+                      <button
+                        type="button"
+                        className="btn btn--small btn--danger-text"
+                        disabled={blockMut.isPending}
+                        onClick={() => void blockMut.mutateAsync()}
+                      >
+                        {blockMut.isPending ? t("pages.common.loading") : t("pages.userProfile.block")}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--small btn--danger-text"
+                        onClick={() => setReportOpen(!reportOpen)}
+                      >
+                        {t("pages.userProfile.report")}
+                      </button>
+                    </div>
+                  ) : null}
+                  {reportOpen ? (
+                    <form
+                      className="user-profile__report-form"
+                      onSubmit={(ev) => void handleReportSubmit(ev)}
+                    >
+                      <textarea
+                        className="form__input"
+                        rows={3}
+                        maxLength={2000}
+                        placeholder={t("pages.userProfile.reportPlaceholder")}
+                        value={reportReason}
+                        onChange={(ev) => setReportReason(ev.target.value)}
+                      />
+                      <div className="user-profile__report-actions">
+                        <button
+                          type="submit"
+                          className="btn btn--primary btn--small"
+                          disabled={reportBusy || !reportReason.trim()}
+                        >
+                          {reportBusy ? t("pages.common.loading") : t("pages.userProfile.reportSubmit")}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--small"
+                          onClick={() => { setReportOpen(false); setReportReason(""); }}
+                        >
+                          {t("pages.profile.closeEdit")}
+                        </button>
+                      </div>
+                    </form>
+                  ) : null}
                 </div>
               </div>
-              {!profile.is_banned && profile.bio?.trim() ? (
+              {!profile.is_banned && !isPrivateAndLocked && profile.bio?.trim() ? (
                 <p className="profile-hero__bio">{profile.bio.trim()}</p>
+              ) : null}
+              {isPrivateAndLocked ? (
+                <div className="user-profile__private-notice" role="status">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <span>{t("pages.userProfile.privateAccount")}</span>
+                </div>
               ) : null}
               {!profile.is_banned ? (
                 <div className="profile-stats" role="list">
@@ -372,7 +588,7 @@ export function UserProfilePage(): ReactElement {
         </div>
       </section>
 
-      {profile != null ? (
+      {profile != null && !isPrivateAndLocked && !viewerBlockedTarget && !targetBlockedViewer ? (
         <section className="card profile-posts">
           {profile.is_banned ? (
             <>

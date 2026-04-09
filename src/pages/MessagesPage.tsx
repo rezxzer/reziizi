@@ -46,46 +46,77 @@ export function MessagesPage(): ReactElement {
 
   return (
     <div className="stack messages-page">
-      <section className="card">
-        <h1 className="card__title">{t("pages.messages.title")}</h1>
-        <div className="card__body">
-          <p className="muted">
+      {/* ── Hero Header ── */}
+      <div className="page-hero">
+        <div className="page-hero__icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </div>
+        <div className="page-hero__text">
+          <h1 className="page-hero__title">{t("pages.messages.title")}</h1>
+          <p className="page-hero__subtitle">
             {t("pages.messages.introBefore")}
-            <Link to="/search">{t("pages.search.title")}</Link>
+            <Link to="/search" className="inline-link">{t("pages.search.title")}</Link>
             {t("pages.messages.introAfter")}
           </p>
-          {loading ? (
-            <p className="page-loading" role="status">
-              {t("pages.common.loading")}
-            </p>
-          ) : null}
-          {!loading && !loadFailed && items.length === 0 ? (
-            <p className="muted">{t("pages.messages.empty")}</p>
-          ) : null}
-          {!loading && !loadFailed && items.length > 0 ? (
-            <ul className="conversation-list">
-              {items.map((c) => (
-                <li key={c.id}>
-                  <Link className="conversation-list__link" to={`/messages/${c.other_user_id}`}>
-                    <span className="conversation-list__row">
-                      <Avatar
-                        imageUrl={c.peer_avatar_url}
-                        label={c.peer_email ?? c.other_user_id}
-                        size="sm"
-                      />
-                      <span className="conversation-list__peer">
-                        {c.peer_email ?? c.other_user_id}
-                      </span>
-                    </span>
-                    <time className="conversation-list__time muted" dateTime={c.last_message_at}>
-                      {new Date(c.last_message_at).toLocaleString()}
-                    </time>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : null}
         </div>
+      </div>
+
+      {/* ── Stats Bar ── */}
+      {!loading && !loadFailed ? (
+        <div className="page-stats-bar">
+          <div className="page-stats-bar__item">
+            <span className="page-stats-bar__value">{items.length}</span>
+            <span className="page-stats-bar__label">{t("pages.messages.title")}</span>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── Content ── */}
+      <section className="card">
+        {loading ? (
+          <div className="page-loading-block">
+            <div className="page-loading-block__spinner" />
+            <p className="muted">{t("pages.common.loading")}</p>
+          </div>
+        ) : null}
+
+        {!loading && !loadFailed && items.length === 0 ? (
+          <div className="page-empty-state">
+            <div className="page-empty-state__icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <p className="page-empty-state__text">{t("pages.messages.empty")}</p>
+            <Link to="/search" className="btn btn--primary">{t("pages.search.title")}</Link>
+          </div>
+        ) : null}
+
+        {!loading && !loadFailed && items.length > 0 ? (
+          <ul className="conversation-list">
+            {items.map((c) => (
+              <li key={c.id}>
+                <Link className="conversation-list__link" to={`/messages/${c.other_user_id}`}>
+                  <span className="conversation-list__row">
+                    <Avatar
+                      imageUrl={c.peer_avatar_url}
+                      label={c.peer_email ?? c.other_user_id}
+                      size="sm"
+                    />
+                    <span className="conversation-list__peer">
+                      {c.peer_email ?? c.other_user_id}
+                    </span>
+                  </span>
+                  <time className="conversation-list__time muted" dateTime={c.last_message_at}>
+                    {new Date(c.last_message_at).toLocaleString()}
+                  </time>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </section>
     </div>
   );

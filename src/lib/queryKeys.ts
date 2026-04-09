@@ -17,6 +17,14 @@ export const queryKeys = {
   follow: {
     counts: (userId: string) => ["follow", "counts", userId] as const,
     relation: (viewerId: string, targetId: string) => ["follow", "rel", viewerId, targetId] as const,
+    /** Whether viewerId has a pending follow request to targetId. */
+    requested: (viewerId: string, targetId: string) => ["follow", "requested", viewerId, targetId] as const,
+    /** Pending incoming follow requests for the current user. */
+    pendingRequests: (userId: string) => ["follow", "pendingRequests", userId] as const,
+    pendingCount: (userId: string) => ["follow", "pendingCount", userId] as const,
+  },
+  block: {
+    relation: (viewerId: string, targetId: string) => ["block", "rel", viewerId, targetId] as const,
   },
   /** Search results (posts + profiles); `viewerId` affects profile visibility (searchable). */
   search: {

@@ -47,7 +47,13 @@ export async function fetchIsFollowing(viewerId: string, targetId: string): Prom
   return data != null;
 }
 
-export async function followUser(targetUserId: string): Promise<void> {
+/**
+ * Follow result: "followed" for direct follow, "requested" if the target has a
+ * private profile and a follow request was created instead.
+ */
+export type FollowResult = "followed" | "requested";
+
+export async function followUser(targetUserId: string): Promise<FollowResult> {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError) {
     throw userError;
@@ -59,10 +65,40 @@ export async function followUser(targetUserId: string): Promise<void> {
   if (uid === targetUserId) {
     throw new Error("Cannot follow yourself");
   }
+
+  // Check if target profile is private
+  const { data: targetProfile, error: profileErr } = await supabase
+    .from("profiles")
+    .select("is_private")
+    .eq("id", targetUserId)
+    .maybeSingle();
+
+  if (profileErr) {
+    throw profileErr;
+  }
+
+  const isPrivate = Boolean((targetProfile as { is_private?: boolean } | null)?.is_private);
+
+  if (isPrivate) {
+    // Create a follow request instead of a direct follow
+    const { error } = await supabase
+      .from("follow_requests")
+      .insert({ requester_id: uid, target_id: targetUserId });
+    if (error) {
+      if (error.code === "23505") {
+        // Already requested
+        return "requested";
+      }
+      throw error;
+    }
+    return "requested";
+  }
+
   const { error } = await supabase.from("follows").insert({ follower_id: uid, following_id: targetUserId });
   if (error) {
     throw error;
   }
+  return "followed";
 }
 
 /**

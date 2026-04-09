@@ -1,7 +1,6 @@
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { AvatarUploadSection } from "../components/AvatarUploadSection.tsx";
 import { ThemePreferenceControls } from "../components/ThemePreferenceControls.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
@@ -15,14 +14,7 @@ import {
   setNotificationPreferences,
   type NotificationPreferences,
 } from "../lib/notificationPreferences.ts";
-import {
-  PROFILE_BIO_MAX,
-  PROFILE_DISPLAY_NAME_MAX,
-  fetchProfileDisplay,
-  normalizeProfileAboutField,
-  updateProfileAbout,
-} from "../lib/profileAbout.ts";
-import { fetchProfileSearchable, setProfileSearchable } from "../lib/profilePrivacy.ts";
+import { fetchPrivacySettings, setProfileSearchable } from "../lib/profilePrivacy.ts";
 import { isBillingCheckoutEnabled } from "../lib/billingFlags.ts";
 import { createPremiumCheckoutRedirectUrl } from "../lib/createCheckoutSession.ts";
 import { deleteAccountViaEdgeFunction } from "../lib/deleteAccount.ts";
@@ -57,11 +49,6 @@ export function SettingsPage(): ReactElement {
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState<string>("");
   const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
-  const [aboutDisplayName, setAboutDisplayName] = useState<string>("");
-  const [aboutBio, setAboutBio] = useState<string>("");
-  const [aboutLoading, setAboutLoading] = useState<boolean>(true);
-  const [aboutBusy, setAboutBusy] = useState<boolean>(false);
-  const [aboutMsg, setAboutMsg] = useState<string | null>(null);
   const [checkoutBusy, setCheckoutBusy] = useState<boolean>(false);
 
   async function handlePassword(e: FormEvent<HTMLFormElement>): Promise<void> {
@@ -124,10 +111,10 @@ export function SettingsPage(): ReactElement {
     }
     let cancelled = false;
     setPrivacyLoading(true);
-    void fetchProfileSearchable(user.id)
+    void fetchPrivacySettings(user.id)
       .then((v) => {
         if (!cancelled) {
-          setSearchable(v);
+          setSearchable(v.searchable);
         }
       })
       .catch(() => {
@@ -138,36 +125,6 @@ export function SettingsPage(): ReactElement {
       .finally(() => {
         if (!cancelled) {
           setPrivacyLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) {
-      setAboutLoading(false);
-      return;
-    }
-    let cancelled = false;
-    setAboutLoading(true);
-    void fetchProfileDisplay(user.id)
-      .then((row) => {
-        if (!cancelled) {
-          setAboutDisplayName(row.display_name ?? "");
-          setAboutBio(row.bio ?? "");
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setAboutDisplayName("");
-          setAboutBio("");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setAboutLoading(false);
         }
       });
     return () => {
@@ -246,34 +203,6 @@ export function SettingsPage(): ReactElement {
     }
   }
 
-  async function handleProfileAboutSave(e: FormEvent<HTMLFormElement>): Promise<void> {
-    e.preventDefault();
-    if (!user) {
-      return;
-    }
-    setAboutMsg(null);
-    const dn = normalizeProfileAboutField(aboutDisplayName);
-    const b = normalizeProfileAboutField(aboutBio);
-    if (dn != null && dn.length > PROFILE_DISPLAY_NAME_MAX) {
-      toast.error(t("settings.displayNameTooLong", { max: PROFILE_DISPLAY_NAME_MAX }));
-      return;
-    }
-    if (b != null && b.length > PROFILE_BIO_MAX) {
-      toast.error(t("settings.bioTooLong", { max: PROFILE_BIO_MAX }));
-      return;
-    }
-    setAboutBusy(true);
-    try {
-      await updateProfileAbout(user.id, { display_name: dn, bio: b });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.profile.display(user.id) });
-      setAboutMsg(t("settings.profileAboutSaved"));
-    } catch (err: unknown) {
-      toast.error(errorMessage(err));
-    } finally {
-      setAboutBusy(false);
-    }
-  }
-
   async function handleNotificationPrefsSave(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     if (!user) {
@@ -327,56 +256,6 @@ export function SettingsPage(): ReactElement {
         <div className="card__body">
           <p className="muted">{t("settings.appearanceHint")}</p>
           <ThemePreferenceControls labelledBy="theme-heading" />
-        </div>
-      </section>
-
-      {user ? <AvatarUploadSection userId={user.id} /> : null}
-
-      <section className="card">
-        <h2 className="card__title">{t("settings.profileAbout")}</h2>
-        <div className="card__body">
-          <p className="muted">{t("settings.profileAboutHint")}</p>
-          {!user ? null : aboutLoading ? (
-            <p className="page-loading" role="status">
-              {t("settings.profileAboutLoading")}
-            </p>
-          ) : (
-            <form className="form" onSubmit={(ev) => void handleProfileAboutSave(ev)}>
-              <label className="form__label" htmlFor="settings-display-name">
-                {t("settings.displayName")}
-              </label>
-              <input
-                id="settings-display-name"
-                className="form__input"
-                type="text"
-                maxLength={PROFILE_DISPLAY_NAME_MAX}
-                autoComplete="nickname"
-                value={aboutDisplayName}
-                onChange={(ev) => setAboutDisplayName(ev.target.value)}
-                placeholder={t("settings.displayNamePlaceholder")}
-              />
-              <label className="form__label" htmlFor="settings-bio">
-                {t("settings.bio")}
-              </label>
-              <textarea
-                id="settings-bio"
-                className="form__input"
-                rows={4}
-                maxLength={PROFILE_BIO_MAX}
-                value={aboutBio}
-                onChange={(ev) => setAboutBio(ev.target.value)}
-                placeholder={t("settings.bioPlaceholder")}
-              />
-              <button type="submit" className="btn btn--primary" disabled={aboutBusy}>
-                {aboutBusy ? t("settings.profileAboutSaving") : t("settings.profileAboutSave")}
-              </button>
-              {aboutMsg ? (
-                <p className="form__success" role="status">
-                  {aboutMsg}
-                </p>
-              ) : null}
-            </form>
-          )}
         </div>
       </section>
 

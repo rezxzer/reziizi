@@ -37,13 +37,14 @@ reziizi/
 ├── .env.example            # მაგალითი (კომიტდება)
 ├── project.md              # სრული სპეკი + CURRENT WORK
 ├── JOURNAL.md              # ჟურნალი
-├── CLAUDE.md               # მოკლე handoff (ასისტენტებს — იხილე JOURNAL)
+├── CLAUDE.md               # ინგლისური handoff გარე AI-სთვის (+ AGENTS.md რუკა)
 ├── HOME_PAGE_POLISH.md     # მთავარი გვერდის სკოპი / უსაფრთხო polish (ინგლისური)
 ├── NOTIFICATIONS_POLISH.md # /notifications სკოპი — UI polish, არა DB/Push (ინგლისური)
 ├── MESSAGES_POLISH.md      # /messages + thread — UI polish, არა chat RPC (ინგლისური)
 ├── SEARCH_POLISH.md        # /search — UI polish; ინოვაციის ზონა დოკში (ინგლისური)
 ├── SETTINGS_POLISH.md      # /settings — UI polish + ინოვაცია (ინგლისური)
 ├── PROFILE_POLISH.md       # /profile — UI polish + ინოვაცია (ინგლისური)
+├── MOTION_SOUND_POLISH.md  # motion/sound სისტემა — tiers, limits, rollout (ინგლისური)
 ├── AGENTS.md               # ეს ფაილი — ახალი ჩატისთვის
 └── README.md               # მოკლე quick start
 ```
@@ -57,11 +58,12 @@ reziizi/
 | **`README.md`** | Quick start, tests, **GitHub Actions (CI)**, **Production deployment (GitHub + Vercel + Supabase)** — სრული ნაბიჯები. |
 | **`project.md`** | სრული სპეკი: feature-ები 1–51, VERSIONS (MVP/v2/v3), **FEATURE BREAKDOWN**, **CURRENT WORK** (დასრულებული სტატუსი + **შემდეგი განვითარების გეგმა (შევსებადი)** ცხრილი). **ბიზნესი / Stripe:** **`#### ბიზნესი / §24 — განვითარების გადაწყვეტილება`** — P1/P2, გადადებული, რისკების დაზღვევა. |
 | **`JOURNAL.md`** | ქრონოლოგია — რა გაკეთდა, რა გადაწყვიტე (მოკლე ჩანაწერები). როცა მომხმარებელი ადასტურებს Supabase-ზე migration-ის გაშვებას — AI უნდა განაახლოს **`JOURNAL.md`** + **`project.md` CURRENT WORK** (იხილე `.cursor/rules/reziizi.mdc` → „დადასტურება, რიგი და ჩანაწერი“). |
-| **`CLAUDE.md`** | მოკლე handoff სხვა ასისტენტებისთვის (სტილი, ფაილის ინფუტი, dev `431`) — დეტალები **`JOURNAL.md`**-ში. |
+| **`CLAUDE.md`** | ინგლისური handoff გარე ასისტენტისთვის (სპეკი, რიგი, motion პრიორიტეტი, pitfalls); სრული რუკა — **`AGENTS.md`**; ქრონოლოგია — **`JOURNAL.md`**. |
 | **`HOME_PAGE_POLISH.md`** | მთავარი გვერდის სკოპი / რა არ დაირღვეს / უსაფრთხო polish — ინგლისური, Cowork-ისთვის. |
 | **`NOTIFICATIONS_POLISH.md`** | **`/notifications`** — in-app notifications UI; არა Push (§46); ინგლისური სკოპი. |
 | **`MESSAGES_POLISH.md`** | **`/messages`**, **`/messages/:peerId`** — საუბრების სია + თრედი; `nav_messages` flag; ინგლისური სკოპი. |
 | **`SEARCH_POLISH.md`** | **`/search`** (`?q=`); `nav_search` flag; უსაფრთხო polish + **Innovation** სექცია დოკში. |
+| **`MOTION_SOUND_POLISH.md`** | motion+sound სისტემის სკოპი: Tier 1/2/3, route mapping, sound profiles, rollout sequence; **არ** ავურიოთ შემთხვევითი ეფექტები. **ტალღა 2 UI polish-ის პრიორიტეტი** (Claude-ის ხაზი — პროდუქტით დადასტურებული; **`JOURNAL.md` → 2026-04-09**). |
 | **`*_POLISH.md` (საერთო)** | **ინოვაცია polish-ში** = AI **თავად გამოიგონოს და ჩაამბედოს** მიკრო-ინტერაქციები (არა მხოლოდ სიის „მოხატვა“): მაგ. **hover** ნავიგაციის ღილაკებზე/ლინკებზე, **მაუსის რეაქცია** (`:hover` / `:active` — მსუბუქ `scale`, ჩრდილი), ბარათების მსუბუქი აწევა, **focus-visible** კლავიატურისთვის. ყოველთვის `prefers-reduced-motion`, არა ახალი RPC/URL. დეტალი — ინგლისურად თითო `*_POLISH.md` → **Innovation**. |
 | **`SETTINGS_POLISH.md`** | **`/settings`** — ანგარიში, პაროლი, თემა, პრივატულობა, Premium, წაშლა; ინგლისური სკოპი. |
 | **`PROFILE_POLISH.md`** | **`/profile`** (საკუთარი) — ჰერო, სტატისტიკა, ტაბები, პოსტების სია; ინგლისური სკოპი. |
@@ -102,7 +104,7 @@ npm run dev
 
 ## სად ვართ ახლა (მაღალი დონე)
 
-- **ტალღები 1 → 2 → 3 → 4+:** **`project.md` → `## CURRENT WORK`** — **„ტალღები“** (ფუნდამენტი vs polish) + ცხრილი **„MASTER 1–51 — იმპლემენტაცია vs მომავალი ტალღა“** (დასრულებული baseline; მომავალი: **2** polish·i18n·audit / **3** Stripe·ლანჩი / **4+** push·ops·§50). გაფართოება იგივე არქიტექტურაზე — **`reziizi.mdc`**: ჯერ დოკუმენტი, მერე კოდი.
+- **ტალღები 1 → 2 → 3 → 4+:** **`project.md` → `## CURRENT WORK`** — **„ტალღები“** (ფუნდამენტი vs polish) + ცხრილი **„MASTER 1–51 — იმპლემენტაცია vs მომავალი ტალღა“** (დასრულებული baseline; მომავალი: **2** polish·i18n·audit / **3** Stripe·ლანჩი / **4+** push·ops·§50). გაფართოება იგივე არქიტექტურაზე — **`reziizi.mdc`**: ჯერ დოკუმენტი, მერე კოდი. **ტალღა 2-ში motion/დიზაინის პირველი პრიორიტეტი:** Claude-ის შეთანხმებული ხაზი — **`MOTION_SOUND_POLISH.md`**, დადასტურება **`JOURNAL.md` → 2026-04-09**.
 - **v1 core:** Supabase + აპი (Auth, feed, reactions, profile, settings, `/legal`); **UI ტოკენები + მობილური ბაზა** — `styles.css` / `index.html`.
 - **v2:** **Comments**, **Search**, **Theme**, **Notifications**, **Tags**, **Trending**, **Chat**, **Ranking (17)** — net score `PostCard`-ზე; **`supabase/migrations/`** სრულად **გაშვებულია production Supabase-ზე** (დადასტურებული — `project.md` **CURRENT WORK**).
 - **v3:** **Admin** … **API Layer**, **Database Structure**, **Caching (30)**, **Logging (31)**, **Error Handling (32)**, **Deployment (37)**, **Testing (41)** (Vitest), **Performance (36)** (lazy routes) — სრულად `project.md` → **REZIIZI v3**. **Localization (44):** `en` / `ka` / `ru` — `src/i18n/messages.ts`, მთავარი ფიჩა-გვერდები + **Admin** `t()`-ით; დარჩენილი სკოპი → `project.md` **§44** + **CURRENT WORK**.

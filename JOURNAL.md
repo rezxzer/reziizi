@@ -21,6 +21,32 @@
 
 ## ჩანაწერები
 
+### 2026-04-09 — Social privacy/moderation გაუმჯობესებები (Claude): private profile, requests, blocks, user reports, last seen
+
+- **DB migrations დამატებული და გაშვებული Supabase-ზე (დადასტურებული):** `20260401351800_add_private_profiles_and_follow_requests.sql`, `20260401351900_add_blocks_table.sql`, `20260401352000_add_user_reports.sql`, `20260401352100_add_last_seen.sql`.
+- **Privacy + follow flow:** `profiles.is_private` + `follow_requests`; private პროფილზე follow მიდის request-ად, მიღება ხდება RPC-ით `accept_follow_request`.
+- **Blocks:** `blocks` ცხრილი + ტრიგერი `block_user_cleanup` — ბლოკის დროს ორივე მიმართულებით იშლება `follows` და `follow_requests`.
+- **User moderation:** `user_reports` ცხრილი (user-to-user რეპორტები, admin read/delete policy).
+- **Presence:** `profiles.last_seen_at` + RPC `update_last_seen`; აპში დამატებულია `lastSeen.ts` helper-ები („online / last seen ...“ ფორმატირება).
+- **აპის მხარე:** ახალი მოდულები `src/lib/followRequests.ts`, `src/lib/blocks.ts`, `src/lib/userReports.ts`, `src/lib/lastSeen.ts` და შესაბამისი გვერდების/სტილების განახლებები (Profile/Settings/UserProfile/Messages/Notifications/Search/Layout).
+- **სტატუსი:** კოდი და migrations **წარმატებით გაშვებულია live Supabase-ზე** (მომხმარებლის დადასტურება).
+
+### 2026-04-09 — Motion + დიზაინი: ოფიციალური პრიორიტეტი (Claude-ის ხაზი) — ერთიანი დადასტურება
+
+**სტატუსი:** ეს სექცია არის **ერთადერთი ცოცხალი წყარო** იმავე თემაზე. წინა დღიური სათაურები იმ თემაზე (2026-04-08 motion სერია + ცალკე „უკუკავშირი“) **გაერთიანდა აქ** — ძველი ჩანაწერები აღარ უნდა იკითხებოდეს როგორც პარალელური სტატუსი.
+
+- **პრიორიტეტი:** გარე ასისტენტის (Claude) შემოთავაზებული **motion + sound + route transitions** მიმართულება არის **ტალღა 2 UI polish-ის ოფიციალური პრიორიტეტი**. შემდგომი ვიზუალური/motion ცვლილებები უნდა **ემთხვეოდეს** **`MOTION_SOUND_POLISH.md`**-ს (Tier 1/2/3, route map, sound profiles, QA); შემთხვევითი ეფექტების დაყრა სპეკის გარეთ — არა.
+- **პროდუქტის დადასტურება:** ვიზუალური იერი **მოსწონს**; **გვერდებს შორის გადასვლა** (`LayoutOutlet`, route transitions) დადასტურებულია როგორც სწორი ხარისხი; **`prefers-reduced-motion`** დაცვა უცვლელია.
+
+**იმპლემენტაციის მიმოხილვა (2026-04-08, ტექნიკური):**
+
+- **Pilot → სისტემა:** Home↔Search `page-turn` + gesture-gated ხმა; **`MOTION_SOUND_POLISH.md`** + `AGENTS.md` / `project.md` სინქი.
+- **Cleanup:** page-turn დახვეწა (მაგ. duration **820ms → 540ms**, keyframe-ები ნაკლებად აგრესიული), **`route-fold-heart` / გულის motif ამოღებული**, `--ease-route`, ხმის softening.
+- **Tier 3:** `LayoutOutlet` — `route-glide`, `route-card`, Admin/Legal/Security → `route-minimal`; direction-aware კლასები (`NAV_ORDER`); transition-ის მიხედვით sound map.
+- **Tier 1–2:** გლობალური micro-interactions (`layout__nav-link`, `.btn`, `.card`, …); შერჩეულ კონტროლებზე მსუბუქი 3D (nav, ტაბები, primary CTA); RPC/URL ლოგიკა უცვლელი.
+
+**დოკუმენტები:** სრული სპეკი — **`MOTION_SOUND_POLISH.md`**; სპეკში ჩაწერა — **`project.md` → CURRENT WORK** + „შემდეგი განვითარების გეგმა“ #16; სწრაფი კონტექსტი — **`AGENTS.md`**.
+
 ### 2026-04-08 — ინფინიტი სქროლი + CSS პოლირების ტალღა
 
 - **ინფინიტი სქროლი:** `src/hooks/useInfiniteScroll.ts` (`IntersectionObserver`, `rootMargin` ~200px). **Load More** ღილაკი მოხსნილი: **`HomePage`**, **`ProfilePage`** (Commented), **`UserProfilePage`** (Commented), **`UserFollowListPage`** — სენტინელი ბოლოში + ჩატვირთვის ინდიკატორი; `fetchNextPage` / იგივე ლოგიკა უცვლელი.

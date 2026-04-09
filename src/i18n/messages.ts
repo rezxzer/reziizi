@@ -98,6 +98,7 @@ type PagesBundle = {
     queryLabel: string;
     placeholder: string;
     submit: string;
+    clear: string;
     hintMinChars: string;
     /** Shown when there is no `q` yet — what Search covers. */
     introHint: string;
@@ -112,8 +113,13 @@ type PagesBundle = {
     rankingHint: string;
     /** Both result lists empty for a valid query (`{q}` = trimmed term). */
     noResultsAny: string;
+    noResultsTips: string;
     /** `aria-label` for the results landmark (loading + lists). */
     resultsRegionLabel: string;
+    resultsSummary: string;
+    errorTitle: string;
+    errorHint: string;
+    retry: string;
   };
   postForm: {
     signInPrompt: string;
@@ -180,6 +186,11 @@ type PagesBundle = {
     tabCommented: string;
     sectionCommented: string;
     emptyCommented: string;
+    editProfile: string;
+    closeEdit: string;
+    followRequests: string;
+    acceptRequest: string;
+    rejectRequest: string;
   };
   userProfile: {
     invalidTitle: string;
@@ -195,6 +206,25 @@ type PagesBundle = {
     unfollow: string;
     /** Shown when viewer and profile user follow each other. */
     mutualFollowBadge: string;
+    requestFollow: string;
+    cancelRequest: string;
+    followRequestSent: string;
+    privateAccount: string;
+    block: string;
+    unblock: string;
+    blocked: string;
+    youBlockedUser: string;
+    blockedByUser: string;
+    report: string;
+    reportPlaceholder: string;
+    reportSubmit: string;
+    reportSent: string;
+    online: string;
+    lastSeenMinutes: string;
+    lastSeenHours: string;
+    lastSeenDays: string;
+    lastSeenLongAgo: string;
+    lastSeenNever: string;
     signInToFollow: string;
     theirPosts: string;
     postsHiddenBanned: string;
@@ -566,6 +596,8 @@ export type Bundle = {
     privacy: string;
     privacyHint: string;
     privacyLoading: string;
+    privateProfileCheckbox: string;
+    privateProfileHint: string;
     privacyCheckbox: string;
     privacySave: string;
     privacySaving: string;
@@ -719,6 +751,8 @@ const en: Bundle = {
     privacyHint:
       "Control whether your account appears when others search by email on the Search page.",
     privacyLoading: "Loading…",
+    privateProfileCheckbox: "Private profile",
+    privateProfileHint: "When enabled, only your approved followers can see your posts, bio, and stats. Others will need to send a follow request.",
     privacyCheckbox: "Show my profile in email search results",
     privacySave: "Save privacy",
     privacySaving: "Saving…",
@@ -832,6 +866,7 @@ const en: Bundle = {
       queryLabel: "Query",
       placeholder: "Posts (body) or users (email)…",
       submit: "Search",
+      clear: "Clear",
       hintMinChars: "Enter at least 2 characters (after trimming).",
       introHint:
         "Search post bodies by keyword and users by email. Results update after you submit.",
@@ -848,7 +883,14 @@ const en: Bundle = {
         "Results are ordered by relevance (full-text match, where the term appears) and recency. Flagged posts are excluded.",
       noResultsAny:
         "No posts or users matched “{q}”. Try other words or check email spelling (for profiles).",
+      noResultsTips:
+        "Tip: try one specific keyword, remove extra symbols, or search by full email address.",
       resultsRegionLabel: "Search results",
+      resultsSummary:
+        "Results for “{q}”: {total} total ({posts} posts, {users} users).",
+      errorTitle: "Search failed.",
+      errorHint: "Check your connection and try again.",
+      retry: "Retry",
     },
     postForm: {
       signInPrompt: "Sign in to create posts.",
@@ -906,6 +948,11 @@ const en: Bundle = {
       copyProfileLink: "Copy profile link",
       copyProfileLinkSuccess: "Link copied to clipboard.",
       copyProfileLinkFailed: "Could not copy link.",
+      editProfile: "Edit Profile",
+      closeEdit: "Close",
+      followRequests: "Follow Requests",
+      acceptRequest: "Accept",
+      rejectRequest: "Decline",
       tabPosts: "Posts",
       tabCommented: "Commented",
       sectionCommented: "Posts you commented on",
@@ -924,6 +971,25 @@ const en: Bundle = {
       follow: "Follow",
       unfollow: "Unfollow",
       mutualFollowBadge: "Mutual",
+      requestFollow: "Request Follow",
+      cancelRequest: "Requested",
+      followRequestSent: "Follow request sent.",
+      privateAccount: "This account is private. Follow to see their posts and activity.",
+      block: "Block",
+      unblock: "Unblock",
+      blocked: "User blocked.",
+      youBlockedUser: "You have blocked this user.",
+      blockedByUser: "This user is not available.",
+      report: "Report",
+      reportPlaceholder: "Describe the issue (spam, harassment, etc.)",
+      reportSubmit: "Send Report",
+      reportSent: "Report submitted. Thank you.",
+      online: "Online",
+      lastSeenMinutes: "Last seen {count} min ago",
+      lastSeenHours: "Last seen {count}h ago",
+      lastSeenDays: "Last seen {count}d ago",
+      lastSeenLongAgo: "Last seen a long time ago",
+      lastSeenNever: "Offline",
       signInToFollow: "Sign in to follow this user.",
       theirPosts: "Posts",
       postsHiddenBanned: "Posts are hidden for restricted accounts.",
@@ -1386,6 +1452,8 @@ const ka: Bundle = {
     privacyHint:
       "განსაზღვრეთ, ჩანდება თუ არა თქვენი პროფილი სხვების ელფოსტით ძიებისას (ძიების გვერდი).",
     privacyLoading: "იტვირთება…",
+    privateProfileCheckbox: "დახურული პროფილი",
+    privateProfileHint: "ჩართვის შემთხვევაში მხოლოდ თქვენი დადასტურებული მიმდევრები ნახავენ პოსტებს, bio-ს და სტატისტიკას. სხვებს მოუწევთ გამოწერის მოთხოვნის გაგზავნა.",
     privacyCheckbox: "ჩემი პროფილი ჩანდეს ელფოსტით ძიების შედეგებში",
     privacySave: "პირადულობის შენახვა",
     privacySaving: "ინახება…",
@@ -1500,6 +1568,7 @@ const ka: Bundle = {
       queryLabel: "მოთხოვნა",
       placeholder: "პოსტები (ტექსტი) ან მომხმარებლები (ელფოსტა)…",
       submit: "ძიება",
+      clear: "გასუფთავება",
       hintMinChars: "შეიყვანეთ მინიმუმ 2 სიმბოლო (გაფართოების შემდეგ).",
       introHint:
         "ძებნა: პოსტების ტექსტი საკვანძო სიტყვით და მომხმარებლები ელფოსტით. შედეგი განახლდება გაგზავნის შემდეგ.",
@@ -1516,7 +1585,14 @@ const ka: Bundle = {
         "შედეგები დალაგებულია რელევანტურობით (სრული ტექსტური შესაბამისობა, სად ჩანს ტერმინი) და ახლობლობით. დაფლაგული პოსტები არ შედის.",
       noResultsAny:
         "„{q}“-ისთვის პოსტი ან მომხმარებელი არ მოიძებნა. სცადეთ სხვა სიტყვები ან ელფოსტის მართვა (პროფილებისთვის).",
+      noResultsTips:
+        "რჩევა: სცადეთ ერთი ზუსტი საკვანძო სიტყვა, მოაშორეთ ზედმეტი სიმბოლოები ან მოძებნეთ სრული ელფოსტა.",
       resultsRegionLabel: "ძიების შედეგები",
+      resultsSummary:
+        "„{q}“-ისთვის შედეგები: სულ {total} ({posts} პოსტი, {users} მომხმარებელი).",
+      errorTitle: "ძიება ვერ შესრულდა.",
+      errorHint: "შეამოწმეთ კავშირი და სცადეთ თავიდან.",
+      retry: "თავიდან ცდა",
     },
     postForm: {
       signInPrompt: "პოსტისთვის შედით.",
@@ -1574,6 +1650,11 @@ const ka: Bundle = {
       copyProfileLink: "პროფილის ბმულის კოპირება",
       copyProfileLinkSuccess: "ბმული დაკოპირდა.",
       copyProfileLinkFailed: "ბმულის კოპირება ვერ მოხერხდა.",
+      editProfile: "პროფილის რედაქტირება",
+      closeEdit: "დახურვა",
+      followRequests: "გამოწერის მოთხოვნები",
+      acceptRequest: "დადასტურება",
+      rejectRequest: "უარყოფა",
       tabPosts: "პოსტები",
       tabCommented: "კომენტარები",
       sectionCommented: "პოსტები, სადაც დაგიწერით",
@@ -1592,6 +1673,25 @@ const ka: Bundle = {
       follow: "გამოწერა",
       unfollow: "გამოწერის მოშორება",
       mutualFollowBadge: "ორმხრივი გამოწერა",
+      requestFollow: "გამოწერის მოთხოვნა",
+      cancelRequest: "მოთხოვნილი",
+      followRequestSent: "გამოწერის მოთხოვნა გაიგზავნა.",
+      privateAccount: "ეს ანგარიში დახურულია. გამოიწერეთ მათი პოსტების და აქტივობის სანახავად.",
+      block: "დაბლოკვა",
+      unblock: "განბლოკვა",
+      blocked: "მომხმარებელი დაბლოკილია.",
+      youBlockedUser: "თქვენ დაბლოკეთ ეს მომხმარებელი.",
+      blockedByUser: "ეს მომხმარებელი მიუწვდომელია.",
+      report: "შეტყობინება",
+      reportPlaceholder: "აღწერეთ პრობლემა (სპამი, შეურაცხყოფა და ა.შ.)",
+      reportSubmit: "გაგზავნა",
+      reportSent: "შეტყობინება გაიგზავნა. გმადლობთ.",
+      online: "ონლაინ",
+      lastSeenMinutes: "ბოლოს ნანახი {count} წუთის წინ",
+      lastSeenHours: "ბოლოს ნანახი {count} სთ-ის წინ",
+      lastSeenDays: "ბოლოს ნანახი {count} დღის წინ",
+      lastSeenLongAgo: "ბოლოს ნანახი დიდი ხნის წინ",
+      lastSeenNever: "ოფლაინ",
       signInToFollow: "გამოსაწერად შედით.",
       theirPosts: "პოსტები",
       postsHiddenBanned: "შეზღუდული ანგარიშის პოსტები დამალულია.",
@@ -2054,6 +2154,8 @@ const ru: Bundle = {
     privacyHint:
       "Управляйте видимостью профиля при поиске по email на странице «Поиск».",
     privacyLoading: "Загрузка…",
+    privateProfileCheckbox: "Закрытый профиль",
+    privateProfileHint: "Если включено, только одобренные подписчики смогут видеть ваши посты, bio и статистику. Остальным нужно будет отправить запрос на подписку.",
     privacyCheckbox: "Показывать мой профиль в результатах поиска по email",
     privacySave: "Сохранить настройки",
     privacySaving: "Сохранение…",
@@ -2167,6 +2269,7 @@ const ru: Bundle = {
       queryLabel: "Запрос",
       placeholder: "Посты (текст) или пользователи (email)…",
       submit: "Найти",
+      clear: "Очистить",
       hintMinChars: "Введите не менее 2 символов (после обрезки пробелов).",
       introHint:
         "Ищите по тексту постов и по email пользователей. Результаты появятся после отправки формы.",
@@ -2183,7 +2286,14 @@ const ru: Bundle = {
         "Результаты упорядочены по релевантности (полнотекстовое совпадение, позиция в тексте) и дате. Помеченные посты исключены.",
       noResultsAny:
         "Нет постов и пользователей по запросу «{q}». Попробуйте другие слова или проверьте написание email.",
+      noResultsTips:
+        "Подсказка: попробуйте одно точное ключевое слово, уберите лишние символы или ищите по полному email.",
       resultsRegionLabel: "Результаты поиска",
+      resultsSummary:
+        "Результаты по «{q}»: всего {total} ({posts} постов, {users} пользователей).",
+      errorTitle: "Не удалось выполнить поиск.",
+      errorHint: "Проверьте соединение и попробуйте снова.",
+      retry: "Повторить",
     },
     postForm: {
       signInPrompt: "Войдите, чтобы публиковать посты.",
@@ -2241,6 +2351,11 @@ const ru: Bundle = {
       copyProfileLink: "Копировать ссылку на профиль",
       copyProfileLinkSuccess: "Ссылка скопирована.",
       copyProfileLinkFailed: "Не удалось скопировать ссылку.",
+      editProfile: "Редактировать профиль",
+      closeEdit: "Закрыть",
+      followRequests: "Запросы на подписку",
+      acceptRequest: "Принять",
+      rejectRequest: "Отклонить",
       tabPosts: "Посты",
       tabCommented: "Комментарии",
       sectionCommented: "Посты, где вы оставили комментарии",
@@ -2259,6 +2374,25 @@ const ru: Bundle = {
       follow: "Подписаться",
       unfollow: "Отписаться",
       mutualFollowBadge: "Взаимная подписка",
+      requestFollow: "Запросить подписку",
+      cancelRequest: "Запрошено",
+      followRequestSent: "Запрос на подписку отправлен.",
+      privateAccount: "Это закрытый аккаунт. Подпишитесь, чтобы видеть посты и активность.",
+      block: "Заблокировать",
+      unblock: "Разблокировать",
+      blocked: "Пользователь заблокирован.",
+      youBlockedUser: "Вы заблокировали этого пользователя.",
+      blockedByUser: "Этот пользователь недоступен.",
+      report: "Пожаловаться",
+      reportPlaceholder: "Опишите проблему (спам, оскорбления и т.д.)",
+      reportSubmit: "Отправить жалобу",
+      reportSent: "Жалоба отправлена. Спасибо.",
+      online: "В сети",
+      lastSeenMinutes: "Был(а) {count} мин назад",
+      lastSeenHours: "Был(а) {count}ч назад",
+      lastSeenDays: "Был(а) {count}д назад",
+      lastSeenLongAgo: "Давно не был(а) в сети",
+      lastSeenNever: "Не в сети",
       signInToFollow: "Войдите, чтобы подписаться.",
       theirPosts: "Посты",
       postsHiddenBanned: "Посты скрыты для ограниченных аккаунтов.",

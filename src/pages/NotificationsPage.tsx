@@ -51,52 +51,101 @@ export function NotificationsPage(): ReactElement {
 
   return (
     <div className="stack notifications-page">
-      <section className="card">
-        <div className="notifications-page__head">
-          <h1 className="card__title">{t("pages.notifications.title")}</h1>
-          {items.length > 0 && unreadCount > 0 ? (
-            <button
-              type="button"
-              className="btn btn--small"
-              disabled={busy}
-              onClick={() => void markAllMut.mutateAsync()}
-            >
-              {t("pages.notifications.markAllRead")}
-            </button>
+      {/* ── Hero Header ── */}
+      <div className="page-hero">
+        <div className="page-hero__icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          {unreadCount > 0 ? (
+            <span className="page-hero__badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
           ) : null}
         </div>
-        <div className="card__body">
-          {loading ? (
-            <p className="page-loading" role="status">
-              {t("pages.notifications.loading")}
-            </p>
-          ) : null}
-          {error ? (
-            <p className="form__error" role="alert">
-              {error}
-            </p>
-          ) : null}
-          {!loading && items.length === 0 && !error ? (
-            <p className="muted">{t("pages.notifications.empty")}</p>
-          ) : null}
-          {!loading && items.length > 0 ? (
-            <ul className="notification-list">
-              {items.map((n) => (
-                <NotificationRowItem
-                  key={n.id}
-                  n={n}
-                  disabled={busy}
-                  onRead={() => void markReadMut.mutateAsync(n.id)}
-                />
-              ))}
-            </ul>
-          ) : null}
-          <p className="muted">
-            <Link to="/" className="inline-link">
-              {t("pages.notifications.backToFeed")}
-            </Link>
+        <div className="page-hero__text">
+          <h1 className="page-hero__title">{t("pages.notifications.title")}</h1>
+          <p className="page-hero__subtitle">
+            {unreadCount > 0
+              ? `${unreadCount} unread`
+              : items.length > 0
+                ? `${items.length} total`
+                : ""}
           </p>
         </div>
+        {items.length > 0 && unreadCount > 0 ? (
+          <button
+            type="button"
+            className="btn btn--primary btn--small page-hero__action"
+            disabled={busy}
+            onClick={() => void markAllMut.mutateAsync()}
+          >
+            {t("pages.notifications.markAllRead")}
+          </button>
+        ) : null}
+      </div>
+
+      {/* ── Stats Bar ── */}
+      {!loading && !error ? (
+        <div className="page-stats-bar">
+          <div className="page-stats-bar__item">
+            <span className="page-stats-bar__value">{items.length}</span>
+            <span className="page-stats-bar__label">Total</span>
+          </div>
+          <div className="page-stats-bar__item page-stats-bar__item--accent">
+            <span className="page-stats-bar__value">{unreadCount}</span>
+            <span className="page-stats-bar__label">Unread</span>
+          </div>
+          <div className="page-stats-bar__item">
+            <span className="page-stats-bar__value">{items.length - unreadCount}</span>
+            <span className="page-stats-bar__label">Read</span>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── Content ── */}
+      <section className="card">
+        {loading ? (
+          <div className="page-loading-block">
+            <div className="page-loading-block__spinner" />
+            <p className="muted">{t("pages.notifications.loading")}</p>
+          </div>
+        ) : null}
+
+        {error ? (
+          <p className="form__error" role="alert">{error}</p>
+        ) : null}
+
+        {!loading && items.length === 0 && !error ? (
+          <div className="page-empty-state">
+            <div className="page-empty-state__icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </div>
+            <p className="page-empty-state__text">{t("pages.notifications.empty")}</p>
+            <Link to="/" className="btn btn--primary">{t("pages.notifications.backToFeed")}</Link>
+          </div>
+        ) : null}
+
+        {!loading && items.length > 0 ? (
+          <ul className="notification-list">
+            {items.map((n) => (
+              <NotificationRowItem
+                key={n.id}
+                n={n}
+                disabled={busy}
+                onRead={() => void markReadMut.mutateAsync(n.id)}
+              />
+            ))}
+          </ul>
+        ) : null}
+
+        {!loading && items.length > 0 ? (
+          <div className="page-bottom-link">
+            <Link to="/" className="inline-link">{t("pages.notifications.backToFeed")}</Link>
+          </div>
+        ) : null}
       </section>
     </div>
   );

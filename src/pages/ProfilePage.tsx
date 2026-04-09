@@ -1,8 +1,9 @@
-import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ReactElement } from "react";
-import { useCallback, useMemo } from "react";
+import { useMutation, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { FormEvent, ReactElement } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Avatar } from "../components/Avatar.tsx";
+import { AvatarUploadSection } from "../components/AvatarUploadSection.tsx";
 import { ProfilePostListSkeleton } from "../components/ProfilePostListSkeleton.tsx";
 import { InlineError } from "../components/InlineError.tsx";
 import { PostCard } from "../components/PostCard";
@@ -18,8 +19,21 @@ import {
   fetchUserPosts,
 } from "../lib/feed";
 import { fetchFollowCounts } from "../lib/follows.ts";
-import { fetchProfileDisplay } from "../lib/profileAbout.ts";
+import {
+  fetchPendingFollowRequests,
+  acceptFollowRequest,
+  rejectFollowRequest,
+} from "../lib/followRequests.ts";
+import {
+  PROFILE_BIO_MAX,
+  PROFILE_DISPLAY_NAME_MAX,
+  fetchProfileDisplay,
+  normalizeProfileAboutField,
+  updateProfileAbout,
+} from "../lib/profileAbout.ts";
+import { fetchPrivacySettings, setProfilePrivate } from "../lib/profilePrivacy.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
+import { queryClient as qc } from "../lib/queryClient.ts";
 
 type ProfileTab = "posts" | "commented";
 
@@ -30,6 +44,16 @@ export function ProfilePage(): ReactElement {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isPremium, loading: flagsLoading } = useProfileFlags();
+
+  /* ── Edit Profile state ── */
+  const [editOpen, setEditOpen] = useState(false);
+  const [aboutDisplayName, setAboutDisplayName] = useState<string>("");
+  const [aboutBio, setAboutBio] = useState<string>("");
+  const [aboutLoaded, setAboutLoaded] = useState(false);
+  const [aboutBusy, setAboutBusy] = useState(false);
+  const [aboutMsg, setAboutMsg] = useState<string | null>(null);
+  const [isPrivateLocal, setIsPrivateLocal] = useState(false);
+  const [privateBusy, setPrivateBusy] = useState(false);
 
   const tab: ProfileTab = searchParams.get("tab") === "commented" ? "commented" : "posts";
 
@@ -73,6 +97,49 @@ export function ProfilePage(): ReactElement {
     queryKey: queryKeys.follow.counts(user?.id ?? "__none__"),
     queryFn: () => fetchFollowCounts(user!.id),
     enabled: Boolean(user),
+  });
+
+  /** Whether the user's profile is private (to decide whether to show follow requests). */
+  const privacyQuery = useQuery({
+    queryKey: ["profile", user?.id ?? "__none__", "privacy"],
+    queryFn: () => fetchPrivacySettings(user!.id),
+    enabled: Boolean(user),
+  });
+
+  const isPrivateProfile = privacyQuery.data?.is_private === true;
+
+  /** Pending follow requests (only if profile is private). */
+  const followRequestsQuery = useQuery({
+    queryKey: queryKeys.follow.pendingRequests(user?.id ?? "__none__"),
+    queryFn: () => fetchPendingFollowRequests(user!.id),
+    enabled: Boolean(user) && isPrivateProfile,
+  });
+
+  const pendingRequests = followRequestsQuery.data ?? [];
+
+  const acceptMut = useMutation({
+    mutationFn: (requesterId: string) => acceptFollowRequest(requesterId),
+    onSuccess: (): void => {
+      if (user) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.pendingRequests(user.id) });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.counts(user.id) });
+      }
+    },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
+    },
+  });
+
+  const rejectMut = useMutation({
+    mutationFn: (requesterId: string) => rejectFollowRequest(requesterId),
+    onSuccess: (): void => {
+      if (user) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.follow.pendingRequests(user.id) });
+      }
+    },
+    onError: (e: unknown): void => {
+      toast.error(errorMessage(e));
+    },
   });
 
   const displayEmail: string | null =
@@ -140,6 +207,66 @@ export function ProfilePage(): ReactElement {
     followCountsQuery.isPending && followCounts == null ? "…" : (followCounts?.following ?? "—");
   const postsStatDisplay = postsQuery.isPending ? "…" : String(posts.length);
 
+  /* ── Open Edit Profile + lazy-load fields ── */
+  function handleToggleEdit(): void {
+    const opening = !editOpen;
+    setEditOpen(opening);
+    if (opening && !aboutLoaded && profileDisplayQuery.data) {
+      setAboutDisplayName(profileDisplayQuery.data.display_name ?? "");
+      setAboutBio(profileDisplayQuery.data.bio ?? "");
+      setAboutLoaded(true);
+    }
+    if (opening && privacyQuery.data) {
+      setIsPrivateLocal(privacyQuery.data.is_private);
+    }
+  }
+
+  async function handlePrivateToggle(checked: boolean): Promise<void> {
+    if (!user) {
+      return;
+    }
+    setIsPrivateLocal(checked);
+    setPrivateBusy(true);
+    try {
+      await setProfilePrivate(user.id, checked);
+      void qc.invalidateQueries({ queryKey: ["profile", user.id, "privacy"] });
+      void qc.invalidateQueries({ queryKey: ["publicProfile"] });
+    } catch (err: unknown) {
+      toast.error(errorMessage(err));
+      setIsPrivateLocal(!checked); // revert
+    } finally {
+      setPrivateBusy(false);
+    }
+  }
+
+  async function handleProfileAboutSave(e: FormEvent<HTMLFormElement>): Promise<void> {
+    e.preventDefault();
+    if (!user) {
+      return;
+    }
+    setAboutMsg(null);
+    const dn = normalizeProfileAboutField(aboutDisplayName);
+    const b = normalizeProfileAboutField(aboutBio);
+    if (dn != null && dn.length > PROFILE_DISPLAY_NAME_MAX) {
+      toast.error(t("settings.displayNameTooLong", { max: PROFILE_DISPLAY_NAME_MAX }));
+      return;
+    }
+    if (b != null && b.length > PROFILE_BIO_MAX) {
+      toast.error(t("settings.bioTooLong", { max: PROFILE_BIO_MAX }));
+      return;
+    }
+    setAboutBusy(true);
+    try {
+      await updateProfileAbout(user.id, { display_name: dn, bio: b });
+      void qc.invalidateQueries({ queryKey: queryKeys.profile.display(user.id) });
+      setAboutMsg(t("settings.profileAboutSaved"));
+    } catch (err: unknown) {
+      toast.error(errorMessage(err));
+    } finally {
+      setAboutBusy(false);
+    }
+  }
+
   return (
     <div className="stack profile-page">
       <section className="card profile-hero">
@@ -177,10 +304,17 @@ export function ProfilePage(): ReactElement {
               <p className="profile-hero__toolbar">
                 <button
                   type="button"
-                  className="btn btn--small"
+                  className="btn btn--small profile-hero__copy-btn"
                   onClick={() => void onCopyProfileLink()}
                 >
                   {t("pages.profile.copyProfileLink")}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--primary btn--small"
+                  onClick={handleToggleEdit}
+                >
+                  {editOpen ? t("pages.profile.closeEdit") : t("pages.profile.editProfile")}
                 </button>
               </p>
               <div className="profile-hero__layout">
@@ -191,13 +325,6 @@ export function ProfilePage(): ReactElement {
                   {displayName ? <p className="profile-hero__name">{displayName}</p> : null}
                   <p className="profile-hero__line">
                     <strong>{t("pages.profile.emailLabel")}</strong> {displayEmail ?? "—"}
-                  </p>
-                  <p className="profile-hero__hint muted">
-                    <Link className="inline-link" to="/settings">
-                      {avatarUrl ? t("pages.profile.changePhoto") : t("pages.profile.uploadPhoto")}
-                    </Link>
-                    {" — "}
-                    {t("pages.profile.settingsPhotoHint")}
                   </p>
                 </div>
               </div>
@@ -228,6 +355,117 @@ export function ProfilePage(): ReactElement {
           ) : null}
         </div>
       </section>
+
+      {/* ── Edit Profile (collapsible) ── */}
+      {editOpen && user ? (
+        <div className="profile-edit-section">
+          <AvatarUploadSection userId={user.id} />
+
+          <section className="card">
+            <h2 className="card__title">{t("settings.profileAbout")}</h2>
+            <div className="card__body">
+              <p className="muted">{t("settings.profileAboutHint")}</p>
+              <form className="form" onSubmit={(ev) => void handleProfileAboutSave(ev)}>
+                <label className="form__label" htmlFor="profile-edit-display-name">
+                  {t("settings.displayName")}
+                </label>
+                <input
+                  id="profile-edit-display-name"
+                  className="form__input"
+                  type="text"
+                  maxLength={PROFILE_DISPLAY_NAME_MAX}
+                  autoComplete="nickname"
+                  value={aboutDisplayName}
+                  onChange={(ev) => setAboutDisplayName(ev.target.value)}
+                  placeholder={t("settings.displayNamePlaceholder")}
+                />
+                <label className="form__label" htmlFor="profile-edit-bio">
+                  {t("settings.bio")}
+                </label>
+                <textarea
+                  id="profile-edit-bio"
+                  className="form__input"
+                  rows={4}
+                  maxLength={PROFILE_BIO_MAX}
+                  value={aboutBio}
+                  onChange={(ev) => setAboutBio(ev.target.value)}
+                  placeholder={t("settings.bioPlaceholder")}
+                />
+                <button type="submit" className="btn btn--primary" disabled={aboutBusy}>
+                  {aboutBusy ? t("settings.profileAboutSaving") : t("settings.profileAboutSave")}
+                </button>
+                {aboutMsg ? (
+                  <p className="form__success" role="status">
+                    {aboutMsg}
+                  </p>
+                ) : null}
+              </form>
+            </div>
+          </section>
+
+          <section className="card">
+            <h2 className="card__title">{t("settings.privacy")}</h2>
+            <div className="card__body">
+              <label className="form__label--checkbox">
+                <input
+                  type="checkbox"
+                  checked={isPrivateLocal}
+                  disabled={privateBusy}
+                  onChange={(ev) => void handlePrivateToggle(ev.target.checked)}
+                />
+                {t("settings.privateProfileCheckbox")}
+              </label>
+              <p className="muted form__hint">{t("settings.privateProfileHint")}</p>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {/* ── Follow Requests (only for private profiles) ── */}
+      {isPrivateProfile && pendingRequests.length > 0 ? (
+        <section className="card">
+          <h2 className="card__title">
+            {t("pages.profile.followRequests")}{" "}
+            <span className="badge badge--count">{pendingRequests.length}</span>
+          </h2>
+          <div className="card__body">
+            <ul className="follow-request-list">
+              {pendingRequests.map((req) => (
+                <li key={req.id} className="follow-request-item">
+                  <Link to={`/u/${req.requesterId}`} className="follow-request-item__user">
+                    <Avatar
+                      imageUrl={req.requesterAvatar}
+                      label={req.requesterDisplayName ?? req.requesterEmail ?? "?"}
+                      size="sm"
+                    />
+                    <span className="follow-request-item__name">
+                      {req.requesterDisplayName ?? req.requesterEmail ?? req.requesterId.slice(0, 8)}
+                    </span>
+                  </Link>
+                  <div className="follow-request-item__actions">
+                    <button
+                      type="button"
+                      className="btn btn--primary btn--small"
+                      disabled={acceptMut.isPending || rejectMut.isPending}
+                      onClick={() => void acceptMut.mutateAsync(req.requesterId)}
+                    >
+                      {t("pages.profile.acceptRequest")}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--small"
+                      disabled={acceptMut.isPending || rejectMut.isPending}
+                      onClick={() => void rejectMut.mutateAsync(req.requesterId)}
+                    >
+                      {t("pages.profile.rejectRequest")}
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section className="card profile-posts">
         <div className="profile-posts__head">
