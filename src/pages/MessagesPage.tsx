@@ -102,11 +102,16 @@ export function MessagesPage(): ReactElement {
                   <span className="conversation-list__row">
                     <Avatar
                       imageUrl={c.peer_avatar_url}
-                      label={c.peer_email ?? c.other_user_id}
+                      label={c.peer_display_name ?? c.peer_email ?? c.other_user_id}
                       size="sm"
                     />
-                    <span className="conversation-list__peer">
-                      {c.peer_email ?? c.other_user_id}
+                    <span className="conversation-list__peer-info">
+                      <span className="conversation-list__peer">
+                        {c.peer_display_name ?? c.peer_email ?? c.other_user_id}
+                      </span>
+                      {c.peer_display_name && c.peer_email ? (
+                        <span className="muted conversation-list__peer-email">{c.peer_email}</span>
+                      ) : null}
                     </span>
                   </span>
                   <time className="conversation-list__time muted" dateTime={c.last_message_at}>

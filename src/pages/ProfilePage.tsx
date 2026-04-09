@@ -318,8 +318,10 @@ export function ProfilePage(): ReactElement {
                 </button>
               </p>
               <div className="profile-hero__layout">
-                <div className="profile-hero__avatar">
-                  <Avatar imageUrl={avatarUrl} label={avatarLabel} size="lg" />
+                <div className="profile-hero__avatar-ring">
+                  <div className="profile-hero__avatar">
+                    <Avatar imageUrl={avatarUrl} label={avatarLabel} size="lg" />
+                  </div>
                 </div>
                 <div className="profile-hero__meta">
                   {displayName ? <p className="profile-hero__name">{displayName}</p> : null}
@@ -330,12 +332,12 @@ export function ProfilePage(): ReactElement {
               </div>
               {bio ? <p className="profile-hero__bio">{bio}</p> : null}
               <div className="profile-stats" role="list">
-                <div className="profile-stats__item" role="listitem">
+                <div className="profile-stats__item profile-stats__item--stagger-1" role="listitem">
                   <span className="profile-stats__value">{postsStatDisplay}</span>
                   <span className="profile-stats__label">{t("pages.profile.statsPosts")}</span>
                 </div>
                 <Link
-                  className="profile-stats__item profile-stats__item--link"
+                  className="profile-stats__item profile-stats__item--link profile-stats__item--stagger-2"
                   to={`/u/${user.id}/followers`}
                   role="listitem"
                 >
@@ -343,7 +345,7 @@ export function ProfilePage(): ReactElement {
                   <span className="profile-stats__label">{t("pages.profile.statsFollowers")}</span>
                 </Link>
                 <Link
-                  className="profile-stats__item profile-stats__item--link"
+                  className="profile-stats__item profile-stats__item--link profile-stats__item--stagger-3"
                   to={`/u/${user.id}/following`}
                   role="listitem"
                 >

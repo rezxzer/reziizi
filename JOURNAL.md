@@ -21,6 +21,30 @@
 
 ## ჩანაწერები
 
+### 2026-04-09 — Discoverability + Moderation expansion (Claude): trending tags RPC, admin queues, post edit
+
+- **DB (Supabase):** ახალი migration `20260401352200_add_trending_tags_rpc.sql` დაემატა და **წარმატებით გაშვებულია** live Supabase-ზე (მომხმარებლის დადასტურება).
+- **Trending tags:** SQL RPC `public.trending_tags(p_limit)` (7 დღის ფანჯარა, `not is_flagged` პოსტები) + აპში `src/lib/trendingTags.ts`; მთავარზე (`HomePage`) sidebar-ში რეალური trending tags გამოდის query-ით.
+- **Admin moderation queues:** დაემატა გვერდები **`/admin/user-reports`** და **`/admin/blocks`** (`AdminUserReportsPage`, `AdminBlocksPage`) შესაბამისი data-fetch/delete ოპერაციებით; `AdminPage` overview/nav და `adminStats` გაფართოვდა blocks/user-reports მეტრიკებით.
+- **Post edit:** დაემატა პოსტის ტექსტის რედაქტირება `PostCard`-იდან (`src/lib/editPost.ts`, `updatePostBody`) — anti-spam recheck მუშაობს არსებული DB trigger-ით; UI-ში „edited“/save/cancel და flagged-hint შეტყობინებები.
+- **i18n/UI wiring:** განახლდა `messages.ts`, routes (`App.tsx`, `lazy/chunks.ts`), chat/search/profile/user pages და `styles.css` შესაბამისი ბლოკებით.
+- **საერთო სტატუსი:** ამ ეტაპის **ყველა არსებული Supabase migration წარმატებითაა გაშვებული** production/live გარემოზე (მომხმარებლის დადასტურება).
+
+### 2026-04-09 — Profile page "Luminous" visual redesign (Claude)
+
+- **Hero card:** glassmorphism background + gradient accent top-line (hero-gradient-shift keyframe) + focus-within glow
+- **Avatar ring:** conic-gradient rotating border (avatar-ring-rotate keyframe), hover pulse+glow micro-interaction
+- **Name:** gradient reveal on hover (text → accent gradient via background-clip)
+- **Bio:** left accent border + tinted background, entrance fade animation
+- **Stats:** staggered pop entrance (stat-pop keyframe, 3 stagger classes), divider lines, hover glow on link items
+- **Tabs:** pill-style redesign (rounded, filled accent gradient for selected, uppercase/letter-spacing)
+- **Posts section:** entrance animation (profile-posts-enter), dashed-border empty state
+- **Premium badge:** 3-color gradient shimmer, box-shadow glow
+- **Light theme:** dedicated overrides for hero bg, bio accent, stat hover, tab hover/active
+- **Accessibility:** keyboard focus-visible на ყველა interactive element, prefers-reduced-motion global block respected
+- TSX ცვლილება: avatar-ring wrapper (`profile-hero__avatar-ring`), stagger classes stats-ზე
+- Verified: `tsc --noEmit` clean, CSS brace balance OK
+
 ### 2026-04-09 — Social privacy/moderation გაუმჯობესებები (Claude): private profile, requests, blocks, user reports, last seen
 
 - **DB migrations დამატებული და გაშვებული Supabase-ზე (დადასტურებული):** `20260401351800_add_private_profiles_and_follow_requests.sql`, `20260401351900_add_blocks_table.sql`, `20260401352000_add_user_reports.sql`, `20260401352100_add_last_seen.sql`.
@@ -893,19 +917,4 @@
 
 - **`/legal`:** სტატიკური Terms of Service + Privacy Policy (ინგლისური MVP ტექსტი; Supabase-ის ხსენება privacy-ში); ნავიგაცია Home / Login.
 - **დოკუმენტები:** `project.md` (**CURRENT WORK**, feature **51** ✅), `AGENTS.md` — სტატუსი; ჟურნალი აქ.
-- **შემდეგი (სურვილისამებრ):** UI/responsive პოლიში, ანგარიშის წაშლის ნაკადი v2/Edge Function.
-
-### 2026-04-01 — v1: DB მიგრაცია + Auth + Feed + რეაქციები (აპი)
-
-- **`supabase/migrations/20260401120000_init_posts_reactions_profiles.sql`:** ერთი საწყისი მიგრაცია — `profiles`, `posts`, `reactions` + RLS; `handle_new_user` (`execute procedure`). Supabase-ში გაშვებულია და მუშაობს.
-- **`AuthProvider` / `useAuth`**, **`ProtectedRoute`** — `/profile`, `/settings` დაცულია.
-- **`LoginPage`:** email/password sign in + sign up; Legal ბმული.
-- **`HomePage`:** `PostForm`, `PostCard`, `ReactionButtons`, პაგინაცია (`fetchFeedPage` / `Load more`).
-- **`ProfilePage`:** პროფილი + საკუთარი პოსტები; **`SettingsPage`:** პაროლის შეცვლა, გამოსვლა; ანგარიშის წაშლა — stub.
-- **`src/lib/feed.ts`:** `enrichPosts`, `fetchUserPosts`.
-- **შემდეგი:** SQL გაშვება Supabase-ში (თუ ჯერ არაა); არსებული auth მომხმარებლებისთვის `profiles` backfill საჭიროებისამებრ.
-
-### 2026-04-01 — ფოლდერების აღწერა დოკუმენტში
-
-- **`AGENTS.md`:** დამატებულია სექცია „ფოლდერების განლაგება“ (ხის სტრუქტურა) — რომ არ მოჩანდეს „გაფანტული“; დოკუმენტაცია ფესვში, კოდი `src/`-ში — განზრახ არჩევანი.
-- **`README.md`:** Layout მ�
+- **შემდეგი (სურვილისამებრ):** UI/responsive პოლიში, ანგარი�

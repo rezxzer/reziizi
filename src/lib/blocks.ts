@@ -79,6 +79,55 @@ export async function fetchIsBlockedBy(viewerId: string, targetId: string): Prom
   return data != null;
 }
 
+/** Row returned by the admin listing. */
+export type BlockRow = {
+  id: string;
+  blocker_id: string;
+  blocked_id: string;
+  created_at: string;
+  blockerEmail: string | null;
+  blockedEmail: string | null;
+};
+
+/**
+ * Fetch all blocks for admin review (newest first, limit 200).
+ * Enriches with email from profiles.
+ */
+export async function fetchBlocksForAdmin(): Promise<BlockRow[]> {
+  const { data, error } = await supabase
+    .from("blocks")
+    .select("id, blocker_id, blocked_id, created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    throw error;
+  }
+
+  const rows = (data ?? []) as { id: string; blocker_id: string; blocked_id: string; created_at: string }[];
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const allIds = [...new Set(rows.flatMap((r) => [r.blocker_id, r.blocked_id]))];
+  const { data: profs, error: profError } = await supabase.from("profiles").select("id, email").in("id", allIds);
+  if (profError) {
+    throw profError;
+  }
+
+  const emailById = new Map<string, string | null>();
+  for (const p of profs ?? []) {
+    const row = p as { id: string; email: string | null };
+    emailById.set(row.id, row.email);
+  }
+
+  return rows.map((r) => ({
+    ...r,
+    blockerEmail: emailById.get(r.blocker_id) ?? null,
+    blockedEmail: emailById.get(r.blocked_id) ?? null,
+  }));
+}
+
 export type BlockRelation = {
   /** Viewer has blocked target */
   viewerBlockedTarget: boolean;

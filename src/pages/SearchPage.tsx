@@ -213,13 +213,21 @@ export function SearchPage(): ReactElement {
                     <p className="muted">{t("pages.search.noProfiles")}</p>
                   ) : (
                     <ul className="search-profile-list">
-                      {profiles.map((p) => (
+                      {profiles.map((p) => {
+                        const displayName = (p as { display_name?: string | null }).display_name;
+                        const bio = (p as { bio?: string | null }).bio;
+                        return (
                         <li key={p.id} className="search-profile-list__item">
                           <div className="search-profile-list__row">
-                            <Avatar imageUrl={p.avatar_url} label={p.email ?? p.id} size="sm" />
+                            <Avatar imageUrl={p.avatar_url} label={displayName ?? p.email ?? p.id} size="sm" />
                             <div className="search-profile-list__main">
-                              <span className="search-profile-list__email">{p.email ?? "—"}</span>
-                              <span className="muted search-profile-list__id">{p.id}</span>
+                              {displayName ? (
+                                <span className="search-profile-list__display-name">{displayName}</span>
+                              ) : null}
+                              <span className={displayName ? "muted search-profile-list__email" : "search-profile-list__email"}>{p.email ?? "—"}</span>
+                              {bio ? (
+                                <span className="muted search-profile-list__bio">{bio.length > 80 ? `${bio.slice(0, 80)}…` : bio}</span>
+                              ) : null}
                             </div>
                             {user && user.id !== p.id ? (
                               <span className="search-profile-list__actions">
@@ -239,7 +247,8 @@ export function SearchPage(): ReactElement {
                             ) : null}
                           </div>
                         </li>
-                      ))}
+                        );
+                      })}
                     </ul>
                   )}
                 </div>

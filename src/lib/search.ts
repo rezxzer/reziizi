@@ -74,7 +74,7 @@ export async function searchProfilesByEmail(
   const { data: rows, error: fetchError } = await supabase
     .from("profiles")
     .select(
-      "id, email, avatar_url, created_at, is_admin, is_banned, ban_reason, banned_at, premium_until, searchable, notify_on_comment, notify_on_reaction, notify_on_follow",
+      "id, email, avatar_url, display_name, bio, created_at, is_admin, is_banned, ban_reason, banned_at, premium_until, searchable, notify_on_comment, notify_on_reaction, notify_on_follow",
     )
     .in("id", ids);
 

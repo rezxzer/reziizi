@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -19,6 +19,7 @@ import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { fetchFeedPage, type FeedSortMode } from "../lib/feed.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
 import { slugifyTag } from "../lib/tagParse.ts";
+import { fetchTrendingTags, type TrendingTag } from "../lib/trendingTags.ts";
 import type { FeedPost } from "../types/feed.ts";
 
 export function HomePage(): ReactElement {
@@ -31,6 +32,13 @@ export function HomePage(): ReactElement {
   const [checkoutBusy, setCheckoutBusy] = useState(false);
 
   const featureFlagsQuery = useAppFeatureFlags();
+
+  const trendingTagsQuery = useQuery({
+    queryKey: queryKeys.trendingTags,
+    queryFn: () => fetchTrendingTags(8),
+    staleTime: 5 * 60_000, // 5 min
+  });
+  const trendingTags: TrendingTag[] = trendingTagsQuery.data ?? [];
 
   const showFeedAds = isFeatureEnabled(featureFlagsQuery.data, FEATURE_FLAG_KEYS.feedAds);
   const showHomePremiumCta = isFeatureEnabled(featureFlagsQuery.data, FEATURE_FLAG_KEYS.homePremiumCta);
@@ -267,24 +275,18 @@ export function HomePage(): ReactElement {
       <aside className="home-sidebar" aria-label={t("pages.home.sidebarTrendingAria")}>
         <div className="home-sidebar__widget">
           <div className="home-sidebar__title">{t("pages.home.sidebarTrendingTitle")}</div>
-          <div className="home-sidebar__trend-item">
-            <Link className="home-sidebar__trend-tag" to="/?tag=dev">
-              #dev
-            </Link>
-            <span className="home-sidebar__trend-count">—</span>
-          </div>
-          <div className="home-sidebar__trend-item">
-            <Link className="home-sidebar__trend-tag" to="/?tag=news">
-              #news
-            </Link>
-            <span className="home-sidebar__trend-count">—</span>
-          </div>
-          <div className="home-sidebar__trend-item">
-            <Link className="home-sidebar__trend-tag" to="/?tag=release-notes">
-              #release-notes
-            </Link>
-            <span className="home-sidebar__trend-count">—</span>
-          </div>
+          {trendingTags.length > 0
+            ? trendingTags.map((tt) => (
+                <div key={tt.tag} className="home-sidebar__trend-item">
+                  <Link className="home-sidebar__trend-tag" to={`/?tag=${encodeURIComponent(tt.tag)}`}>
+                    #{tt.tag}
+                  </Link>
+                  <span className="home-sidebar__trend-count">{tt.post_count}</span>
+                </div>
+              ))
+            : (
+              <p className="muted home-sidebar__empty">{t("pages.home.sidebarTrendingEmpty")}</p>
+            )}
         </div>
       </aside>
     </div>

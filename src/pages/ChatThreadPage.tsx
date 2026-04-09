@@ -8,13 +8,16 @@ import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { useToast } from "../contexts/ToastContext.tsx";
 import {
+  broadcastTyping,
   fetchMessages,
   getOrCreateConversation,
   isValidUuid,
   sendMessage,
   subscribeToNewMessages,
+  subscribeToTyping,
 } from "../lib/chat.ts";
 import { errorMessage } from "../lib/errors.ts";
+import { fetchLastSeen, formatLastSeen, isOnline } from "../lib/lastSeen.ts";
 import { supabase } from "../lib/supabaseClient.ts";
 import type { ChatMessageRow } from "../types/db.ts";
 
@@ -26,14 +29,20 @@ export function ChatThreadPage(): ReactElement {
   const toast = useToast();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [peerEmail, setPeerEmail] = useState<string | null>(null);
+  const [peerDisplayName, setPeerDisplayName] = useState<string | null>(null);
   const [peerAvatarUrl, setPeerAvatarUrl] = useState<string | null>(null);
+  const [peerOnline, setPeerOnline] = useState(false);
+  const [peerLastSeen, setPeerLastSeen] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessageRow[]>([]);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [peerTyping, setPeerTyping] = useState(false);
   /** Blocks thread UI: invalid peer, load failure, or self-message. */
   const [threadError, setThreadError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLLIElement | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingBroadcast = useRef(0);
 
   const scrollToBottom = useCallback((): void => {
     requestAnimationFrame(() => {
@@ -68,16 +77,28 @@ export function ChatThreadPage(): ReactElement {
       try {
         const { data: prof, error: profError } = await supabase
           .from("profiles")
-          .select("email, avatar_url")
+          .select("email, display_name, avatar_url")
           .eq("id", peer)
           .maybeSingle();
         if (profError) {
           throw profError;
         }
         if (!cancelled) {
-          const pr = prof as { email: string | null; avatar_url: string | null } | null;
+          const pr = prof as { email: string | null; display_name: string | null; avatar_url: string | null } | null;
           setPeerEmail(pr?.email ?? null);
+          setPeerDisplayName(pr?.display_name ?? null);
           setPeerAvatarUrl(pr?.avatar_url ?? null);
+        }
+
+        // Fetch online status
+        try {
+          const ls = await fetchLastSeen(peer);
+          if (!cancelled && ls) {
+            setPeerOnline(isOnline(ls));
+            setPeerLastSeen(formatLastSeen(ls, t));
+          }
+        } catch {
+          // non-critical
         }
 
         const cid: string = await getOrCreateConversation(peer);
@@ -100,6 +121,17 @@ export function ChatThreadPage(): ReactElement {
             return [...prev, row];
           });
         });
+
+        // Subscribe to typing
+        const unsubTyping = subscribeToTyping(cid, (uid: string) => {
+          if (uid !== user?.id) {
+            setPeerTyping(true);
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = setTimeout(() => setPeerTyping(false), 3000);
+          }
+        });
+        const origUnsub = unsub;
+        unsub = () => { origUnsub(); unsubTyping(); };
       } catch (e: unknown) {
         if (!cancelled) {
           setThreadError(errorMessage(e));
@@ -162,7 +194,7 @@ export function ChatThreadPage(): ReactElement {
     );
   }
 
-  const title: string = peerEmail ?? peerId;
+  const title: string = peerDisplayName ?? peerEmail ?? peerId;
 
   return (
     <div className="stack chat-page">
@@ -170,7 +202,21 @@ export function ChatThreadPage(): ReactElement {
         <div className="chat-thread__head">
           <div className="chat-thread__title-row">
             <Avatar imageUrl={peerAvatarUrl} label={title} size="md" />
-            <h1 className="card__title chat-thread__title">{title}</h1>
+            <div className="chat-thread__title-info">
+              <h1 className="card__title chat-thread__title">{title}</h1>
+              {peerDisplayName && peerEmail ? (
+                <span className="muted chat-thread__subtitle">{peerEmail}</span>
+              ) : null}
+              <span className="chat-thread__status">
+                {peerTyping ? (
+                  <span className="chat-thread__typing">{t("pages.chat.typing")}</span>
+                ) : peerOnline ? (
+                  <span className="chat-thread__online">{t("pages.chat.online")}</span>
+                ) : peerLastSeen ? (
+                  <span className="muted">{peerLastSeen}</span>
+                ) : null}
+              </span>
+            </div>
           </div>
           <Link to="/messages" className="btn btn--small">
             {t("pages.chat.allThreads")}
@@ -190,20 +236,34 @@ export function ChatThreadPage(): ReactElement {
           {!loading && !threadError && conversationId ? (
             <>
               <ul className="chat-thread__messages" aria-live="polite">
-                {messages.map((m) => {
+                {messages.map((m, i) => {
                   const mine: boolean = m.sender_id === user?.id;
+                  const msgDate = new Date(m.created_at).toLocaleDateString();
+                  const prevDate = i > 0 ? new Date(messages[i - 1].created_at).toLocaleDateString() : null;
+                  const showDateSep = i === 0 || msgDate !== prevDate;
                   return (
-                    <li
-                      key={m.id}
-                      className={mine ? "chat-bubble chat-bubble--mine" : "chat-bubble chat-bubble--theirs"}
-                    >
-                      <p className="chat-bubble__body">{m.body}</p>
-                      <time className="chat-bubble__time muted" dateTime={m.created_at}>
-                        {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </time>
+                    <li key={m.id}>
+                      {showDateSep ? (
+                        <div className="chat-date-sep">
+                          <span className="chat-date-sep__label">{msgDate}</span>
+                        </div>
+                      ) : null}
+                      <div className={mine ? "chat-bubble chat-bubble--mine" : "chat-bubble chat-bubble--theirs"}>
+                        <p className="chat-bubble__body">{m.body}</p>
+                        <time className="chat-bubble__time muted" dateTime={m.created_at}>
+                          {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </time>
+                      </div>
                     </li>
                   );
                 })}
+                {peerTyping ? (
+                  <li className="chat-bubble chat-bubble--theirs chat-bubble--typing" aria-live="polite">
+                    <span className="chat-typing-dots">
+                      <span /><span /><span />
+                    </span>
+                  </li>
+                ) : null}
                 <li ref={bottomRef} aria-hidden="true" />
               </ul>
               <form className="chat-thread__form form" onSubmit={(e) => void handleSubmit(e)}>
@@ -215,7 +275,13 @@ export function ChatThreadPage(): ReactElement {
                   className="form__input chat-thread__textarea"
                   rows={3}
                   value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
+                  onChange={(e) => {
+                    setDraft(e.target.value);
+                    if (conversationId && user && Date.now() - lastTypingBroadcast.current > 2000) {
+                      lastTypingBroadcast.current = Date.now();
+                      broadcastTyping(conversationId, user.id);
+                    }
+                  }}
                   placeholder={t("pages.chat.messagePlaceholder")}
                   disabled={sending}
                 />

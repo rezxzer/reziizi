@@ -44,4 +44,5 @@ export const queryKeys = {
     map: ["featureFlags", "map"] as const,
     adminRows: ["featureFlags", "adminRows"] as const,
   },
+  trendingTags: ["trendingTags"] as const,
 } as const;

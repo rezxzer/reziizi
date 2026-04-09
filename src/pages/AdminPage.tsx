@@ -22,6 +22,8 @@ const NAV_ITEMS: {
   { to: "/admin/moderation", labelKey: "pages.admin.overview.linkModeration", icon: "\u{1F6E1}", color: "var(--danger)" },
   { to: "/admin/users", labelKey: "pages.admin.overview.linkUsers", icon: "\u{1F465}", color: "var(--accent-blue)" },
   { to: "/admin/reports", labelKey: "pages.admin.overview.linkReports", icon: "\u{1F4CB}", color: "var(--accent-tertiary)" },
+  { to: "/admin/user-reports", labelKey: "pages.admin.overview.linkUserReports", icon: "\u{1F6A8}", color: "var(--warning, #e8a317)" },
+  { to: "/admin/blocks", labelKey: "pages.admin.overview.linkBlocks", icon: "\u{1F6AB}", color: "var(--danger)" },
   { to: "/admin/stats", labelKey: "pages.admin.overview.linkStats", icon: "\u{1F4CA}", color: "var(--accent-secondary)" },
   { to: "/admin/ads", labelKey: "pages.admin.overview.linkAds", icon: "\u{1F4E2}", color: "var(--success)" },
   { to: "/admin/features", labelKey: "pages.admin.overview.linkFeatures", icon: "\u{2699}", color: "var(--muted)" },
@@ -147,6 +149,18 @@ export function AdminPage(): ReactElement {
           <span className="admin-extra-stat">
             <span className="admin-extra-stat__value">{formatCount(allMetrics.notifications)}</span>
             <span className="admin-extra-stat__label">{t("pages.admin.stats.metricNotifications")}</span>
+          </span>
+          <span className="admin-extra-stat">
+            <span className="admin-extra-stat__value">{formatCount(allMetrics.user_reports)}</span>
+            <span className="admin-extra-stat__label">{t("pages.admin.stats.metricUserReports")}</span>
+          </span>
+          <span className="admin-extra-stat">
+            <span className="admin-extra-stat__value">{formatCount(allMetrics.blocks)}</span>
+            <span className="admin-extra-stat__label">{t("pages.admin.stats.metricBlocks")}</span>
+          </span>
+          <span className="admin-extra-stat">
+            <span className="admin-extra-stat__value">{formatCount(allMetrics.follow_requests)}</span>
+            <span className="admin-extra-stat__label">{t("pages.admin.stats.metricFollowRequests")}</span>
           </span>
         </div>
       ) : null}

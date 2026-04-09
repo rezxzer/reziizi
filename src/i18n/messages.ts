@@ -58,6 +58,7 @@ type PagesBundle = {
     sidebarTrendingTitle: string;
     /** `aria-label` for the aside landmark. */
     sidebarTrendingAria: string;
+    sidebarTrendingEmpty: string;
   };
   login: {
     titleSignIn: string;
@@ -270,6 +271,8 @@ type PagesBundle = {
       send: string;
       sending: string;
       cannotMessageSelf: string;
+      typing: string;
+      online: string;
     };
     admin: {
       backToOverview: string;
@@ -283,6 +286,8 @@ type PagesBundle = {
         linkUsers: string;
         linkReports: string;
         linkStats: string;
+        linkUserReports: string;
+        linkBlocks: string;
         linkAds: string;
         linkApi: string;
         countsTitle: string;
@@ -369,7 +374,30 @@ type PagesBundle = {
         metricConversations: string;
         metricChatMessages: string;
         metricNotifications: string;
+        metricUserReports: string;
+        metricBlocks: string;
+        metricFollowRequests: string;
         metricAdSlots: string;
+      };
+      userReports: {
+        title: string;
+        intro: string;
+        empty: string;
+        dismiss: string;
+        confirmDismiss: string;
+        reporter: string;
+        reported: string;
+        reportedLabel: string;
+        viewProfile: string;
+      };
+      blocks: {
+        title: string;
+        intro: string;
+        empty: string;
+        blocker: string;
+        blocked: string;
+        viewBlocker: string;
+        viewBlocked: string;
       };
       users: {
         title: string;
@@ -441,6 +469,13 @@ type PagesBundle = {
     /** Icon-only expand button aria-label (caption under media). */
     expandBodyAria: string;
     collapseBodyAria: string;
+    edit: string;
+    editSave: string;
+    editSaving: string;
+    editCancel: string;
+    editSaved: string;
+    editFlaggedHint: string;
+    edited: string;
   };
   comment: {
     comments: string;
@@ -517,6 +552,8 @@ export type Bundle = {
       users: string;
       moderation: string;
       reports: string;
+      userReports: string;
+      blocks: string;
       stats: string;
       ads: string;
       features: string;
@@ -671,6 +708,8 @@ const en: Bundle = {
       users: "Users",
       moderation: "Moderation",
       reports: "Reports",
+      userReports: "User Reports",
+      blocks: "Blocks",
       stats: "Stats",
       ads: "Ads",
       features: "Features",
@@ -823,6 +862,7 @@ const en: Bundle = {
       premiumCtaLinkLogin: "Sign in",
       sidebarTrendingTitle: "Trending tags",
       sidebarTrendingAria: "Trending tags and shortcuts",
+      sidebarTrendingEmpty: "No trending tags this week.",
     },
     login: {
       titleSignIn: "Log in",
@@ -1034,6 +1074,8 @@ const en: Bundle = {
       send: "Send",
       sending: "Sending…",
       cannotMessageSelf: "You cannot message yourself.",
+      typing: "typing…",
+      online: "online",
     },
     admin: {
       backToOverview: "← Admin overview",
@@ -1046,6 +1088,8 @@ const en: Bundle = {
         linkModeration: "Moderation — delete posts & comments",
         linkUsers: "Users — ban / unban accounts",
         linkReports: "Reports — user reports on posts",
+        linkUserReports: "User Reports — reports between users",
+        linkBlocks: "Blocks — user block log",
         linkStats: "Statistics — full platform counts",
         linkAds: "Ads — feed top sponsored strip",
         linkApi: "API catalog — tables & RPCs (Supabase)",
@@ -1135,7 +1179,30 @@ const en: Bundle = {
         metricConversations: "DM conversations",
         metricChatMessages: "Chat messages",
         metricNotifications: "Notifications",
+        metricUserReports: "User reports",
+        metricBlocks: "Blocks",
+        metricFollowRequests: "Follow requests",
         metricAdSlots: "Ad slots",
+      },
+      userReports: {
+        title: "User Reports",
+        intro: "Reports filed by users against other users (newest first).",
+        empty: "No user reports yet.",
+        dismiss: "Dismiss",
+        confirmDismiss: "Remove this user report from the list?",
+        reporter: "Reporter",
+        reported: "Reported",
+        reportedLabel: "reported",
+        viewProfile: "View profile",
+      },
+      blocks: {
+        title: "Blocks",
+        intro: "User-to-user blocks (newest first). Blocks auto-remove follows in both directions.",
+        empty: "No blocks yet.",
+        blocker: "Blocker",
+        blocked: "Blocked",
+        viewBlocker: "View blocker",
+        viewBlocked: "View blocked",
       },
       users: {
         title: "Users",
@@ -1208,6 +1275,13 @@ const en: Bundle = {
       showLess: "Show less",
       expandBodyAria: "Show full text",
       collapseBodyAria: "Collapse text",
+      edit: "Edit",
+      editSave: "Save",
+      editSaving: "Saving…",
+      editCancel: "Cancel",
+      editSaved: "Post updated.",
+      editFlaggedHint: "Your edit was flagged by automated checks. It may not appear in public feeds until reviewed.",
+      edited: "(edited)",
     },
     comment: {
       comments: "Comments",
@@ -1372,6 +1446,8 @@ const ka: Bundle = {
       users: "მომხმარებლები",
       moderation: "მოდერაცია",
       reports: "რეპორტები",
+      userReports: "მომხმ. რეპორტები",
+      blocks: "ბლოკები",
       stats: "სტატისტიკა",
       ads: "რეკლამა",
       features: "ფლაგები",
@@ -1525,6 +1601,7 @@ const ka: Bundle = {
       premiumCtaLinkLogin: "შესვლა",
       sidebarTrendingTitle: "ტრენდული თეგები",
       sidebarTrendingAria: "ტრენდული თეგები და მალსახმობები",
+      sidebarTrendingEmpty: "ამ კვირაში ტრენდული თეგები არაა.",
     },
     login: {
       titleSignIn: "შესვლა",
@@ -1736,6 +1813,8 @@ const ka: Bundle = {
       send: "გაგზავნა",
       sending: "იგზავნება…",
       cannotMessageSelf: "საკუთარ თავს ვერ მისწერეთ.",
+      typing: "წერს…",
+      online: "ონლაინ",
     },
     admin: {
       backToOverview: "← ადმინის მიმოხილვა",
@@ -1748,6 +1827,8 @@ const ka: Bundle = {
         linkModeration: "მოდერაცია — პოსტებისა და კომენტარების წაშლა",
         linkUsers: "მომხმარებლები — ანგარიშის შეზღუდვა / მოხსნა",
         linkReports: "რეპორტები — მომხმარებლის რეპორტები პოსტებზე",
+        linkUserReports: "მომხმ. რეპორტები — მომხმარებლებს შორის რეპორტები",
+        linkBlocks: "ბლოკები — მომხმარებლის ბლოკირების ჟურნალი",
         linkStats: "სტატისტიკა — პლატფორმის სრული რაოდენობები",
         linkAds: "რეკლამა — ლენტის ზედა ზოლი",
         linkApi: "API კატალოგი — ცხრილები და RPC (Supabase)",
@@ -1837,7 +1918,30 @@ const ka: Bundle = {
         metricConversations: "DM საუბრები",
         metricChatMessages: "ჩატის შეტყობინებები",
         metricNotifications: "შეტყობინებები",
+        metricUserReports: "მომხმ. რეპორტები",
+        metricBlocks: "ბლოკები",
+        metricFollowRequests: "გამოწერის მოთხოვნები",
         metricAdSlots: "რეკლამის სლოტები",
+      },
+      userReports: {
+        title: "მომხმარებლის რეპორტები",
+        intro: "მომხმარებლების მიერ შეტანილი რეპორტები სხვა მომხმარებლებზე (ახალი პირველი).",
+        empty: "მომხმარებლის რეპორტები ჯერ არაა.",
+        dismiss: "დახურვა",
+        confirmDismiss: "ამოვშალოთ ეს მომხმარებლის რეპორტი სიიდან?",
+        reporter: "მომჩივანი",
+        reported: "მოჩივნილი",
+        reportedLabel: "რეპორტირებული",
+        viewProfile: "პროფილის ნახვა",
+      },
+      blocks: {
+        title: "ბლოკები",
+        intro: "მომხმარებელთა ბლოკები (ახალი პირველი). ბლოკი ავტომატურად წაშლის გამოწერებს ორივე მიმართულებით.",
+        empty: "ბლოკები ჯერ არაა.",
+        blocker: "ბლოკავს",
+        blocked: "დაბლოკილი",
+        viewBlocker: "ბლოკავის ნახვა",
+        viewBlocked: "დაბლოკილის ნახვა",
       },
       users: {
         title: "მომხმარებლები",
@@ -1909,6 +2013,13 @@ const ka: Bundle = {
       showLess: "ჩაკეცვა",
       expandBodyAria: "სრული ტექსტის ჩვენება",
       collapseBodyAria: "ტექსტის ჩაკეცვა",
+      edit: "რედაქტირება",
+      editSave: "შენახვა",
+      editSaving: "ინახება…",
+      editCancel: "გაუქმება",
+      editSaved: "პოსტი განახლდა.",
+      editFlaggedHint: "თქვენი რედაქტირება ავტომატურმა შემოწმებამ მოინიშნა. შეიძლება საჯარო ლენტაში არ გამოჩნდეს განხილვამდე.",
+      edited: "(რედაქტირებული)",
     },
     comment: {
       comments: "კომენტარები",
@@ -2073,6 +2184,8 @@ const ru: Bundle = {
       users: "Пользователи",
       moderation: "Модерация",
       reports: "Жалобы",
+      userReports: "Жалобы на юзеров",
+      blocks: "Блокировки",
       stats: "Статистика",
       ads: "Реклама",
       features: "Флаги",
@@ -2226,6 +2339,7 @@ const ru: Bundle = {
       premiumCtaLinkLogin: "Войти",
       sidebarTrendingTitle: "Популярные теги",
       sidebarTrendingAria: "Популярные теги и быстрые ссылки",
+      sidebarTrendingEmpty: "На этой неделе популярных тегов нет.",
     },
     login: {
       titleSignIn: "Вход",
@@ -2437,6 +2551,8 @@ const ru: Bundle = {
       send: "Отправить",
       sending: "Отправка…",
       cannotMessageSelf: "Нельзя написать самому себе.",
+      typing: "печатает…",
+      online: "онлайн",
     },
     admin: {
       backToOverview: "← К обзору админки",
@@ -2449,6 +2565,8 @@ const ru: Bundle = {
         linkModeration: "Модерация — удаление постов и комментариев",
         linkUsers: "Пользователи — бан / разбан",
         linkReports: "Жалобы — жалобы на посты",
+        linkUserReports: "Жалобы на юзеров — между пользователями",
+        linkBlocks: "Блокировки — журнал блокировок",
         linkStats: "Статистика — счётчики по платформе",
         linkAds: "Реклама — верхняя полоса в ленте",
         linkApi: "Каталог API — таблицы и RPC (Supabase)",
@@ -2538,7 +2656,30 @@ const ru: Bundle = {
         metricConversations: "Диалоги DM",
         metricChatMessages: "Сообщения чата",
         metricNotifications: "Уведомления",
+        metricUserReports: "Жалобы на юзеров",
+        metricBlocks: "Блокировки",
+        metricFollowRequests: "Запросы на подписку",
         metricAdSlots: "Слоты рекламы",
+      },
+      userReports: {
+        title: "Жалобы на пользователей",
+        intro: "Жалобы пользователей на других пользователей (сначала новые).",
+        empty: "Жалоб на пользователей пока нет.",
+        dismiss: "Снять",
+        confirmDismiss: "Убрать эту жалобу из списка?",
+        reporter: "Жалобщик",
+        reported: "Обвиняемый",
+        reportedLabel: "пожаловались",
+        viewProfile: "Профиль",
+      },
+      blocks: {
+        title: "Блокировки",
+        intro: "Блокировки между пользователями (сначала новые). Блок автоматически удаляет подписки в обе стороны.",
+        empty: "Блокировок пока нет.",
+        blocker: "Заблокировал",
+        blocked: "Заблокирован",
+        viewBlocker: "Профиль блокирующего",
+        viewBlocked: "Профиль заблокированного",
       },
       users: {
         title: "Пользователи",
@@ -2611,6 +2752,13 @@ const ru: Bundle = {
       showLess: "Свернуть",
       expandBodyAria: "Показать полный текст",
       collapseBodyAria: "Свернуть текст",
+      edit: "Редактировать",
+      editSave: "Сохранить",
+      editSaving: "Сохранение…",
+      editCancel: "Отмена",
+      editSaved: "Пост обновлён.",
+      editFlaggedHint: "Ваша правка была помечена автоматической проверкой. Она может не отображаться в публичной ленте до проверки.",
+      edited: "(изменено)",
     },
     comment: {
       comments: "Комментарии",

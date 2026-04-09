@@ -48,6 +48,66 @@ export async function submitUserReport(reportedId: string, reason: string): Prom
   }
 }
 
+/** Row returned by the admin listing. */
+export type UserReportRow = {
+  id: string;
+  reporter_id: string;
+  reported_id: string;
+  reason: string;
+  created_at: string;
+  reporterEmail: string | null;
+  reportedEmail: string | null;
+};
+
+/**
+ * Fetch all user reports for admin review (newest first, limit 200).
+ * Enriches with reporter and reported email from profiles.
+ */
+export async function fetchUserReportsForAdmin(): Promise<UserReportRow[]> {
+  const { data, error } = await supabase
+    .from("user_reports")
+    .select("id, reporter_id, reported_id, reason, created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    throw error;
+  }
+
+  const rows = (data ?? []) as { id: string; reporter_id: string; reported_id: string; reason: string; created_at: string }[];
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const allIds = [...new Set(rows.flatMap((r) => [r.reporter_id, r.reported_id]))];
+  const { data: profs, error: profError } = await supabase.from("profiles").select("id, email").in("id", allIds);
+  if (profError) {
+    throw profError;
+  }
+
+  const emailById = new Map<string, string | null>();
+  for (const p of profs ?? []) {
+    const row = p as { id: string; email: string | null };
+    emailById.set(row.id, row.email);
+  }
+
+  return rows.map((r) => ({
+    ...r,
+    reporterEmail: emailById.get(r.reporter_id) ?? null,
+    reportedEmail: emailById.get(r.reported_id) ?? null,
+  }));
+}
+
+/**
+ * Delete a user report (admin only).
+ */
+export async function deleteUserReportAsAdmin(reportId: string): Promise<void> {
+  const { error } = await supabase.from("user_reports").delete().eq("id", reportId);
+  if (error) {
+    throw error;
+  }
+}
+
 /**
  * Check if the viewer has already reported this user.
  */

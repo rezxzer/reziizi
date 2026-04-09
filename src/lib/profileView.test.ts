@@ -28,4 +28,8 @@ describe("canShowEmail", () => {
   it("hides when logged out and not searchable", () => {
     expect(canShowEmail(base, null)).toBe(false);
   });
+
+  it("shows when logged out and searchable", () => {
+    expect(canShowEmail({ ...base, searchable: true }, null)).toBe(true);
+  });
 });

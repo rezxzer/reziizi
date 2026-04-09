@@ -13,6 +13,7 @@ export function isValidUuid(raw: string): boolean {
 export type ConversationWithPeer = ConversationRow & {
   other_user_id: string;
   peer_email: string | null;
+  peer_display_name: string | null;
   peer_avatar_url: string | null;
 };
 
@@ -52,7 +53,7 @@ export async function fetchMyConversations(me: string): Promise<ConversationWith
   const peerIds: string[] = rows.map((r) => otherParticipant(r, me));
   const { data: profs, error: profError } = await supabase
     .from("profiles")
-    .select("id, email, avatar_url")
+    .select("id, email, display_name, avatar_url")
     .in("id", peerIds);
 
   if (profError) {
@@ -60,9 +61,11 @@ export async function fetchMyConversations(me: string): Promise<ConversationWith
   }
 
   const emailById = new Map<string, string | null>();
+  const displayNameById = new Map<string, string | null>();
   const avatarById = new Map<string, string | null>();
-  for (const p of (profs ?? []) as Pick<ProfileRow, "id" | "email" | "avatar_url">[]) {
+  for (const p of (profs ?? []) as (Pick<ProfileRow, "id" | "email" | "avatar_url"> & { display_name?: string | null })[]) {
     emailById.set(p.id, p.email);
+    displayNameById.set(p.id, p.display_name ?? null);
     avatarById.set(p.id, p.avatar_url ?? null);
   }
 
@@ -72,6 +75,7 @@ export async function fetchMyConversations(me: string): Promise<ConversationWith
       ...r,
       other_user_id: oid,
       peer_email: emailById.get(oid) ?? null,
+      peer_display_name: displayNameById.get(oid) ?? null,
       peer_avatar_url: avatarById.get(oid) ?? null,
     };
   });
@@ -120,6 +124,42 @@ export async function sendMessage(conversationId: string, body: string): Promise
     throw error;
   }
   return data as ChatMessageRow;
+}
+
+/**
+ * Broadcast a typing event to the conversation channel.
+ * Uses Supabase Realtime broadcast (no persistence).
+ */
+export function broadcastTyping(conversationId: string, userId: string): void {
+  const channel = supabase.channel(`chat:${conversationId}`);
+  void channel.send({
+    type: "broadcast",
+    event: "typing",
+    payload: { userId },
+  });
+}
+
+/**
+ * Subscribe to typing events on a conversation.
+ * Returns an unsubscribe function.
+ */
+export function subscribeToTyping(
+  conversationId: string,
+  onTyping: (userId: string) => void,
+): () => void {
+  const channel = supabase
+    .channel(`chat-typing:${conversationId}`)
+    .on("broadcast", { event: "typing" }, (payload) => {
+      const uid = (payload.payload as { userId?: string })?.userId;
+      if (uid) {
+        onTyping(uid);
+      }
+    })
+    .subscribe();
+
+  return (): void => {
+    void supabase.removeChannel(channel);
+  };
 }
 
 export function subscribeToNewMessages(

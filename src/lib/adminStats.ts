@@ -7,6 +7,9 @@ export type PlatformMetrics = {
   comments: number;
   reactions: number;
   reports: number;
+  user_reports: number;
+  blocks: number;
+  follow_requests: number;
   tags: number;
   post_tags: number;
   conversations: number;
@@ -22,6 +25,9 @@ export async function fetchPlatformMetrics(): Promise<PlatformMetrics> {
     comments,
     reactions,
     reports,
+    user_reports,
+    blocks,
+    follow_requests,
     tags,
     post_tags,
     conversations,
@@ -34,6 +40,9 @@ export async function fetchPlatformMetrics(): Promise<PlatformMetrics> {
     supabase.from("comments").select("*", { count: "exact", head: true }),
     supabase.from("reactions").select("*", { count: "exact", head: true }),
     supabase.from("reports").select("*", { count: "exact", head: true }),
+    supabase.from("user_reports").select("*", { count: "exact", head: true }),
+    supabase.from("blocks").select("*", { count: "exact", head: true }),
+    supabase.from("follow_requests").select("*", { count: "exact", head: true }),
     supabase.from("tags").select("*", { count: "exact", head: true }),
     supabase.from("post_tags").select("*", { count: "exact", head: true }),
     supabase.from("conversations").select("*", { count: "exact", head: true }),
@@ -48,6 +57,9 @@ export async function fetchPlatformMetrics(): Promise<PlatformMetrics> {
     comments.error ??
     reactions.error ??
     reports.error ??
+    user_reports.error ??
+    blocks.error ??
+    follow_requests.error ??
     tags.error ??
     post_tags.error ??
     conversations.error ??
@@ -65,6 +77,9 @@ export async function fetchPlatformMetrics(): Promise<PlatformMetrics> {
     comments: comments.count ?? 0,
     reactions: reactions.count ?? 0,
     reports: reports.count ?? 0,
+    user_reports: user_reports.count ?? 0,
+    blocks: blocks.count ?? 0,
+    follow_requests: follow_requests.count ?? 0,
     tags: tags.count ?? 0,
     post_tags: post_tags.count ?? 0,
     conversations: conversations.count ?? 0,

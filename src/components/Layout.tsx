@@ -138,6 +138,8 @@ export function Layout(): ReactElement {
                 <NavLink to="/admin/users">{t("layout.nav.users")}</NavLink>
                 <NavLink to="/admin/moderation">{t("layout.nav.moderation")}</NavLink>
                 <NavLink to="/admin/reports">{t("layout.nav.reports")}</NavLink>
+                <NavLink to="/admin/user-reports">{t("layout.nav.userReports")}</NavLink>
+                <NavLink to="/admin/blocks">{t("layout.nav.blocks")}</NavLink>
                 <NavLink to="/admin/stats">{t("layout.nav.stats")}</NavLink>
                 <NavLink to="/admin/ads">{t("layout.nav.ads")}</NavLink>
                 <NavLink to="/admin/features">{t("layout.nav.features")}</NavLink>

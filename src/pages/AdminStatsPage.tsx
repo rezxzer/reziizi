@@ -17,6 +17,9 @@ const METRIC_CONFIG: { key: keyof PlatformMetrics; labelPath: string; icon: stri
   { key: "conversations", labelPath: "pages.admin.stats.metricConversations", icon: "\u{1F4E8}" },
   { key: "chat_messages", labelPath: "pages.admin.stats.metricChatMessages", icon: "\u{1F4E9}" },
   { key: "notifications", labelPath: "pages.admin.stats.metricNotifications", icon: "\u{1F514}" },
+  { key: "user_reports", labelPath: "pages.admin.stats.metricUserReports", icon: "\u{1F6A8}" },
+  { key: "blocks", labelPath: "pages.admin.stats.metricBlocks", icon: "\u{1F6AB}" },
+  { key: "follow_requests", labelPath: "pages.admin.stats.metricFollowRequests", icon: "\u{1F4E5}" },
   { key: "ad_slots", labelPath: "pages.admin.stats.metricAdSlots", icon: "\u{1F4E2}" },
 ];
 
