@@ -109,8 +109,8 @@ export function UserProfilePage(): ReactElement {
       isValidUuid(targetId) &&
       Boolean(viewerId) &&
       viewerId !== targetId &&
-      Boolean(profile) &&
-      profile?.is_private === true &&
+      Boolean(profileQuery.data) &&
+      profileQuery.data?.is_private === true &&
       followingQuery.data !== true,
   });
 

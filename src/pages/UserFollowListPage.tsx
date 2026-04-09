@@ -24,6 +24,7 @@ function memberLabel(m: FollowListMember, viewerId: string | null): string {
     display_name: null,
     bio: null,
     searchable: m.searchable,
+    is_private: false,
     is_banned: m.is_banned,
   };
   if (canShowEmail(p, viewerId)) {

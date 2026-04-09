@@ -9,6 +9,7 @@ describe("canShowEmail", () => {
     display_name: null,
     bio: null,
     searchable: false,
+    is_private: false,
     is_banned: false,
   };
 
