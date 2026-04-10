@@ -20,6 +20,10 @@ export function LoginPage(): ReactElement {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [signupNotice, setSignupNotice] = useState<{
+    kind: "success" | "info";
+    message: string;
+  } | null>(null);
 
   if (!loading && user) {
     return <Navigate to={from} replace />;
@@ -27,6 +31,7 @@ export function LoginPage(): ReactElement {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
+    setSignupNotice(null);
     if (mode === "signup") {
       if (!isPasswordLongEnough(password)) {
         toast.error(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
@@ -46,12 +51,22 @@ export function LoginPage(): ReactElement {
           return;
         }
       } else {
-        const { error: signError } = await supabase.auth.signUp({ email, password });
+        const { data, error: signError } = await supabase.auth.signUp({ email, password });
         if (signError) {
           toast.error(errorMessage(signError));
           return;
         }
-        toast.success(t("pages.login.checkEmailForConfirmation"));
+        const hasNewIdentity = (data.user?.identities?.length ?? 0) > 0;
+        if (hasNewIdentity) {
+          const message = t("pages.login.checkEmailForConfirmation");
+          setSignupNotice({ kind: "success", message });
+          toast.success(message);
+        } else {
+          setSignupNotice({
+            kind: "info",
+            message: t("pages.login.emailAlreadyRegisteredHint"),
+          });
+        }
       }
     } finally {
       setSubmitting(false);
@@ -84,6 +99,7 @@ export function LoginPage(): ReactElement {
               onClick={() => {
                 setMode("signin");
                 setConfirmPassword("");
+                setSignupNotice(null);
               }}
             >
               {t("pages.login.modeSignIn")}
@@ -93,66 +109,103 @@ export function LoginPage(): ReactElement {
               className={`auth-mode__btn${mode === "signup" ? " auth-mode__btn--active" : ""}`}
               onClick={() => {
                 setMode("signup");
+                setSignupNotice(null);
               }}
             >
               {t("pages.login.modeSignUp")}
             </button>
           </div>
           <form className="form" onSubmit={(e) => void handleSubmit(e)}>
-            <label className="form__label">
-              {t("pages.login.email")}
-              <input
-                className="form__input"
-                type="email"
-                name="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </label>
-            <label className="form__label">
-              {t("pages.login.password")}
-              <input
-                className="form__input"
-                type="password"
-                name="password"
-                autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={mode === "signup" ? MIN_PASSWORD_LENGTH : 1}
-              />
-            </label>
-            {mode === "signup" ? (
-              <label className="form__label">
-                {t("pages.login.confirmPassword")}
-                <input
-                  className="form__input"
-                  type="password"
-                  name="confirmPassword"
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={MIN_PASSWORD_LENGTH}
-                />
-              </label>
-            ) : null}
-            <button type="submit" className="btn btn--primary" disabled={submitting}>
-              {submitting
-                ? t("pages.login.submitWait")
-                : mode === "signin"
-                  ? t("pages.login.submitSignIn")
-                  : t("pages.login.submitSignUp")}
-            </button>
-            {mode === "signin" ? (
-              <p>
-                <Link to="/forgot-password" className="inline-link">
-                  {t("pages.login.forgotPasswordLink")}
-                </Link>
-              </p>
-            ) : null}
+            {mode === "signup" && signupNotice ? (
+              <div className="stack">
+                <p
+                  className={signupNotice.kind === "success" ? "form__success" : "form__error"}
+                  role="status"
+                >
+                  {signupNotice.kind === "success"
+                    ? t("pages.login.confirmationPendingTitle")
+                    : signupNotice.message}
+                </p>
+                <p className="muted form__hint">
+                  {signupNotice.kind === "success"
+                    ? t("pages.login.confirmationPendingBody", { email })
+                    : t("pages.login.checkEmailForConfirmation")}
+                </p>
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={() => {
+                    setMode("signin");
+                    setSignupNotice(null);
+                  }}
+                >
+                  {t("pages.login.backToSignIn")}
+                </button>
+              </div>
+            ) : (
+              <>
+                <label className="form__label">
+                  {t("pages.login.email")}
+                  <input
+                    className="form__input"
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </label>
+                <label className="form__label">
+                  {t("pages.login.password")}
+                  <input
+                    className="form__input"
+                    type="password"
+                    name="password"
+                    autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={mode === "signup" ? MIN_PASSWORD_LENGTH : 1}
+                  />
+                </label>
+                {mode === "signup" ? (
+                  <label className="form__label">
+                    {t("pages.login.confirmPassword")}
+                    <input
+                      className="form__input"
+                      type="password"
+                      name="confirmPassword"
+                      autoComplete="new-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={MIN_PASSWORD_LENGTH}
+                    />
+                  </label>
+                ) : null}
+                {mode === "signup" ? (
+                  <p className="muted form__hint">
+                    {t("pages.login.checkEmailForConfirmation")}{" "}
+                    {t("pages.login.emailAlreadyRegisteredHint")}
+                  </p>
+                ) : null}
+                <button type="submit" className="btn btn--primary" disabled={submitting}>
+                  {submitting
+                    ? t("pages.login.submitWait")
+                    : mode === "signin"
+                      ? t("pages.login.submitSignIn")
+                      : t("pages.login.submitSignUp")}
+                </button>
+                {mode === "signin" ? (
+                  <p>
+                    <Link to="/forgot-password" className="inline-link">
+                      {t("pages.login.forgotPasswordLink")}
+                    </Link>
+                  </p>
+                ) : null}
+              </>
+            )}
           </form>
         </div>
       </section>

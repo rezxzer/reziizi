@@ -71,6 +71,10 @@ type PagesBundle = {
     confirmPassword: string;
     passwordsDoNotMatch: string;
     checkEmailForConfirmation: string;
+    emailAlreadyRegisteredHint: string;
+    confirmationPendingTitle: string;
+    confirmationPendingBody: string;
+    backToSignIn: string;
     submitWait: string;
     submitSignIn: string;
     submitSignUp: string;
@@ -883,6 +887,12 @@ const en: Bundle = {
       passwordsDoNotMatch: "Passwords do not match.",
       checkEmailForConfirmation:
         "Check your email to confirm your account before signing in.",
+      emailAlreadyRegisteredHint:
+        "If this email is already registered, use Sign in or Forgot password.",
+      confirmationPendingTitle: "Registration created. Confirm your email to continue.",
+      confirmationPendingBody:
+        "We sent a confirmation link to {email}. Open your inbox, confirm the account, then return here to sign in.",
+      backToSignIn: "Back to sign in",
       submitWait: "Please wait…",
       submitSignIn: "Sign in",
       submitSignUp: "Sign up",
@@ -1628,6 +1638,13 @@ const ka: Bundle = {
       passwordsDoNotMatch: "პაროლები არ ემთხვევა.",
       checkEmailForConfirmation:
         "ანგარიშის დასადასტურებლად გადაამოწმეთ ელფოსტა და შემდეგ შედით სისტემაში.",
+      emailAlreadyRegisteredHint:
+        "თუ ეს ელფოსტა უკვე დარეგისტრირებულია, გამოიყენეთ შესვლა ან პაროლის აღდგენა.",
+      confirmationPendingTitle:
+        "რეგისტრაცია შეიქმნა. გასაგრძელებლად დაადასტურეთ ელფოსტა.",
+      confirmationPendingBody:
+        "დადასტურების ბმული გამოგიგზავნეთ: {email}. გახსენით შემოსული წერილი, დაადასტურეთ ანგარიში და შემდეგ დაბრუნდით შესასვლელად.",
+      backToSignIn: "შესვლაზე დაბრუნება",
       submitWait: "დაელოდეთ…",
       submitSignIn: "შესვლა",
       submitSignUp: "რეგისტრაცია",
@@ -2372,6 +2389,13 @@ const ru: Bundle = {
       passwordsDoNotMatch: "Пароли не совпадают.",
       checkEmailForConfirmation:
         "Проверьте почту, подтвердите аккаунт и затем войдите в систему.",
+      emailAlreadyRegisteredHint:
+        "Если этот email уже зарегистрирован, используйте вход или восстановление пароля.",
+      confirmationPendingTitle:
+        "Регистрация создана. Подтвердите email, чтобы продолжить.",
+      confirmationPendingBody:
+        "Мы отправили ссылку подтверждения на {email}. Откройте письмо, подтвердите аккаунт и вернитесь для входа.",
+      backToSignIn: "Вернуться ко входу",
       submitWait: "Подождите…",
       submitSignIn: "Войти",
       submitSignUp: "Зарегистрироваться",
