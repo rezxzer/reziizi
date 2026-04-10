@@ -32,6 +32,7 @@ export function LoginPage(): ReactElement {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [signupNotice, setSignupNotice] = useState<{
     kind: "success";
     message: string;
@@ -57,6 +58,7 @@ export function LoginPage(): ReactElement {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
+    setFormError(null);
     setSignupNotice(null);
     if (mode === "signup") {
       if (!isPasswordLongEnough(password)) {
@@ -74,7 +76,7 @@ export function LoginPage(): ReactElement {
         const { error: signError } = await supabase.auth.signInWithPassword({ email, password });
         if (signError) {
           if (isInvalidCredentialsError(signError)) {
-            toast.error(t("pages.login.invalidCredentials"));
+            setFormError(t("pages.login.invalidCredentials"));
           } else {
             toast.error(errorMessage(signError));
           }
@@ -203,7 +205,10 @@ export function LoginPage(): ReactElement {
                     name="email"
                     autoComplete="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setFormError(null);
+                    }}
                     required
                   />
                 </label>
@@ -215,11 +220,19 @@ export function LoginPage(): ReactElement {
                     name="password"
                     autoComplete={mode === "signin" ? "current-password" : "new-password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setFormError(null);
+                    }}
                     required
                     minLength={mode === "signup" ? MIN_PASSWORD_LENGTH : 1}
                   />
                 </label>
+                {mode === "signin" && formError ? (
+                  <p className="form__error" role="status">
+                    {formError}
+                  </p>
+                ) : null}
                 {mode === "signup" ? (
                   <label className="form__label">
                     {t("pages.login.confirmPassword")}
