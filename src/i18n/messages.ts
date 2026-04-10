@@ -68,6 +68,7 @@ type PagesBundle = {
     modeSignUp: string;
     email: string;
     password: string;
+    invalidCredentials: string;
     confirmPassword: string;
     passwordsDoNotMatch: string;
     checkEmailForConfirmation: string;
@@ -887,6 +888,7 @@ const en: Bundle = {
       modeSignUp: "Sign up",
       email: "Email",
       password: "Password",
+      invalidCredentials: "Email or password is incorrect.",
       confirmPassword: "Confirm password",
       passwordsDoNotMatch: "Passwords do not match.",
       checkEmailForConfirmation:
@@ -1642,6 +1644,7 @@ const ka: Bundle = {
       modeSignUp: "რეგისტრაცია",
       email: "ელფოსტა",
       password: "პაროლი",
+      invalidCredentials: "ელფოსტა ან პაროლი არასწორია.",
       confirmPassword: "პაროლის გამეორება",
       passwordsDoNotMatch: "პაროლები არ ემთხვევა.",
       checkEmailForConfirmation:
@@ -2397,6 +2400,7 @@ const ru: Bundle = {
       modeSignUp: "Регистрация",
       email: "Email",
       password: "Пароль",
+      invalidCredentials: "Неверный email или пароль.",
       confirmPassword: "Подтвердите пароль",
       passwordsDoNotMatch: "Пароли не совпадают.",
       checkEmailForConfirmation:

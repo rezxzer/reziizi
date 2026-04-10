@@ -8,6 +8,18 @@ import { errorMessage } from "../lib/errors.ts";
 import { MIN_PASSWORD_LENGTH, isPasswordLongEnough } from "../lib/passwordPolicy.ts";
 import { supabase } from "../lib/supabaseClient";
 
+function isInvalidCredentialsError(err: unknown): boolean {
+  if (!(err instanceof Error)) {
+    return false;
+  }
+  const msg = err.message.toLowerCase();
+  return (
+    msg.includes("invalid login credentials") ||
+    msg.includes("invalid credentials") ||
+    msg.includes("email not confirmed")
+  );
+}
+
 export function LoginPage(): ReactElement {
   const { t } = useI18n();
   const toast = useToast();
@@ -61,7 +73,11 @@ export function LoginPage(): ReactElement {
       if (mode === "signin") {
         const { error: signError } = await supabase.auth.signInWithPassword({ email, password });
         if (signError) {
-          toast.error(errorMessage(signError));
+          if (isInvalidCredentialsError(signError)) {
+            toast.error(t("pages.login.invalidCredentials"));
+          } else {
+            toast.error(errorMessage(signError));
+          }
           return;
         }
       } else {
