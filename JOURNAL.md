@@ -21,6 +21,11 @@
 
 ## ჩანაწერები
 
+### 2026-04-11 — GitHub sync + Supabase მიგრაციები (გასაშვები production-ზე)
+
+- **Git:** `main` → `origin` push — commit `2d86a73` (სპონსორი/რეკლამა, მიგრაციები 523–525, test-mode banner, `.gitignore` → `supabase/.temp/`).
+- **Supabase production:** CLI ამ რეპოში **არ არის** `link`-ზე — სამი ფაილი გაუშვი ხელით **რიგით:** `20260401352300` → `20260401352400` → `20260401352500`. დადასტურების შემდეგ განაახლე `project.md` CURRENT WORK (Supabase ხაზი) აქ „გაშვებულია“.
+
 ### 2026-04-10 — სპონსორი/რეკლამა: სატესტო რეჟიმის banner (ფული არა)
 
 - **UI:** `/sponsored`, `/admin/ad-requests`, `/admin/ads` — `platform-test-notice` + i18n `testModeBanner` (`en`/`ka`/`ru`): ფასიანი განთავსება/გადახდა არა, დალოდება განახლებამდე.
