@@ -4,7 +4,7 @@ import { messages } from "../i18n/messages.ts";
 import type { Locale } from "../i18n/locale.ts";
 import { interpolate, resolveMessage } from "../i18n/resolveMessage.ts";
 
-export const SITE_NAME = "REZIIZI";
+export const SITE_NAME = "Metafeed";
 
 export const DEFAULT_DESCRIPTION: string = messages.en.seo.defaultDescription;
 

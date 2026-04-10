@@ -106,7 +106,7 @@ export function LayoutOutlet(): ReactElement {
       return false;
     }
     try {
-      return window.localStorage.getItem("reziizi.motionDebug") === "1";
+      return window.localStorage.getItem("metafeed.motionDebug") === "1";
     } catch {
       return false;
     }

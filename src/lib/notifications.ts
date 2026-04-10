@@ -1,10 +1,10 @@
 import type { NotificationRow } from "../types/db";
 import { supabase } from "./supabaseClient";
 
-export const NOTIFICATIONS_CHANGED_EVENT = "reziizi-notifications-changed";
+export const NOTIFICATIONS_CHANGED_EVENT = "metafeed-notifications-changed";
 
 /** Same name in every tab — cross-tab sync for unread badge + notifications list. */
-export const NOTIFICATIONS_BROADCAST_CHANNEL = "reziizi-notifications";
+export const NOTIFICATIONS_BROADCAST_CHANNEL = "metafeed-notifications";
 
 export function dispatchNotificationsChanged(): void {
   window.dispatchEvent(new CustomEvent(NOTIFICATIONS_CHANGED_EVENT));

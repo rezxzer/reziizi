@@ -1,4 +1,4 @@
-# REZIIZI
+# Metafeed
 
 Social app MVP — **React + Vite + TypeScript** + **Supabase**.
 
@@ -32,7 +32,7 @@ On **push** and **pull requests** to `main` / `master`, [`.github/workflows/ci.y
 | [JOURNAL.md](JOURNAL.md) | Project log. |
 | [supabase/SCHEMA.md](supabase/SCHEMA.md) | DB tables, RPCs, Storage buckets, rate-limit triggers. |
 | [supabase/ACCOUNT_DELETION_DESIGN.md](supabase/ACCOUNT_DELETION_DESIGN.md) | Account deletion flow (Edge Function + deploy checklist). |
-| [.cursor/rules/reziizi.mdc](.cursor/rules/reziizi.mdc) | Cursor rules + **v1 implementation order**. |
+| [.cursor/rules/reziizi.mdc](.cursor/rules/reziizi.mdc) | Cursor rules file + **v1 implementation order**. |
 
 ## Production deployment (GitHub + Vercel + Supabase)
 
@@ -43,6 +43,12 @@ End-to-end checklist for hosting the app. **Never commit `.env`** — secrets li
 - GitHub repo with this code pushed (`main` or your default branch).
 - [Vercel](https://vercel.com) account (sign in with GitHub is easiest).
 - A [Supabase](https://supabase.com/dashboard) project with **SQL migrations** from `supabase/migrations/` already applied to that project (SQL Editor or CLI). If the DB is empty, run migrations in order before relying on production auth/feed.
+
+### Migration naming policy (brand rename safety)
+
+- Existing migrations already applied in Supabase are **history**; do not rerun or rewrite them just to rename brand text in comments.
+- In **new** migrations, do not use `REZIIZI`/`reziizi` in comments or user-facing strings; use **Metafeed** (or neutral wording) instead.
+- Keep legacy SQL runtime keys exactly as-is when they are already part of DB behavior (for example `reziizi.skip_spam_guard`) unless a dedicated compatibility migration is planned.
 
 ### 1. Supabase — API keys (for Vercel env)
 

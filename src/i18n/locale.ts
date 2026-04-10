@@ -1,6 +1,6 @@
 export type Locale = "en" | "ka" | "ru";
 
-export const LOCALE_STORAGE_KEY = "reziizi-locale";
+export const LOCALE_STORAGE_KEY = "metafeed-locale";
 
 export const SUPPORTED_LOCALES: readonly Locale[] = ["en", "ka", "ru"] as const;
 

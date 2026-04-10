@@ -54,7 +54,7 @@ Deno.serve(async (req: Request) => {
   const priceId = Deno.env.get("STRIPE_PRICE_ID")?.trim() ?? "";
   const unitCentsRaw = Deno.env.get("STRIPE_PRICE_UNIT_AMOUNT_CENTS")?.trim() ?? "";
   const currency = (Deno.env.get("STRIPE_PRICE_CURRENCY") ?? "usd").trim().toLowerCase() || "usd";
-  const productName = (Deno.env.get("STRIPE_PRICE_PRODUCT_NAME") ?? "REZIIZI Premium").trim() || "REZIIZI Premium";
+  const productName = (Deno.env.get("STRIPE_PRICE_PRODUCT_NAME") ?? "Metafeed Premium").trim() || "Metafeed Premium";
 
   if (!priceId && !unitCentsRaw) {
     return new Response(

@@ -21,6 +21,14 @@
 
 ## ჩანაწერები
 
+### 2026-04-10 — Brand rename to Metafeed (metafeed.it.com)
+
+- **UI/SEO rename:** runtime app brand switched to **Metafeed** (`Layout` brand text, `SITE_NAME`, `index.html` title/meta/OG, i18n copy in `messages.ts` across `en/ka/ru`).
+- **Domain-format copy:** major descriptive metadata now references **metafeed.it.com** where domain context is needed (SEO descriptions / legal contact wording).
+- **Runtime keys/events:** client-side keys renamed from `reziizi-*` to `metafeed-*` (`theme`, `locale`, notifications broadcast/event, motion debug localStorage, logger prefix) to remove old name from runtime surfaces.
+- **Billing default label:** Stripe checkout fallback product name updated to **Metafeed Premium**.
+- **Verification:** `npm run build` passed; lint diagnostics clean.
+
 ### 2026-04-10 — Mobile navigation parity fix: hamburger drawer + accessibility close actions
 
 - **Responsive nav fix:** მობილურზე (`max-width: 768px`) `layout` ნავიგაცია აღარ არის დამალული „უსაფუძვლოდ“ — დაემატა dedicated hamburger toggle (`Layout`) და გახსნადი ვერტიკალური მენიუ ყველა ძირითად route-ზე წვდომით.

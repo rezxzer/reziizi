@@ -83,7 +83,7 @@ export function Layout(): ReactElement {
       </a>
       <header className="layout__header" translate="no">
         <Link className="layout__brand" to="/" aria-label={t("layout.brandAria")}>
-          REZ<span>IIZI</span>
+          Meta<span>feed</span>
         </Link>
         <button
           type="button"

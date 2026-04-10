@@ -694,7 +694,7 @@ export type Bundle = {
 const en: Bundle = {
   layout: {
     skipToMain: "Skip to main content",
-    brandAria: "REZIIZI home",
+    brandAria: "Metafeed home",
     navAria: "Main",
     nav: {
       home: "Home",
@@ -780,7 +780,7 @@ const en: Bundle = {
     premiumPlanBenefit1: "Longer posts — up to 5,000 characters per post (free tier: 1,000).",
     premiumPlanBenefit2: "More tags — up to 8 tags per post (free tier: 4).",
     premiumPlanBenefit3: "Video posts — MP4/WebM in the feed (not available on the free tier).",
-    premiumPlanBenefit4: "Headroom for richer posts as REZIIZI adds features.",
+    premiumPlanBenefit4: "Headroom for richer posts as Metafeed adds features.",
     premiumPlanFutureTitle: "Under consideration (not a commitment)",
     premiumPlanFutureBody:
       "We are reviewing additional Premium benefits — for example optional promotional placements in the feed for members who want to advertise their posts or business. Pricing could depend on placement size, duration, format, and legal/compliance rules in your region. Nothing is built or priced yet; if we ship it, we will announce clear terms and pricing beforehand.",
@@ -1246,7 +1246,7 @@ const en: Bundle = {
       api: {
         title: "API catalog",
         intro:
-          "REZIIZI talks to Supabase (PostgREST + Auth + Realtime). There is no custom HTTP API in this repo — the app uses @supabase/supabase-js with Row Level Security. Names below are the canonical registry (src/lib/api). Column-level notes and migration order: supabase/SCHEMA.md in the repo.",
+          "Metafeed talks to Supabase (PostgREST + Auth + Realtime). There is no custom HTTP API in this repo — the app uses @supabase/supabase-js with Row Level Security. Names below are the canonical registry (src/lib/api). Column-level notes and migration order: supabase/SCHEMA.md in the repo.",
         publicTables: "Public tables",
         clientRpcs: "Client RPCs",
         colTable: "public.table",
@@ -1321,12 +1321,12 @@ const en: Bundle = {
     legal: {
       navAria: "Legal navigation",
       title: "Legal information",
-      lastUpdated: "Last updated: April 1, 2026 · REZIIZI v1 (MVP)",
+      lastUpdated: "Last updated: April 1, 2026 · Metafeed v1 (MVP)",
     },
     security: {
       navAria: "Security navigation",
       title: "Security",
-      intro: "How REZIIZI approaches security in the MVP (high level).",
+      intro: "How Metafeed approaches security in the MVP (high level).",
       sectionAuth: "Account & passwords",
       sectionAuthLi1:
         "New passwords and password changes must be at least 8 characters (enforced in the app; Supabase Auth stores credentials securely).",
@@ -1349,55 +1349,55 @@ const en: Bundle = {
   seo: {
     announcer: "Navigated to {title}",
     defaultDescription:
-      "REZIIZI — social feed: posts, reactions, comments, tags, search, and messages.",
+      "Metafeed (metafeed.it.com) — social feed: posts, reactions, comments, tags, search, and messages.",
     searchWithQueryTitle: "Search: {q}",
     searchWithQueryDescription:
-      "Search results for “{q}” on REZIIZI — posts and profiles.",
+      "Search results for “{q}” on Metafeed — posts and profiles.",
     admin: {
       title: "Admin",
-      description: "Administration tools for REZIIZI.",
+      description: "Administration tools for Metafeed.",
     },
     routes: {
       home: {
         title: "Home",
         description:
-          "REZIIZI — social feed: posts, reactions, comments, tags, search, and messages.",
+          "Metafeed (metafeed.it.com) — social feed: posts, reactions, comments, tags, search, and messages.",
       },
       chatPeer: {
         title: "Chat",
-        description: "Direct message thread on REZIIZI.",
+        description: "Direct message thread on Metafeed.",
       },
       messages: {
         title: "Messages",
-        description: "Your conversations on REZIIZI.",
+        description: "Your conversations on Metafeed.",
       },
       notifications: {
         title: "Notifications",
-        description: "Your notifications on REZIIZI.",
+        description: "Your notifications on Metafeed.",
       },
       profile: {
         title: "Profile",
-        description: "Your profile and posts on REZIIZI.",
+        description: "Your profile and posts on Metafeed.",
       },
       userProfile: {
         title: "Member profile",
-        description: "User profile and posts on REZIIZI.",
+        description: "User profile and posts on Metafeed.",
       },
       userFollowers: {
         title: "Followers",
-        description: "Accounts that follow this user on REZIIZI.",
+        description: "Accounts that follow this user on Metafeed.",
       },
       userFollowing: {
         title: "Following",
-        description: "Accounts this user follows on REZIIZI.",
+        description: "Accounts this user follows on Metafeed.",
       },
       settings: {
         title: "Settings",
-        description: "Account and privacy settings on REZIIZI.",
+        description: "Account and privacy settings on Metafeed.",
       },
       forgotPassword: {
         title: "Reset password",
-        description: "Request a password reset email for REZIIZI.",
+        description: "Request a password reset email for Metafeed.",
       },
       resetPassword: {
         title: "Set new password",
@@ -1405,27 +1405,27 @@ const en: Bundle = {
       },
       login: {
         title: "Log in",
-        description: "Sign in to REZIIZI.",
+        description: "Sign in to Metafeed.",
       },
       banned: {
         title: "Account restricted",
-        description: "Account status on REZIIZI.",
+        description: "Account status on Metafeed.",
       },
       search: {
         title: "Search",
-        description: "Search posts and find profiles on REZIIZI.",
+        description: "Search posts and find profiles on Metafeed.",
       },
       legal: {
         title: "Terms & Privacy",
-        description: "Terms of service and privacy information for REZIIZI.",
+        description: "Terms of service and privacy information for Metafeed.",
       },
       security: {
         title: "Security",
-        description: "Security tips and account safety on REZIIZI.",
+        description: "Security tips and account safety on Metafeed.",
       },
       notFound: {
         title: "Page not found",
-        description: "This page does not exist or was moved on REZIIZI.",
+        description: "This page does not exist or was moved on Metafeed.",
       },
     },
   },
@@ -1434,7 +1434,7 @@ const en: Bundle = {
 const ka: Bundle = {
   layout: {
     skipToMain: "გადასვლა მთავარ შიგთავსზე",
-    brandAria: "REZIIZI — მთავარი",
+    brandAria: "Metafeed — მთავარი",
     navAria: "მთავარი ნავიგაცია",
     nav: {
       home: "მთავარი",
@@ -1987,7 +1987,7 @@ const ka: Bundle = {
       api: {
         title: "API კატალოგი",
         intro:
-          "REZIIZI უკავშირდება Supabase-ს (PostgREST + Auth + Realtime). ამ რეპოში ცალკე HTTP API არაა — გამოიყენება @supabase/supabase-js RLS-ით. ქვემოთ სახელები არის რეესტრი (src/lib/api). სვეტები და მიგრაციის რიგი: supabase/SCHEMA.md.",
+          "Metafeed უკავშირდება Supabase-ს (PostgREST + Auth + Realtime). ამ რეპოში ცალკე HTTP API არაა — გამოიყენება @supabase/supabase-js RLS-ით. ქვემოთ სახელები არის რეესტრი (src/lib/api). სვეტები და მიგრაციის რიგი: supabase/SCHEMA.md.",
         publicTables: "Public ცხრილები",
         clientRpcs: "RPC ფუნქციები",
         colTable: "public.table",
@@ -2061,12 +2061,12 @@ const ka: Bundle = {
     legal: {
       navAria: "იურიდიული ნავიგაცია",
       title: "იურიდიული ინფორმაცია",
-      lastUpdated: "ბოლო განახლება: 2026-04-01 · REZIIZI v1 (MVP)",
+      lastUpdated: "ბოლო განახლება: 2026-04-01 · Metafeed v1 (MVP)",
     },
     security: {
       navAria: "უსაფრთხოების ნავიგაცია",
       title: "უსაფრთხოება",
-      intro: "როგორ უდგება REZIIZI უსაფრთხოებას MVP-ში (მოკლედ).",
+      intro: "როგორ უდგება Metafeed უსაფრთხოებას MVP-ში (მოკლედ).",
       sectionAuth: "ანგარიში და პაროლები",
       sectionAuthLi1:
         "ახალი პაროლი და ცვლილება — მინიმუმ 8 სიმბოლო (აპლიკაციაში; Supabase Auth ინახავს უსაფრთხოდ).",
@@ -2089,55 +2089,55 @@ const ka: Bundle = {
   seo: {
     announcer: "გადასვლა: {title}",
     defaultDescription:
-      "REZIIZI — სოციალური ლენტა: პოსტები, რეაქციები, კომენტარები, თეგები, ძიება და მესიჯები.",
+      "Metafeed (metafeed.it.com) — სოციალური ლენტა: პოსტები, რეაქციები, კომენტარები, თეგები, ძიება და მესიჯები.",
     searchWithQueryTitle: "ძიება: {q}",
     searchWithQueryDescription:
-      "შედეგები „{q}“-ისთვის REZIIZI-ზე — პოსტები და პროფილები.",
+      "შედეგები „{q}“-ისთვის Metafeed-ზე — პოსტები და პროფილები.",
     admin: {
       title: "ადმინისტრაცია",
-      description: "REZIIZI-ის ადმინისტრაციული ინსტრუმენტები.",
+      description: "Metafeed-ის ადმინისტრაციული ინსტრუმენტები.",
     },
     routes: {
       home: {
         title: "მთავარი",
         description:
-          "REZIIZI — სოციალური ლენტა: პოსტები, რეაქციები, კომენტარები, თეგები, ძიება და მესიჯები.",
+          "Metafeed (metafeed.it.com) — სოციალური ლენტა: პოსტები, რეაქციები, კომენტარები, თეგები, ძიება და მესიჯები.",
       },
       chatPeer: {
         title: "ჩატი",
-        description: "პირდაპირი მესიჯების თრედი REZIIZI-ზე.",
+        description: "პირდაპირი მესიჯების თრედი Metafeed-ზე.",
       },
       messages: {
         title: "მესიჯები",
-        description: "თქვენი საუბრები REZIIZI-ზე.",
+        description: "თქვენი საუბრები Metafeed-ზე.",
       },
       notifications: {
         title: "შეტყობინებები",
-        description: "თქვენი შეტყობინებები REZIIZI-ზე.",
+        description: "თქვენი შეტყობინებები Metafeed-ზე.",
       },
       profile: {
         title: "პროფილი",
-        description: "თქვენი პროფილი და პოსტები REZIIZI-ზე.",
+        description: "თქვენი პროფილი და პოსტები Metafeed-ზე.",
       },
       userProfile: {
         title: "მომხმარებლის პროფილი",
-        description: "მომხმარებლის პროფილი და პოსტები REZIIZI-ზე.",
+        description: "მომხმარებლის პროფილი და პოსტები Metafeed-ზე.",
       },
       userFollowers: {
         title: "გამომწერები",
-        description: "ვინ არის გამოწერილი ამ მომხმარებელზე REZIIZI-ზე.",
+        description: "ვინ არის გამოწერილი ამ მომხმარებელზე Metafeed-ზე.",
       },
       userFollowing: {
         title: "გამოწერები",
-        description: "რომელ ანგარიშებს უწერს გამომწერებას ეს მომხმარებელი REZIIZI-ზე.",
+        description: "რომელ ანგარიშებს უწერს გამომწერებას ეს მომხმარებელი Metafeed-ზე.",
       },
       settings: {
         title: "პარამეტრები",
-        description: "ანგარიშისა და პირადულობის პარამეტრები REZIIZI-ზე.",
+        description: "ანგარიშისა და პირადულობის პარამეტრები Metafeed-ზე.",
       },
       forgotPassword: {
         title: "პაროლის აღდგენა",
-        description: "პაროლის აღდგენის ელფოსტის მოთხოვნა REZIIZI-ზე.",
+        description: "პაროლის აღდგენის ელფოსტის მოთხოვნა Metafeed-ზე.",
       },
       resetPassword: {
         title: "ახალი პაროლი",
@@ -2145,27 +2145,27 @@ const ka: Bundle = {
       },
       login: {
         title: "შესვლა",
-        description: "REZIIZI-ზე ავტორიზაცია.",
+        description: "Metafeed-ზე ავტორიზაცია.",
       },
       banned: {
         title: "ანგარიში შეზღუდულია",
-        description: "ანგარიშის სტატუსი REZIIZI-ზე.",
+        description: "ანგარიშის სტატუსი Metafeed-ზე.",
       },
       search: {
         title: "ძიება",
-        description: "პოსტების ძიება და პროფილების პოვნა REZIIZI-ზე.",
+        description: "პოსტების ძიება და პროფილების პოვნა Metafeed-ზე.",
       },
       legal: {
         title: "წესები და კონფიდენციალურობა",
-        description: "მომსახურების წესები და კონფიდენციალურობა REZIIZI-ზე.",
+        description: "მომსახურების წესები და კონფიდენციალურობა Metafeed-ზე.",
       },
       security: {
         title: "უსაფრთხოება",
-        description: "რჩევები ანგარიშის უსაფრთხოებისთვის REZIIZI-ზე.",
+        description: "რჩევები ანგარიშის უსაფრთხოებისთვის Metafeed-ზე.",
       },
       notFound: {
         title: "გვერდი ვერ მოიძებნა",
-        description: "ეს გვერდი არ არსებობს ან გადატანილია REZIIZI-ზე.",
+        description: "ეს გვერდი არ არსებობს ან გადატანილია Metafeed-ზე.",
       },
     },
   },
@@ -2174,7 +2174,7 @@ const ka: Bundle = {
 const ru: Bundle = {
   layout: {
     skipToMain: "Перейти к основному содержимому",
-    brandAria: "REZIIZI — главная",
+    brandAria: "Metafeed — главная",
     navAria: "Основная навигация",
     nav: {
       home: "Главная",
@@ -2261,7 +2261,7 @@ const ru: Bundle = {
     premiumPlanBenefit1: "Длиннее посты — до 5 000 символов (бесплатно: 1 000).",
     premiumPlanBenefit2: "Больше тегов — до 8 на пост (бесплатно: 4).",
     premiumPlanBenefit3: "Видео в ленте — MP4/WebM (на бесплатном уровне недоступно).",
-    premiumPlanBenefit4: "Запас под новые функции по мере развития REZIIZI.",
+    premiumPlanBenefit4: "Запас под новые функции по мере развития Metafeed.",
     premiumPlanFutureTitle: "На рассмотрении (без обязательств)",
     premiumPlanFutureBody:
       "Мы рассматриваем дополнительные возможности для Premium — например опциональное продвижение постов или бизнеса в ленте. Стоимость может зависеть от размера слота, срока, формата и юридических требований в вашем регионе. Пока это не реализовано и не оценено; если запустим, заранее опубликуем условия и цены.",
@@ -2727,7 +2727,7 @@ const ru: Bundle = {
       api: {
         title: "Каталог API",
         intro:
-          "REZIIZI работает с Supabase (PostgREST + Auth + Realtime). Отдельного HTTP API в репозитории нет — используется @supabase/supabase-js с RLS. Ниже — реестр имён (src/lib/api). Колонки и порядок миграций: supabase/SCHEMA.md.",
+          "Metafeed работает с Supabase (PostgREST + Auth + Realtime). Отдельного HTTP API в репозитории нет — используется @supabase/supabase-js с RLS. Ниже — реестр имён (src/lib/api). Колонки и порядок миграций: supabase/SCHEMA.md.",
         publicTables: "Публичные таблицы",
         clientRpcs: "RPC клиента",
         colTable: "public.table",
@@ -2802,12 +2802,12 @@ const ru: Bundle = {
     legal: {
       navAria: "Юридическая навигация",
       title: "Юридическая информация",
-      lastUpdated: "Обновлено: 1 апреля 2026 · REZIIZI v1 (MVP)",
+      lastUpdated: "Обновлено: 1 апреля 2026 · Metafeed v1 (MVP)",
     },
     security: {
       navAria: "Навигация по безопасности",
       title: "Безопасность",
-      intro: "Как REZIIZI подходит к безопасности в MVP (кратко).",
+      intro: "Как Metafeed подходит к безопасности в MVP (кратко).",
       sectionAuth: "Аккаунт и пароли",
       sectionAuthLi1:
         "Новые пароли и смена — не менее 8 символов (в приложении; Supabase Auth хранит безопасно).",
@@ -2830,55 +2830,55 @@ const ru: Bundle = {
   seo: {
     announcer: "Переход: {title}",
     defaultDescription:
-      "REZIIZI — социальная лента: посты, реакции, комментарии, теги, поиск и сообщения.",
+      "Metafeed (metafeed.it.com) — социальная лента: посты, реакции, комментарии, теги, поиск и сообщения.",
     searchWithQueryTitle: "Поиск: {q}",
     searchWithQueryDescription:
-      "Результаты по запросу «{q}» в REZIIZI — посты и профили.",
+      "Результаты по запросу «{q}» в Metafeed — посты и профили.",
     admin: {
       title: "Админ",
-      description: "Инструменты администрирования REZIIZI.",
+      description: "Инструменты администрирования Metafeed.",
     },
     routes: {
       home: {
         title: "Главная",
         description:
-          "REZIIZI — социальная лента: посты, реакции, комментарии, теги, поиск и сообщения.",
+          "Metafeed (metafeed.it.com) — социальная лента: посты, реакции, комментарии, теги, поиск и сообщения.",
       },
       chatPeer: {
         title: "Чат",
-        description: "Личная переписка в REZIIZI.",
+        description: "Личная переписка в Metafeed.",
       },
       messages: {
         title: "Сообщения",
-        description: "Ваши диалоги в REZIIZI.",
+        description: "Ваши диалоги в Metafeed.",
       },
       notifications: {
         title: "Уведомления",
-        description: "Ваши уведомления в REZIIZI.",
+        description: "Ваши уведомления в Metafeed.",
       },
       profile: {
         title: "Профиль",
-        description: "Ваш профиль и посты в REZIIZI.",
+        description: "Ваш профиль и посты в Metafeed.",
       },
       userProfile: {
         title: "Профиль участника",
-        description: "Профиль пользователя и посты в REZIIZI.",
+        description: "Профиль пользователя и посты в Metafeed.",
       },
       userFollowers: {
         title: "Подписчики",
-        description: "Аккаунты, которые подписаны на этого пользователя в REZIIZI.",
+        description: "Аккаунты, которые подписаны на этого пользователя в Metafeed.",
       },
       userFollowing: {
         title: "Подписки",
-        description: "Аккаунты, на которые подписан этот пользователь в REZIIZI.",
+        description: "Аккаунты, на которые подписан этот пользователь в Metafeed.",
       },
       settings: {
         title: "Настройки",
-        description: "Настройки аккаунта и конфиденциальности в REZIIZI.",
+        description: "Настройки аккаунта и конфиденциальности в Metafeed.",
       },
       forgotPassword: {
         title: "Сброс пароля",
-        description: "Запрос письма для сброса пароля в REZIIZI.",
+        description: "Запрос письма для сброса пароля в Metafeed.",
       },
       resetPassword: {
         title: "Новый пароль",
@@ -2886,27 +2886,27 @@ const ru: Bundle = {
       },
       login: {
         title: "Вход",
-        description: "Вход в REZIIZI.",
+        description: "Вход в Metafeed.",
       },
       banned: {
         title: "Аккаунт ограничен",
-        description: "Статус аккаунта в REZIIZI.",
+        description: "Статус аккаунта в Metafeed.",
       },
       search: {
         title: "Поиск",
-        description: "Поиск постов и профилей в REZIIZI.",
+        description: "Поиск постов и профилей в Metafeed.",
       },
       legal: {
         title: "Условия и конфиденциальность",
-        description: "Условия использования и политика конфиденциальности REZIIZI.",
+        description: "Условия использования и политика конфиденциальности Metafeed.",
       },
       security: {
         title: "Безопасность",
-        description: "Советы по безопасности аккаунта в REZIIZI.",
+        description: "Советы по безопасности аккаунта в Metafeed.",
       },
       notFound: {
         title: "Страница не найдена",
-        description: "Эта страница не существует или была перенесена на REZIIZI.",
+        description: "Эта страница не существует или была перенесена на Metafeed.",
       },
     },
   },

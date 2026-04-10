@@ -33,12 +33,12 @@ export function LegalPage(): ReactElement {
             Terms of Service
           </h2>
           <p>
-            Welcome to <strong>REZIIZI</strong>. By creating an account or using the service, you agree to these
+            Welcome to <strong>Metafeed</strong>. By creating an account or using the service, you agree to these
             terms. If you do not agree, do not use the service.
           </p>
           <h3 className="legal-section__subtitle">1. The service</h3>
           <p>
-            REZIIZI is an early-stage social product. Features, availability, and data may change without notice. The
+            Metafeed is an early-stage social product. Features, availability, and data may change without notice. The
             service is provided &quot;as is&quot; without warranties of any kind.
           </p>
           <h3 className="legal-section__subtitle">2. Your account</h3>
@@ -48,7 +48,7 @@ export function LegalPage(): ReactElement {
           </p>
           <h3 className="legal-section__subtitle">3. User content</h3>
           <p>
-            You retain rights to content you post. By posting, you grant REZIIZI the rights needed to operate the
+            You retain rights to content you post. By posting, you grant Metafeed the rights needed to operate the
             service (e.g. store, display, and distribute your posts to other users as designed). Do not post unlawful,
             abusive, or infringing content. We may remove content or restrict access if we believe it is necessary for
             safety, legal compliance, or service integrity.
@@ -60,7 +60,7 @@ export function LegalPage(): ReactElement {
           </p>
           <h3 className="legal-section__subtitle">5. Limitation of liability</h3>
           <p>
-            To the maximum extent permitted by law, REZIIZI and its operators are not liable for indirect, incidental,
+            To the maximum extent permitted by law, Metafeed and its operators are not liable for indirect, incidental,
             or consequential damages arising from your use of the service.
           </p>
           <h3 className="legal-section__subtitle">6. Changes</h3>
@@ -74,7 +74,7 @@ export function LegalPage(): ReactElement {
           <h2 id="privacy-heading" className="legal-section__title">
             Privacy Policy
           </h2>
-          <p>This policy describes how REZIIZI handles information when you use the MVP.</p>
+          <p>This policy describes how Metafeed handles information when you use the MVP.</p>
           <h3 className="legal-section__subtitle">1. What we collect</h3>
           <ul className="legal-list">
             <li>
@@ -99,7 +99,7 @@ export function LegalPage(): ReactElement {
           <p>We use this information to run the service: authenticate you, show posts and reactions, protect the platform, and improve stability and security.</p>
           <h3 className="legal-section__subtitle">3. Service providers</h3>
           <p>
-            REZIIZI uses <strong>Supabase</strong> for authentication, database storage, and related infrastructure.
+            Metafeed uses <strong>Supabase</strong> for authentication, database storage, and related infrastructure.
             Data is processed according to Supabase&apos;s terms and practices in addition to this policy. Review
             Supabase documentation and your project settings for retention and regional options.
           </p>
@@ -115,7 +115,7 @@ export function LegalPage(): ReactElement {
             You may opt out by discontinuing use and requesting account closure when supported.
           </p>
           <h3 className="legal-section__subtitle">6. Contact</h3>
-          <p>For privacy-related questions about this MVP, contact the project operator using the channel published for REZIIZI (placeholder until a public contact is set).</p>
+          <p>For privacy-related questions about this MVP, contact the project operator using the public channel for metafeed.it.com (placeholder until a public contact is set).</p>
         </section>
       </article>
     </div>

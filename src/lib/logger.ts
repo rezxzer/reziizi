@@ -1,10 +1,10 @@
-const PREFIX: string = "[reziizi]";
+const PREFIX: string = "[metafeed]";
 
 function isDev(): boolean {
   return import.meta.env.DEV;
 }
 
-/** Client-side logging with `[reziizi]` prefix; `debug`/`info`/`warnDev` are dev-only. */
+/** Client-side logging with `[metafeed]` prefix; `debug`/`info`/`warnDev` are dev-only. */
 export const logger = {
   debug(...args: unknown[]): void {
     if (!isDev()) {

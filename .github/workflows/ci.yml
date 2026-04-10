@@ -1,4 +1,4 @@
-# REZIIZI — run tests + production build on every push/PR to main (or master).
+# Metafeed — run tests + production build on every push/PR to main (or master).
 # Vercel still deploys from GitHub when connected; this job catches broken builds early.
 
 name: CI
