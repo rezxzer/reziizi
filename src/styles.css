@@ -3978,7 +3978,7 @@ pre code {
     border: none;
     margin: 0;
     padding: 0;
-    z-index: 200;
+    z-index: 90;
     cursor: pointer;
   }
 
