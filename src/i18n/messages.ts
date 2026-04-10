@@ -564,6 +564,8 @@ export type Bundle = {
     unreadBadge: string;
     toastRegionAria: string;
     toastDismiss: string;
+    mobileMenuOpen: string;
+    mobileMenuClose: string;
   };
   errors: {
     routeTitle: string;
@@ -720,6 +722,8 @@ const en: Bundle = {
     unreadBadge: "{count} unread",
     toastRegionAria: "Notifications",
     toastDismiss: "Dismiss",
+    mobileMenuOpen: "Open menu",
+    mobileMenuClose: "Close menu",
   },
   errors: {
     routeTitle: "Something went wrong",
@@ -1458,6 +1462,8 @@ const ka: Bundle = {
     unreadBadge: "{count} წაუკითხავი",
     toastRegionAria: "შეტყობინებები",
     toastDismiss: "დახურვა",
+    mobileMenuOpen: "მენიუს გახსნა",
+    mobileMenuClose: "მენიუს დახურვა",
   },
   errors: {
     routeTitle: "შეცდომა",
@@ -2196,6 +2202,8 @@ const ru: Bundle = {
     unreadBadge: "{count} непрочитанных",
     toastRegionAria: "Уведомления",
     toastDismiss: "Закрыть",
+    mobileMenuOpen: "Открыть меню",
+    mobileMenuClose: "Закрыть меню",
   },
   errors: {
     routeTitle: "Что-то пошло не так",

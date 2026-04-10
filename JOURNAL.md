@@ -21,6 +21,13 @@
 
 ## ჩანაწერები
 
+### 2026-04-10 — Mobile navigation parity fix: hamburger drawer + accessibility close actions
+
+- **Responsive nav fix:** მობილურზე (`max-width: 768px`) `layout` ნავიგაცია აღარ არის დამალული „უსაფუძვლოდ“ — დაემატა dedicated hamburger toggle (`Layout`) და გახსნადი ვერტიკალური მენიუ ყველა ძირითად route-ზე წვდომით.
+- **Drawer UX:** დაემატა backdrop overlay; მენიუ იკეტება backdrop click-ზე და route ცვლილებაზე.
+- **Accessibility:** დაემატა `aria-expanded` / `aria-controls` / localized `aria-label` (`mobileMenuOpen`, `mobileMenuClose` en/ka/ru) და **Escape key**-ით დახურვა (`keydown` listener მხოლოდ გახსნილ მდგომარეობაში).
+- **Verification:** app build passed (`npm run build`), lint diagnostics clean edited files-ზე.
+
 ### 2026-04-09 — Discoverability + Moderation expansion (Claude): trending tags RPC, admin queues, post edit
 
 - **DB (Supabase):** ახალი migration `20260401352200_add_trending_tags_rpc.sql` დაემატა და **წარმატებით გაშვებულია** live Supabase-ზე (მომხმარებლის დადასტურება).

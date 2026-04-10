@@ -36,11 +36,30 @@ export function Layout(): ReactElement {
   const showNavSearch = isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navSearch);
   const showNavMessages = isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navMessages);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isAdminRoute: boolean = pathname.startsWith("/admin");
 
   useEffect(() => {
     setAdminMenuOpen(false);
+    setMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [mobileMenuOpen]);
 
   const blockBanned: boolean =
     !loading &&
@@ -66,7 +85,25 @@ export function Layout(): ReactElement {
         <Link className="layout__brand" to="/" aria-label={t("layout.brandAria")}>
           REZ<span>IIZI</span>
         </Link>
-        <nav className="layout__nav" aria-label={t("layout.navAria")}>
+        <button
+          type="button"
+          className="layout__mobile-menu-btn"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="primary-navigation"
+          aria-label={
+            mobileMenuOpen ? t("layout.mobileMenuClose") : t("layout.mobileMenuOpen")
+          }
+          onClick={() => {
+            setMobileMenuOpen((prev) => !prev);
+          }}
+        >
+          <span aria-hidden="true">{mobileMenuOpen ? "✕" : "☰"}</span>
+        </button>
+        <nav
+          id="primary-navigation"
+          className={mobileMenuOpen ? "layout__nav layout__nav--open" : "layout__nav"}
+          aria-label={t("layout.navAria")}
+        >
           <NavLink to="/" end className={navLinkClass}>
             {t("layout.nav.home")}
           </NavLink>
@@ -161,6 +198,16 @@ export function Layout(): ReactElement {
           <div className="layout__user-avatar">{user?.email?.slice(0, 2).toUpperCase() ?? "RZ"}</div>
         </div>
       </header>
+      {mobileMenuOpen ? (
+        <button
+          type="button"
+          className="layout__mobile-backdrop"
+          aria-label={t("layout.mobileMenuClose")}
+          onClick={() => {
+            setMobileMenuOpen(false);
+          }}
+        />
+      ) : null}
       <main id="main-content" className="layout__main" tabIndex={-1}>
         <LayoutOutlet />
       </main>
