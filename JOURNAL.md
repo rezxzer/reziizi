@@ -21,6 +21,15 @@
 
 ## ჩანაწერები
 
+### 2026-04-10 — Production auth/domain confirmation + login/signup UX hardening
+
+- **Domain live (confirmed):** production domain is now **`https://www.metafeed.it.com`** (Vercel + Namecheap DNS fixed). App is reachable directly via custom domain.
+- **Supabase Auth config (confirmed):** `Site URL` + redirect URL configured for `https://www.metafeed.it.com/*`; email confirmation flow tested end-to-end.
+- **Signup UX updates:** confirm-password added; post-signup panel now replaces form fields with clear “check email / confirm account” instructions; resend confirmation button added with **60s cooldown**.
+- **Login UX updates:** invalid credentials now show an inline form error (not only bottom toast), so users immediately see what failed.
+- **Navigation/access:** logout action exposed from global header and profile toolbar for faster sign-out discovery.
+- **Working mode note (team/AI safety):** when using external assistants (Claude/ChatGPT/etc.), treat repo docs (`project.md`, `JOURNAL.md`, `AGENTS.md`, `.cursor/rules/reziizi.mdc`) as source of truth; no out-of-scope refactors, no DB-breaking renames, and no migration history rewrites without explicit plan.
+
 ### 2026-04-10 — Brand rename to Metafeed (metafeed.it.com)
 
 - **UI/SEO rename:** runtime app brand switched to **Metafeed** (`Layout` brand text, `SITE_NAME`, `index.html` title/meta/OG, i18n copy in `messages.ts` across `en/ka/ru`).

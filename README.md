@@ -94,12 +94,13 @@ Enable them for **Production** and **Preview** (recommended so PR previews work)
 After you know your live URL:
 
 1. **Authentication** → **URL Configuration**.
-2. Set **Site URL** to `https://your-project.vercel.app` (your real domain).
-3. Under **Redirect URLs** (or **Additional Redirect URLs**), add the same origin, e.g. `https://your-project.vercel.app` and, if the UI allows, a wildcard such as `https://your-project.vercel.app/**` for path redirects. Add preview URLs if you use Supabase auth flows on Vercel previews.
+2. Set **Site URL** to `https://www.metafeed.it.com` (current production).
+3. Under **Redirect URLs** (or **Additional Redirect URLs**), add `https://www.metafeed.it.com/*`. Add preview URLs if you use Supabase auth flows on Vercel previews.
 
 Password sign-in needs a correct **Site URL**; magic links / OAuth need **Redirect URLs** to match.
 
-**Password recovery (reset):** The app uses `resetPasswordForEmail` with redirect to `{origin}/reset-password`. Add explicit entries if your Supabase project does not accept a wildcard, for example `https://your-project.vercel.app/reset-password` and, for local dev, `http://localhost:5173/reset-password`. Under **Authentication** → **Emails**, ensure the recovery template uses `{{ .ConfirmationURL }}` (default). Optional: **Authentication** → **SMTP Settings** to send via your own provider.
+**Password recovery (reset):** The app uses `resetPasswordForEmail` with redirect to `{origin}/reset-password`. Add explicit entries if your Supabase project does not accept a wildcard, for example `https://www.metafeed.it.com/reset-password` and, for local dev, `http://localhost:5173/reset-password`. Under **Authentication** → **Emails**, ensure the recovery template uses `{{ .ConfirmationURL }}` (default). Optional: **Authentication** → **SMTP Settings** to send via your own provider.
+**Email confirmation (signup):** keep **Confirm email** enabled in Supabase Auth providers. Production flow is verified on `www.metafeed.it.com`.
 
 ### 6. Verify production
 
