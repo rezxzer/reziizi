@@ -3,6 +3,35 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) {
+            return;
+          }
+
+          if (id.includes("@supabase/")) {
+            return "vendor-supabase";
+          }
+
+          if (id.includes("@tanstack/")) {
+            return "vendor-query";
+          }
+
+          if (id.includes("react-router") || id.includes("@remix-run/")) {
+            return "vendor-router";
+          }
+
+          if (id.includes("react") || id.includes("scheduler")) {
+            return "vendor-react";
+          }
+
+          return "vendor-misc";
+        },
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
