@@ -21,7 +21,7 @@ export function LoginPage(): ReactElement {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [signupNotice, setSignupNotice] = useState<{
-    kind: "success" | "info";
+    kind: "success";
     message: string;
   } | null>(null);
   const [resendBusy, setResendBusy] = useState(false);
@@ -65,22 +65,14 @@ export function LoginPage(): ReactElement {
           return;
         }
       } else {
-        const { data, error: signError } = await supabase.auth.signUp({ email, password });
+        const { error: signError } = await supabase.auth.signUp({ email, password });
         if (signError) {
           toast.error(errorMessage(signError));
           return;
         }
-        const hasNewIdentity = (data.user?.identities?.length ?? 0) > 0;
-        if (hasNewIdentity) {
-          const message = t("pages.login.checkEmailForConfirmation");
-          setSignupNotice({ kind: "success", message });
-          toast.success(message);
-        } else {
-          setSignupNotice({
-            kind: "info",
-            message: t("pages.login.emailAlreadyRegisteredHint"),
-          });
-        }
+        const message = t("pages.login.checkEmailForConfirmation");
+        setSignupNotice({ kind: "success", message });
+        toast.success(message);
       }
     } finally {
       setSubmitting(false);
@@ -154,17 +146,13 @@ export function LoginPage(): ReactElement {
             {mode === "signup" && signupNotice ? (
               <div className="stack">
                 <p
-                  className={signupNotice.kind === "success" ? "form__success" : "form__error"}
+                  className="form__success"
                   role="status"
                 >
-                  {signupNotice.kind === "success"
-                    ? t("pages.login.confirmationPendingTitle")
-                    : signupNotice.message}
+                  {t("pages.login.confirmationPendingTitle")}
                 </p>
                 <p className="muted form__hint">
-                  {signupNotice.kind === "success"
-                    ? t("pages.login.confirmationPendingBody", { email })
-                    : t("pages.login.checkEmailForConfirmation")}
+                  {t("pages.login.confirmationPendingBody", { email })}
                 </p>
                 <button
                   type="button"
