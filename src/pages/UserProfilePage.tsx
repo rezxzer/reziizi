@@ -21,7 +21,7 @@ import { fetchUserCommentedPostsPage, fetchUserPosts } from "../lib/feed.ts";
 import { isValidUuid } from "../lib/chat.ts";
 import { copyToClipboard, getPublicProfileAbsoluteUrl } from "../lib/copyToClipboard.ts";
 import { fetchLastSeen, formatLastSeen, isOnline } from "../lib/lastSeen.ts";
-import { canShowEmail, fetchPublicProfile } from "../lib/profileView.ts";
+import { fetchPublicProfile } from "../lib/profileView.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
 
 type ProfileTab = "posts" | "commented";
@@ -321,15 +321,8 @@ export function UserProfilePage(): ReactElement {
 
   const displayLabel: string =
     profile != null
-      ? (() => {
-          const nm = profile.display_name?.trim();
-          if (nm) {
-            return nm;
-          }
-          return canShowEmail(profile, viewerId)
-            ? profile.email ?? profile.id.slice(0, 8)
-            : `${profile.id.slice(0, 8)}…`;
-        })()
+      ? profile.display_name?.trim() ||
+        t("pages.userProfile.memberFallback", { short: profile.id.slice(0, 8) })
       : "—";
 
   /** Private profile and viewer is NOT a follower → content locked. */
@@ -411,8 +404,11 @@ export function UserProfilePage(): ReactElement {
                   <Avatar imageUrl={profile.avatar_url} label={displayLabel} size="lg" />
                 </div>
                 <div className="profile-hero__meta">
-                  {!profile.is_banned && profile.display_name?.trim() ? (
-                    <p className="profile-hero__name">{profile.display_name.trim()}</p>
+                  {!profile.is_banned ? (
+                    <p className="profile-hero__name">
+                      {profile.display_name?.trim() ||
+                        t("pages.userProfile.memberFallback", { short: profile.id.slice(0, 8) })}
+                    </p>
                   ) : null}
                   {!profile.is_banned ? (
                     <p className="user-profile__status">
@@ -420,10 +416,6 @@ export function UserProfilePage(): ReactElement {
                       <span className="muted">{lastSeenText}</span>
                     </p>
                   ) : null}
-                  <p className="profile-hero__line">
-                    <strong>{t("pages.profile.emailLabel")}</strong>{" "}
-                    {canShowEmail(profile, viewerId) ? profile.email ?? "—" : t("pages.userProfile.emailHidden")}
-                  </p>
                   {showMutualFollow ? (
                     <p className="user-profile__mutual" role="status">
                       <span className="badge badge--mutual">{t("pages.userProfile.mutualFollowBadge")}</span>

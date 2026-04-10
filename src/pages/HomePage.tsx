@@ -30,6 +30,8 @@ export function HomePage(): ReactElement {
   const { user } = useAuth();
   const { isPremium } = useProfileFlags();
   const [checkoutBusy, setCheckoutBusy] = useState(false);
+  /** Logged-in: start with a slim prompt so the feed is visible first; expand to full `PostForm`. */
+  const [homeComposerExpanded, setHomeComposerExpanded] = useState(false);
 
   const featureFlagsQuery = useAppFeatureFlags();
 
@@ -117,6 +119,7 @@ export function HomePage(): ReactElement {
     void queryClient.invalidateQueries({ queryKey: queryKeys.feed.all });
     if (user) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.userPosts(user.id) });
+      setHomeComposerExpanded(false);
     }
   }, [queryClient, user]);
 
@@ -197,45 +200,37 @@ export function HomePage(): ReactElement {
           </p>
         ) : null}
 
-        <section className="card home-composer">
-          <PostForm onPosted={onPosted} />
+        <section
+          className={`card home-composer${user && !homeComposerExpanded ? " home-composer--collapsed" : ""}`}
+        >
+          {user && homeComposerExpanded ? (
+            <div className="home-composer__bar">
+              <button
+                type="button"
+                className="btn btn--small home-composer__collapse"
+                onClick={() => {
+                  setHomeComposerExpanded(false);
+                }}
+              >
+                {t("pages.home.composeCollapse")}
+              </button>
+            </div>
+          ) : null}
+          {!user || homeComposerExpanded ? (
+            <PostForm onPosted={onPosted} />
+          ) : (
+            <button
+              type="button"
+              className="home-composer__prompt"
+              aria-label={t("pages.home.composeExpandAria")}
+              onClick={() => {
+                setHomeComposerExpanded(true);
+              }}
+            >
+              {t("pages.postForm.placeholder")}
+            </button>
+          )}
         </section>
-
-        {showPremiumPromo ? (
-          <div className="home-premium-cta-wrap">
-            <aside className="home-premium-cta card" aria-label={t("pages.home.premiumCtaTitle")}>
-              <h3 className="home-premium-cta__title">{t("pages.home.premiumCtaTitle")}</h3>
-              <p className="muted home-premium-cta__body">
-                {isBillingCheckoutEnabled() ? t("pages.home.premiumCtaBody") : t("pages.home.premiumCtaBodyNoBilling")}
-              </p>
-              <div className="home-premium-cta__actions">
-                {!user ? (
-                  <Link to="/login" state={{ from: "/settings" }} className="btn btn--primary btn--small">
-                    {t("pages.home.premiumCtaLinkLogin")}
-                  </Link>
-                ) : isBillingCheckoutEnabled() ? (
-                  <>
-                    <button
-                      type="button"
-                      className="btn btn--primary btn--small"
-                      disabled={checkoutBusy}
-                      onClick={() => void handleHomePremiumCheckout()}
-                    >
-                      {checkoutBusy ? t("settings.premiumCheckoutBusy") : t("settings.premiumCheckoutSubscribe")}
-                    </button>
-                    <Link to="/settings" className="inline-link home-premium-cta__settings-link">
-                      {t("pages.home.premiumCtaLinkSettings")}
-                    </Link>
-                  </>
-                ) : (
-                  <Link to="/settings" className="btn btn--primary btn--small">
-                    {t("pages.home.premiumCtaLinkSettings")}
-                  </Link>
-                )}
-              </div>
-            </aside>
-          </div>
-        ) : null}
 
         {showFeedAds ? <FeedAdSlot /> : null}
 
@@ -272,7 +267,7 @@ export function HomePage(): ReactElement {
         ) : null}
       </div>
 
-      <aside className="home-sidebar" aria-label={t("pages.home.sidebarTrendingAria")}>
+      <aside className="home-sidebar" aria-label={t("pages.home.sidebarLandmarkAria")}>
         <div className="home-sidebar__widget">
           <div className="home-sidebar__title">{t("pages.home.sidebarTrendingTitle")}</div>
           {trendingTags.length > 0
@@ -288,6 +283,44 @@ export function HomePage(): ReactElement {
               <p className="muted home-sidebar__empty">{t("pages.home.sidebarTrendingEmpty")}</p>
             )}
         </div>
+
+        {showPremiumPromo ? (
+          <div className="home-premium-cta-wrap home-sidebar__premium">
+            <section className="home-premium-cta card" aria-labelledby="home-premium-cta-heading">
+              <h3 id="home-premium-cta-heading" className="home-premium-cta__title">
+                {t("pages.home.premiumCtaTitle")}
+              </h3>
+              <p className="muted home-premium-cta__body">
+                {isBillingCheckoutEnabled() ? t("pages.home.premiumCtaBody") : t("pages.home.premiumCtaBodyNoBilling")}
+              </p>
+              <div className="home-premium-cta__actions">
+                {!user ? (
+                  <Link to="/login" state={{ from: "/settings" }} className="btn btn--primary btn--small">
+                    {t("pages.home.premiumCtaLinkLogin")}
+                  </Link>
+                ) : isBillingCheckoutEnabled() ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn--primary btn--small"
+                      disabled={checkoutBusy}
+                      onClick={() => void handleHomePremiumCheckout()}
+                    >
+                      {checkoutBusy ? t("settings.premiumCheckoutBusy") : t("settings.premiumCheckoutSubscribe")}
+                    </button>
+                    <Link to="/settings" className="inline-link home-premium-cta__settings-link">
+                      {t("pages.home.premiumCtaLinkSettings")}
+                    </Link>
+                  </>
+                ) : (
+                  <Link to="/settings" className="btn btn--primary btn--small">
+                    {t("pages.home.premiumCtaLinkSettings")}
+                  </Link>
+                )}
+              </div>
+            </section>
+          </div>
+        ) : null}
       </aside>
     </div>
   );

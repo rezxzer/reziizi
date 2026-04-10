@@ -214,17 +214,16 @@ export function SearchPage(): ReactElement {
                   ) : (
                     <ul className="search-profile-list">
                       {profiles.map((p) => {
-                        const displayName = (p as { display_name?: string | null }).display_name;
+                        const displayName = (p as { display_name?: string | null }).display_name?.trim() || null;
                         const bio = (p as { bio?: string | null }).bio;
+                        const listLabel: string =
+                          displayName ?? t("pages.userProfile.memberFallback", { short: p.id.slice(0, 8) });
                         return (
                         <li key={p.id} className="search-profile-list__item">
                           <div className="search-profile-list__row">
-                            <Avatar imageUrl={p.avatar_url} label={displayName ?? p.email ?? p.id} size="sm" />
+                            <Avatar imageUrl={p.avatar_url} label={listLabel} size="sm" />
                             <div className="search-profile-list__main">
-                              {displayName ? (
-                                <span className="search-profile-list__display-name">{displayName}</span>
-                              ) : null}
-                              <span className={displayName ? "muted search-profile-list__email" : "search-profile-list__email"}>{p.email ?? "—"}</span>
+                              <span className="search-profile-list__display-name">{listLabel}</span>
                               {bio ? (
                                 <span className="muted search-profile-list__bio">{bio.length > 80 ? `${bio.slice(0, 80)}…` : bio}</span>
                               ) : null}

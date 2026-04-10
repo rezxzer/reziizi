@@ -14,6 +14,7 @@ import { postImageAltFromBody } from "../lib/postImageAlt.ts";
 import { removeStoredPostImageByPublicUrl } from "../lib/postImageStorage.ts";
 import { removeStoredPostVideoByPublicUrl } from "../lib/postVideoStorage.ts";
 import type { FeedPost } from "../types/feed";
+import { Avatar } from "./Avatar.tsx";
 import { CommentSection } from "./CommentSection";
 import { ReactionButtons } from "./ReactionButtons";
 import { ReportPostControl } from "./ReportPostControl.tsx";
@@ -22,12 +23,6 @@ type PostCardProps = {
   post: FeedPost;
   onChanged: () => void;
 };
-
-function avatarVariant(email: string): string {
-  const s = email.trim() || "RZ";
-  const code = s.charCodeAt(0) % 3;
-  return code === 0 ? "" : code === 1 ? "b" : "c";
-}
 
 export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
   const { t } = useI18n();
@@ -45,11 +40,10 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
   const editRef = useRef<HTMLTextAreaElement>(null);
   const isOwner = user?.id === post.user_id;
   const hasMedia: boolean = Boolean(post.image_url || post.video_url);
-  const display = post.authorEmail ?? post.user_id.slice(0, 8);
+  const display: string =
+    post.authorDisplayName?.trim() || post.user_id.slice(0, 8);
   const created = new Date(post.created_at).toLocaleString();
   const netScore: number = post.thumbsUp - post.thumbsDown;
-  const avatarGradClass: string = avatarVariant(post.authorEmail ?? "");
-
   useLayoutEffect(() => {
     if (!hasMedia) {
       setBodyOverflows(false);
@@ -143,10 +137,8 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
     <article className="post-card">
       <header className="post-card__header">
         <div className="post-card__author-row">
-          <div
-            className={`post-card__avatar avatar-gradient${avatarGradClass ? ` ${avatarGradClass}` : ""}`}
-          >
-            {(post.authorEmail ?? "RZ").slice(0, 2).toUpperCase()}
+          <div className="post-card__avatar">
+            <Avatar imageUrl={post.authorAvatarUrl} label={display} size="sm" />
           </div>
           <Link className="post-card__author-link" to={`/u/${post.user_id}`}>
             <span className="post-card__author">{display}</span>

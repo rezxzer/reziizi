@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link, NavLink, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
@@ -10,6 +11,9 @@ import { useUnreadNotificationCount } from "../hooks/useUnreadNotificationCount.
 import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
+import { fetchProfileDisplay } from "../lib/profileAbout.ts";
+import { navAvatarInitialsFromUser } from "../lib/userInitials.ts";
+import { queryKeys } from "../lib/queryKeys.ts";
 import { supabase } from "../lib/supabaseClient.ts";
 import { RouteAnnouncer } from "./RouteAnnouncer.tsx";
 import { RouteSeo } from "./RouteSeo.tsx";
@@ -25,10 +29,21 @@ function navLinkClass({ isActive }: { isActive: boolean }): string {
 }
 
 export function Layout(): ReactElement {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const { t } = useI18n();
   const { user, loading } = useAuth();
   const { isAdmin, isBanned, loading: flagsLoading } = useProfileFlags();
+  const profileDisplayQuery = useQuery({
+    queryKey: queryKeys.profile.display(user?.id ?? "__none__"),
+    queryFn: () => fetchProfileDisplay(user!.id),
+    enabled: Boolean(user),
+    staleTime: 60_000,
+  });
+  const navAvatarInitials: string = useMemo(
+    () =>
+      navAvatarInitialsFromUser(profileDisplayQuery.data?.display_name ?? undefined, user?.email ?? undefined),
+    [profileDisplayQuery.data?.display_name, user?.email],
+  );
   useHeartbeat();
   useCardTilt();
   useScrollParallax();
@@ -158,8 +173,25 @@ export function Layout(): ReactElement {
           <NavLink to="/profile" className={navLinkClass}>
             {t("layout.nav.profile")}
           </NavLink>
-          <NavLink to="/settings" className={navLinkClass}>
+          <NavLink
+            to="/settings"
+            className={() =>
+              navLinkClass({
+                isActive: pathname === "/settings" && hash !== "#settings-premium",
+              })
+            }
+          >
             {t("layout.nav.settings")}
+          </NavLink>
+          <NavLink
+            to="/settings#settings-premium"
+            className={() =>
+              navLinkClass({
+                isActive: pathname === "/settings" && hash === "#settings-premium",
+              })
+            }
+          >
+            {t("layout.nav.premium")}
           </NavLink>
           {user && !flagsLoading && isAdmin ? (
             <details
@@ -219,7 +251,7 @@ export function Layout(): ReactElement {
           <div className="theme-pill">
             <ThemePreferenceControls />
           </div>
-          <div className="layout__user-avatar">{user?.email?.slice(0, 2).toUpperCase() ?? "RZ"}</div>
+          <div className="layout__user-avatar">{navAvatarInitials}</div>
         </div>
       </header>
       {mobileMenuOpen ? (

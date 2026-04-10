@@ -144,13 +144,11 @@ export function ProfilePage(): ReactElement {
     },
   });
 
-  const displayEmail: string | null =
-    profileDisplayQuery.data?.email ?? user?.email ?? null;
   const avatarUrl: string | null = profileDisplayQuery.data?.avatar_url ?? null;
   const displayName: string | null = profileDisplayQuery.data?.display_name?.trim() || null;
   const bio: string | null = profileDisplayQuery.data?.bio?.trim() || null;
   const avatarLabel: string =
-    displayName ?? displayEmail ?? t("pages.profile.avatarLabel");
+    displayName ?? user?.email ?? t("pages.profile.avatarLabel");
   const posts = postsQuery.data ?? [];
 
   const commentedPosts = useMemo(
@@ -336,7 +334,7 @@ export function ProfilePage(): ReactElement {
                   onClick={() => void handleLogout()}
                   disabled={logoutBusy}
                 >
-                  {t("pages.profile.signOut")}
+                  {t("settings.logOut")}
                 </button>
               </p>
               <div className="profile-hero__layout">
@@ -346,9 +344,11 @@ export function ProfilePage(): ReactElement {
                   </div>
                 </div>
                 <div className="profile-hero__meta">
-                  {displayName ? <p className="profile-hero__name">{displayName}</p> : null}
-                  <p className="profile-hero__line">
-                    <strong>{t("pages.profile.emailLabel")}</strong> {displayEmail ?? "—"}
+                  <p className="profile-hero__name">
+                    {displayName ?? t("pages.profile.noPublicNameYet")}
+                  </p>
+                  <p className="muted form__hint profile-hero__privacy-hint">
+                    {t("pages.profile.publicNamePrivacyHint")}
                   </p>
                 </div>
               </div>

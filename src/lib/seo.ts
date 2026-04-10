@@ -33,6 +33,7 @@ const ROUTE_DEFS: readonly { pattern: string; key: RouteKey; robots: RobotsDirec
   { pattern: "/banned", key: "banned", robots: "noindex,nofollow" },
   { pattern: "/search", key: "search", robots: "index,follow" },
   { pattern: "/legal", key: "legal", robots: "index,follow" },
+  { pattern: "/sponsored", key: "sponsored", robots: "index,follow" },
   { pattern: "/security", key: "security", robots: "index,follow" },
   { pattern: "/", key: "home", robots: "index,follow" },
 ];

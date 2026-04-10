@@ -181,6 +181,8 @@
 - **v3:** Admin, moderation, reports, ban, stats, ads, premium, settings+privacy, security, API catalog, DB docs (`SCHEMA.md`, `verify_schema`), **Caching (30)** TanStack Query, **Error Handling (32)** (toast მთელ აპში მუტაციებზე/ავთენტიკაციაზე სადაც განვავრცელეთ; route-level **`QueryErrorResetBoundary`** + **`RouteErrorBoundary`** → **`LayoutOutlet`**; **`RouteErrorBoundary.test.tsx`**), **Logging (31)**, **Performance (36)** lazy routes, **Deployment (37)** Vercel + `vercel.json` + **`README.md` deployment გზამკვლევი**, **Testing (41)** Vitest — **baseline დასრულებული** კოდში.
 - **Production:** აპი **ატვირთულია Vercel-ზე** და live დომენია **`https://www.metafeed.it.com`** (GitHub დაკავშირება, `VITE_*` env, Supabase Auth URL-ები — იხილე **`README.md` → „Production deployment (GitHub + Vercel + Supabase)”**).
 - **Supabase SQL (migrations):** რეპოში `supabase/migrations/` ჩამოწერილი migration-ების სრული თანმიმდევრობა **გაშვებულია production Supabase-ზე** (დადასტურებული), მათ შორის ბოლო `20260401352200_add_trending_tags_rpc.sql`.
+- **სპონსორის განაცხადები (feed top):** migration `20260401352400_add_ad_placement_requests.sql` — `ad_placement_requests` + RLS; აპი: **`/sponsored`** (განაცხადი + საკუთარი სტატუსი), **`/admin/ad-requests`** (რიგი); მთავარი ლენტის **`Sponsored`** ლეიბლი **ინტერნალურად** მიდის `/sponsored`-ზე; ცოცხალი ტექსტი რეკლამის სლოტში კვლავ **`/admin/ads`**. **UI:** ამ სამ გვერდზე ჩანს **`platform-test-notice`** — **სატესტო რეჟიმი** (ფასიანი განთავსება/ფული ჯერ არა; დალოდება პროდუქტის განახლებამდე). **Production:** გაუშვი ეს migration Supabase-ზე სანამ ფიჩა live-ზე გჭირდებათ.
+- **Feed-top სარეკლამო ვიდეო (ადმინი):** migration `20260401352500_add_ad_slots_video_url_and_storage.sql` — `ad_slots.video_url`, bucket **`feed-ad-videos`** (მხოლოდ ადმინის upload `feed_top/*`); **`/admin/ads`** — MP4/WebM ატვირთვა; **`FeedAdSlot`** — `<video controls>`. **Production:** გაუშვი migration Supabase-ზე + Storage bucket პოლიტიკები.
 - **Admin feature flags:** `feature_flags` (`20260401351500`, `20260401351600`, `20260401351700`) — `/admin/features` + ჰედერის ადმინ მენიუ; გამორთული ფუნქცია **არ ჩანს** მომხმარებლისთვის (მაგ. Trending, feed ads, **პრემიუმის ბარათი მთავარზე**, კომენტარები, ძებნა/მესიჯების ნავი და შესაბამისი URL-ები → მთავარი) — „გამორთულია“ არ ეწერება.
 - **Media Upload (11) + File Storage (47) — baseline:** Supabase Storage `post-images`, `posts.image_url`, `PostForm` სურათი, feed/admin `PostCard` / Moderation; პოსტის წაშლისას Storage cleanup (საუკეთესო ძალისხმევა).
 - **Video (10) — baseline:** Storage `post-videos` (MP4/WebM, 50 MiB), `posts.video_url`, CHECK ერთ მედიაზე; `PostForm` / `PostCard` / admin; account deletion იშლის `post-videos` პრეფიქსს; **ტრანსკოდინგი არა** (იხილე §10).
@@ -217,27 +219,27 @@
 - **Email/Auth (45) — confirmed in production:** password reset (`/forgot-password` · `/reset-password`) + signup email confirmation flow დადასტურებულია live-ზე; Supabase URL Configuration მიბმულია `https://www.metafeed.it.com` / redirect `https://www.metafeed.it.com/*`; i18n `en`/`ka`/`ru`; signup UX: confirm-password + confirmation-pending panel + resend (60s cooldown), login UX: inline invalid-credentials error. **Custom SMTP/alerts** — მომავალ ფაზაში (იხილე §45 / §41 Notes).
 - **Anti-spam (49) — body update:** migration `20260401350600_antispam_recheck_on_body_update.sql` — **გაშვებულია Supabase-ზე** (დადასტურებული) — `body` შეცვლისას იგივე duplicate/link ევრისტიკა რაც INSERT-ზე; `abuse_flags` როცა `is_flagged` ხდება UPDATE-ით (`skip_spam_guard` — report path-თან დუბლირების გარეშე).
 - **Anti-spam (49) — დახვეწა (ფაზა A):** **`20260401351000`** — ბაზის ევრისტიკა (მინ. სიგრძე 12, ფანჯარა 5 წთ); **`20260401351100_antispam_tune_window_7_min_len_15.sql`** — **მიმდინარე სპეკი:** ფანჯარა **7 წთ**, ნორმ. `body` სიგრძე ≥ **15** დუბლიკატისთვის; **აპი:** `PostForm` / `CommentSection` — info toast, თუ ჩანაწერი ავტომატურად დაიფლაგა. **Production:** ახალი migration-ის გაშვება სავალდებულოა live-ზე; `SCHEMA.md`, **`reziizi.mdc`** (#35).
-- **პოსტის სიგრძე + ტირი:** **`20260401351200`** — CHECK ზედა ჭერი **5000**; **`20260401351300_posts_tier_free_premium.sql`** — უფასო **1000** სიმბოლო, პრემიუმი ან ადმინი **5000**; ვიდეო პოსტი მხოლოდ პრემიუმი/ადმინი (`video_url` + Storage `post-videos`). **`postBodyLimits.ts`** + `PostForm`. **Production:** ორივე migration; ძველი >5000 პოსტი — იხილე #512 შენიშვნა.
+- **პოსტის სიგრძე + ტირი:** **`20260401351200`** — CHECK ზედა ჭერი **5000**; **`20260401351300_posts_tier_free_premium.sql`** — უფასო **1000** სიმბოლო, პრემიუმი ან ადმინი **5000**; **`20260401352300_free_tier_one_video_per_utc_day.sql`** — უფასოზე **ერთი ვიდეო პოსტი / UTC კალენდარული დღე** (`posts_enforce_tier_limits` + Storage `post-videos`; იგივე პოსტზე ფაილის ჩანაცვლება დაშვებულია). **`postBodyLimits.ts`** + `PostForm` + RPC `my_post_video_count_today`. **Production:** migration-ების გაშვება Supabase-ზე; ძველი >5000 პოსტი — იხილე #512 შენიშვნა.
 - **Rate limiting (48) — API ფენა:** `POST /api/delete-account` — IP-ზე best-effort window (`api/lib/rateLimitByIp.ts`); env იხილე **`README.md`**.
 - **Premium + billing (§24):** migration `20260401350700` — **გაშვებულია Supabase-ზე** (დადასტურებული) — `service_role` → `premium_until` მხარდაჭერა. **რეალური Stripe** (Edge `stripe-webhook` deploy, secrets, Dashboard webhook, in-app Checkout) — **ოფიციალური განვითარების რიგი** — **`#### ბიზნესი / §24 — განვითარების გადაწყვეტილება`** ქვემოთ; ტექნიკური ნაბიჯები — **`README.md` → „Stripe Premium“**.
 - **ტეგები / „ჰეშტეგი“ (პროდუქტი):** **ვარიანტი B** — მხოლოდ ცალკე ველი; **`posts.body`-დან `#` არ იკითხება.** სრული არგუმენტაცია — **`### 15`**. **Polish:** live preview — ✅ `PostForm`. **ტირი:** უფასო **4** / პრემიუმი+ადმინი **8** ტეგი — ✅ `tagParse.ts` + migration **`20260401351400_post_tags_tier_limit.sql`** (Production გაშვება სავალდებულოა). **body `#`** — მხოლოდ სკოპის + მეტრიკის შემდეგ.
 
 #### Premium vs free — პოსტი / მედია
 
-**სტატუსი:** ✅ **ფაზა 1 იმპლემენტირებული** — ტექსტის ტირი + ვიდეო მხოლოდ პრემიუმზე/ადმინზე (`20260401351300`, `PostForm`, Storage). **პრემიუმი:** `profiles.premium_until` აქტიური — `src/lib/premium.ts`, **§24**. **მომავალი (ფაზა 2, სურვილისამებრ):** დღიური ლიმიტი, სხვადასხვა rate წუთში, სურათის ზომა ტირებად — იხილე ქვემოთ „სამიზნე“.
+**სტატუსი:** ✅ **ფაზა 1 იმპლემენტირებული** — ტექსტის ტირი (`20260401351300`) + ვიდეო: **პრემიუმი/ადმინი — ულიმიტო**; **უფასო — ერთი ვიდეო პოსტი / UTC დღე** (`20260401352300`, `PostForm`, Storage, `my_post_video_count_today`). **პრემიუმი:** `profiles.premium_until` აქტიური — `src/lib/premium.ts`, **§24**. **მომავალი (ფაზა 2, სურვილისამებრ):** სხვადასხვა rate წუთში ტირებად, სურათის ზომა ტირებად — იხილე ქვემოთ „სამიზნე“.
 
 | პარამეტრი | არა პრემიუმი | პრემიუმი (ან `is_admin`) | იმპლემენტაცია |
 |-----------|----------------|---------------------------|----------------|
 | `posts.body` მაქს. სიმბოლო | **1000** | **5000** | `posts_enforce_tier_limits` + CHECK ≤5000 (`013512`); `getPostBodyMaxLength` / `PostForm` |
 | პოსტების სიხშირე (rolling) | **12 / 1 წთ** (იგივე) | **იგივე** | `20260401310000` — ტირად განსხვავება **არა** (მომავალი ფაზა) |
 | სურათი — ფაილის მაქს. ზომა | **5 MiB** | **5 MiB** | `postImageStorage` — ტირად განსხვავება **არა** (მომავალი: მაგ. 2 vs 5 MiB) |
-| ვიდეო — დაშვება | **არა** (`video_url` აკრძალული) | **კი** | ტრიგერი + Storage policy `post-videos`; UI-ში ვიდეო არ ჩანს უფასოზე |
-| ვიდეო — ფაილის მაქს. ზომა | — | **50 MiB** | `postVideoStorage` / bucket |
+| ვიდეო — დაშვება | **კი — max 1 პოსტ ვიდეოთი / UTC დღე** | **კი — ულიმიტო** | `20260401352300` + ტრიგერი + Storage; `PostForm` + RPC `my_post_video_count_today` |
+| ვიდეო — ფაილის მაქს. ზომა | **50 MiB** (იგივე) | **50 MiB** | `postVideoStorage` / bucket |
 | ერთ პოსტზე მედია | ერთი ტიპი | იგივე | `posts_one_media_type` |
 | ტეგები პოსტზე | **4** | **8** | `tagParse.ts` `getMaxTagsPerPost`; DB `20260401351400_post_tags_tier_limit.sql` |
-| დღიური ლიმიტი / ვიდეო / დღე | — | — | **არა** (სამიზნე მომავალში) |
+| დღიური ლიმიტი / ვიდეო (UTC) | **1 ვიდეო პოსტი** | ულიმიტო | `20260401352300` |
 
-**შემდეგი ნაბიჯი (ფაზა 2):** `project.md` / §24 განახლება რიცხვებით → migration + აპი — ერთ სკოპში.
+**შემდეგი ნაბიჯი (ფაზა 2):** სურვილისამებრ — ტირის მიხედვით სხვა მედია ლიმიტები; §24 რიცხვების განახლება.
 
 **შენიშვნა:** **Database Structure (29)** — `supabase/SCHEMA.md`, `verify_schema.sql`; ახალი migration-ის შემდეგ ამ ფაილებიც განაახლე.
 
@@ -254,6 +256,34 @@
 | **P2 — Growth** | მხოლოდ **P1-ის შემდეგ**: **ერთი** მიმართულება პირველ ტალღაში — **ტიპები (tipping)** **ან** **self-serve boosted / „Promoted“** ლენტში. **არა** ორივე პარალელურად (ორი გადახდის სისტემა + მოდერაციის ორმაგი ტვირთი). Boosted **უნდა** იყოს **ერთ სპეკში** არსებულ **feed top / `ad_slots`** მოდელთან (ადმინის რეკლამა vs გადახდიანი სლოტი — ერთი დოკუმენტირებული წესი, არა ორი ურთიერთდაუკავშირებელი პროდუქტი). | ⬜ |
 | **გადადებული (არა სკოპი სანამ ცალკე არ ჩაიწერება `project.md`-ში)** | B2B ორგანიზაციები, paywall / ექსკლუზიური კონტენტი, ლოკალური ბიზნეს-დირექტორია, გადახდიანი ვერიფიკაცია — მაღალი სკოპი ან ოპერაციული ტვირთი. | **არ იწყება** იმპლემენტაცია გეგმის გარეშე. |
 | **Long tail** (რეფერალი, კოსმეტიკა, ჩელენჯები ფულით, white-label, …) | იდეები — **არა** ავტომატური სპეკი. | მხოლოდ **P1 / P2** დასრულების შემდეგ და ცალკე იტერაციაში. |
+
+##### Creator ad revenue share (platform offer on creator video) — **DRAFT სპეკი; იმპლემენტაცია ⬜**
+
+**სტატუსი:** მხოლოდ დოკუმენტაცია — **არსებული აპი, RLS, `ad_slots`, `ad_placement_requests` და გადახდის ფლოუ არ იცვლება** ამ ჩანაწერის დამატებით. კოდი/SQL **არ იწყება** სანამ პროდუქტი არ დაამატებს ქვემოთ ჩამოთვლილ **გადასაწყვეტ კითხვებს** და არ აირჩევს v0 სკოპს ერთი იტერაციისთვის. **საჯარო წესი:** სანამ კომერციული პროგრამა არ გაეშვება, ნებისმიერი ახალი UI ამ ხაზზე უნდა უშვებდეს მომხმარებელს, რომ ეს **სატესტოა** და **ფულს/პირობებს არ სთავაზობს** — იხილე **`/sponsored`**, **`/admin/ad-requests`**, **`/admin/ads`** (`pages.*.testModeBanner`).
+
+**განსხვავება არსებული baseline-ისგან:**
+
+| | **არსებული** | **ამ draft-ის იდეა** |
+|---|----------------|----------------------|
+| ფლოუ | **`ad_placement_requests`:** მომხმარებელი **თვითონ** იტოვებს განაცხადს **ლენტის ზედა** sponsored **ტექსტური** სლოტისთვის; ადმინი `pending` → `approved` / `rejected`. | პლატფორმა (ადმინი/სისტემა) **აქტიურად შესთავაზებს** კრეატორს რეკლამას **კონკრეტულ ვიდეო პოსტზე** (ან მომავალში სხვა განსაზღვრულ სლოტზე); ელიგიბილითი (ზღვრები) + კრეატორის **თანხმობა/უარი**; **შემოსავლის ნაწილი** კრეატორს — გადახდის ინფრა (**Stripe Connect** vs ხელით გაცემა) **ცალკე ეტაპი**. |
+| ტექნიკა | `FeedAdSlot` + `/admin/ads` = გლობალური feed-top სლოტი. | ახალი ცხრილი(ები) / სტატუსები / UI — **ახალი migration-ების** რიგით; **არა** `ad_slots`-ის უგულებელყოფა. |
+
+**რიგი და დაცვა (რომ არ დავაზიანოთ პროექტი):**
+
+1. **არ ერთდება** §24 **P1** (Stripe Premium ლანჩი) ერთ ტალღაში — ჯერ P1 საჭიროებისამებრ; შემდეგ **ცალკე იტერაცია** ამ სპეკის **v0** (შეთავაზება + თანხმობა; ფული optional ან ხელით).
+2. **არ ავურიოთ** **P2**-ში **tipping**-სა და **creator ad payouts**-ს ერთ სესიაში — იგივე წესი რაც ზედა ცხრილში: **ერთი** გადახდის მიმართულება პირველ growth-ტალღაში.
+3. **DB** — მხოლოდ ახალი migration, **ერთი ლოგიკური სკოპით** (`reziizi.mdc`), `SCHEMA.md` / `verify_schema.sql` სინქი; **არა** არსებული რიგის გადაწერა.
+4. **ელიგიბილითის ზღვრები** — აპში **პოსტის view counter** ჯერ baseline-ად არ არის; სანამ არ დაემატება (**§24 P1+ analytics** ან ცალკე სკოპი), v0-ში ზღვრები = **ადმინის ხელით შერჩევა** ან **proxy** (რეაქციები, კომენტარები, email verified).
+
+**სამიზნე ფაზები (იმპლემენტაციამდე დაიხვეწოს პროდუქტით):**
+
+| ფაზა | აღწერა |
+|------|--------|
+| **v0** | ადმინი ქმნის „შეთავაზებას“ (`post_id` + პირობის ტექსტი); კრეატორს **მიღება/უარი**; ჩვენება = მინიმალური UI (მაგ. sponsored ლეიბლი/ბლოკი პოსტზე, თუ deal `active`). **ფული:** ხელით / ინვოისი — Connect არა სავალდებულოდ v0-ში. |
+| **v1** | რიცხვობრივი ზღვრები + ოფციონალური **views** თუ მეტრიკა უკვე live-ა; მოდერაცია/შიგთავსის წესები. |
+| **v2** | **Revenue split** + **Stripe Connect** (ან სხვა payout); Terms; საჭიროებისამებრ impression/click აუდიტი. |
+
+**გადასაწყვეტი კითხვები (სანამ კოდი):** რეკლამა მხოლოდ **ვიდეო** პოსტზე თუ **სურათი**-ზეც; ერთ კრეატორზე ერთდროულად რამდენი active deal; რეკლამის ასეტი ვინ ატვირთავს (პლატფორმა vs რეკლამოდატი); სად ჩანს (მხოლოდ feed `PostCard` თუ პოსტის გვერდიც).
 
 **დაზღვევა (რისგან თავი — რომ არ „გავაფუჭოთ“ პროექტი):**
 

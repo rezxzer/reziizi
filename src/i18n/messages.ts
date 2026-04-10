@@ -22,6 +22,7 @@ type SeoRoutes = {
   search: SeoPage;
   legal: SeoPage;
   security: SeoPage;
+  sponsored: SeoPage;
   notFound: SeoPage;
 };
 
@@ -58,7 +59,17 @@ type PagesBundle = {
     sidebarTrendingTitle: string;
     /** `aria-label` for the aside landmark. */
     sidebarTrendingAria: string;
+    /** Whole home right column (trending + optional Premium). */
+    sidebarLandmarkAria: string;
+    /** CTA when the slot has `link_url` but no custom title (title is not the external link). */
+    feedAdExternalCta: string;
+    /** Fallback text inside `<video>` for browsers without playback. */
+    feedAdVideoFallback: string;
     sidebarTrendingEmpty: string;
+    /** Collapsed home composer — screen reader hint on the expand control. */
+    composeExpandAria: string;
+    /** Shrink full composer back to one line (logged-in home). */
+    composeCollapse: string;
   };
   login: {
     titleSignIn: string;
@@ -153,6 +164,12 @@ type PagesBundle = {
     removeMedia: string;
     mediaInvalidType: string;
     videoRequiresPremium: string;
+    /** Free tier: already posted a video today (UTC day). */
+    videoDailyLimitFree: string;
+    /** Shown under media controls while a free video slot is still available. */
+    videoFreeTierDailyHint: string;
+    /** Shown when the free daily video slot is used (UTC day). */
+    videoDailyLimitFreeHint: string;
     previewAlt: string;
     tagsLabel: string;
     tagsPlaceholder: string;
@@ -204,6 +221,10 @@ type PagesBundle = {
     followRequests: string;
     acceptRequest: string;
     rejectRequest: string;
+    /** Shown as title when display name empty (own profile). */
+    noPublicNameYet: string;
+    /** Under display name on own profile — email not listed. */
+    publicNamePrivacyHint: string;
   };
   userProfile: {
     invalidTitle: string;
@@ -213,6 +234,8 @@ type PagesBundle = {
     notFound: string;
     bannedNotice: string;
     emailHidden: string;
+    /** When `display_name` is empty — `{short}` = first 8 chars of user id. */
+    memberFallback: string;
     followersStat: string;
     followingStat: string;
     follow: string;
@@ -301,6 +324,7 @@ type PagesBundle = {
         linkUserReports: string;
         linkBlocks: string;
         linkAds: string;
+        linkAdRequests: string;
         linkApi: string;
         countsTitle: string;
         statProfiles: string;
@@ -359,10 +383,19 @@ type PagesBundle = {
       ads: {
         title: string;
         intro: string;
+        testModeBanner: string;
         feedTopTitle: string;
         fieldTitle: string;
         fieldBody: string;
         fieldLinkUrl: string;
+        fieldVideo: string;
+        videoHelp: string;
+        pickVideo: string;
+        pickVideoAria: string;
+        removeVideo: string;
+        uploadingVideo: string;
+        videoInvalidMime: string;
+        videoInvalidSize: string;
         activeLabel: string;
         phTitle: string;
         phBody: string;
@@ -371,6 +404,28 @@ type PagesBundle = {
         save: string;
         savedToast: string;
         noSlot: string;
+        linkReviewRequests: string;
+      };
+      adRequests: {
+        title: string;
+        intro: string;
+        testModeBanner: string;
+        empty: string;
+        colCreated: string;
+        colApplicant: string;
+        colTitle: string;
+        colBody: string;
+        colLink: string;
+        colStatus: string;
+        colNote: string;
+        statusPending: string;
+        statusApproved: string;
+        statusRejected: string;
+        placeholderNote: string;
+        save: string;
+        saving: string;
+        savedToast: string;
+        viewProfile: string;
       };
       stats: {
         title: string;
@@ -525,6 +580,32 @@ type PagesBundle = {
     title: string;
     lastUpdated: string;
   };
+  sponsored: {
+    title: string;
+    testModeBanner: string;
+    intro: string;
+    howItWorksTitle: string;
+    howItWorksBody: string;
+    formTitle: string;
+    fieldTitle: string;
+    fieldTitleHint: string;
+    fieldBody: string;
+    fieldBodyHint: string;
+    fieldLink: string;
+    fieldLinkHint: string;
+    submit: string;
+    submitting: string;
+    successToast: string;
+    signInTitle: string;
+    signInBody: string;
+    signInLink: string;
+    myRequestsTitle: string;
+    emptyMine: string;
+    statusPending: string;
+    statusApproved: string;
+    statusRejected: string;
+    adminNoteFromTeam: string;
+  };
   security: {
     navAria: string;
     title: string;
@@ -558,6 +639,7 @@ export type Bundle = {
       notifications: string;
       profile: string;
       settings: string;
+      premium: string;
       admin: string;
       adminMenuAria: string;
       adminOverview: string;
@@ -716,6 +798,7 @@ const en: Bundle = {
       notifications: "Notifications",
       profile: "Profile",
       settings: "Settings",
+      premium: "Premium",
       admin: "Admin",
       adminMenuAria: "Admin pages",
       adminOverview: "Overview",
@@ -870,6 +953,8 @@ const en: Bundle = {
       loadMore: "Load more ({pageSize} per page)",
       feedAdSponsored: "Sponsored",
       feedAdSponsoredContent: "Sponsored content",
+      feedAdExternalCta: "Visit link",
+      feedAdVideoFallback: "Your browser cannot play this video.",
       premiumCtaTitle: "Premium",
       premiumCtaBody: "Longer posts, more tags, video, and more. Manage your plan in Settings.",
       premiumCtaBodyNoBilling:
@@ -878,7 +963,10 @@ const en: Bundle = {
       premiumCtaLinkLogin: "Sign in",
       sidebarTrendingTitle: "Trending tags",
       sidebarTrendingAria: "Trending tags and shortcuts",
+      sidebarLandmarkAria: "Trending tags and Premium",
       sidebarTrendingEmpty: "No trending tags this week.",
+      composeExpandAria: "Open post composer",
+      composeCollapse: "Minimize",
     },
     login: {
       titleSignIn: "Log in",
@@ -979,6 +1067,12 @@ const en: Bundle = {
       removeMedia: "Remove attachment",
       mediaInvalidType: "Choose an image (JPEG, PNG, WebP, GIF) or a video (MP4, WebM).",
       videoRequiresPremium: "Video posts require Premium.",
+      videoDailyLimitFree:
+        "You have already published a video post today. Free plan allows one video post per day (UTC). Try again tomorrow or upgrade to Premium.",
+      videoFreeTierDailyHint:
+        "Free plan: one video post per calendar day (UTC). Premium allows more anytime.",
+      videoDailyLimitFreeHint:
+        "You have used today’s free video post (UTC). You can still add images, or try again tomorrow.",
       previewAlt: "Selected attachment preview",
       tagsLabel: "Tags (optional)",
       tagsPlaceholder: "e.g. news, dev, release-notes",
@@ -1024,6 +1118,9 @@ const en: Bundle = {
       followRequests: "Follow Requests",
       acceptRequest: "Accept",
       rejectRequest: "Decline",
+      noPublicNameYet: "No public name yet",
+      publicNamePrivacyHint:
+        "Your email is not shown on your profile. Add a public name under Edit profile.",
       tabPosts: "Posts",
       tabCommented: "Commented",
       sectionCommented: "Posts you commented on",
@@ -1037,6 +1134,7 @@ const en: Bundle = {
       notFound: "No profile found for this user.",
       bannedNotice: "This account is restricted.",
       emailHidden: "Hidden",
+      memberFallback: "Member · {short}",
       followersStat: "Followers: {count}",
       followingStat: "Following: {count}",
       follow: "Follow",
@@ -1123,6 +1221,7 @@ const en: Bundle = {
         linkBlocks: "Blocks — user block log",
         linkStats: "Statistics — full platform counts",
         linkAds: "Ads — feed top sponsored strip",
+        linkAdRequests: "Sponsored — application queue",
         linkApi: "API catalog — tables & RPCs (Supabase)",
         countsTitle: "Counts",
         statProfiles: "Profiles",
@@ -1182,11 +1281,21 @@ const en: Bundle = {
       },
       ads: {
         title: "Advertisements",
-        intro: "Feed top strip on the home page. Plain text only (no HTML).",
+        intro: "Feed top strip on the home page. Plain text only (no HTML); optional promo video (MP4/WebM).",
+        testModeBanner:
+          "Test mode: no paid placement or payout program is active. Use for internal testing only until we publish a production update.",
         feedTopTitle: "Feed top",
         fieldTitle: "Title",
         fieldBody: "Body",
         fieldLinkUrl: "Link URL",
+        fieldVideo: "Promotional video",
+        videoHelp: "Optional. MP4 or WebM, max 50 MB. Uploading replaces the previous file.",
+        pickVideo: "Upload video",
+        pickVideoAria: "Choose promotional video file",
+        removeVideo: "Remove video",
+        uploadingVideo: "Uploading…",
+        videoInvalidMime: "Only MP4 or WebM video is allowed.",
+        videoInvalidSize: "Video must be 50 MB or smaller.",
         activeLabel: "Active (show on home feed)",
         phTitle: "Optional headline",
         phBody: "Short text",
@@ -1195,6 +1304,30 @@ const en: Bundle = {
         save: "Save",
         savedToast: "Saved.",
         noSlot: "No ad slot row (run migrations).",
+        linkReviewRequests: "Open application queue →",
+      },
+      adRequests: {
+        title: "Sponsored applications",
+        intro:
+          "Members submit copy here for the feed-top strip. Set status when you decide; live text is still edited under Feed top (plain text, no HTML).",
+        testModeBanner:
+          "Test mode: applicants are not entering a paid contract. Communicate clearly if you reply; commercial terms come only after a future update.",
+        empty: "No applications yet.",
+        colCreated: "Submitted",
+        colApplicant: "Applicant",
+        colTitle: "Proposed title",
+        colBody: "Proposed text",
+        colLink: "Link",
+        colStatus: "Status",
+        colNote: "Note to applicant",
+        statusPending: "Pending",
+        statusApproved: "Approved",
+        statusRejected: "Rejected",
+        placeholderNote: "Optional — the applicant can read this on their requests list.",
+        save: "Save",
+        saving: "Saving…",
+        savedToast: "Updated.",
+        viewProfile: "Profile",
       },
       stats: {
         title: "Statistics",
@@ -1350,6 +1483,35 @@ const en: Bundle = {
       title: "Legal information",
       lastUpdated: "Last updated: April 1, 2026 · Metafeed v1 (MVP)",
     },
+    sponsored: {
+      title: "Sponsored placement",
+      testModeBanner:
+        "Test mode: we are not offering paid placements or money to anyone yet. Features here may change; please wait for a product update before expecting commercial terms.",
+      intro:
+        "The “Sponsored” label on the home feed links here. Submit the headline, short text, and optional URL you would like considered for the feed-top strip. A team member reviews requests; we may follow up by email.",
+      howItWorksTitle: "How it works",
+      howItWorksBody:
+        "1) You send proposed copy below. 2) We review (pending → approved or rejected). 3) If approved, we still enter final text in the admin Ads tool before it goes live. This is not instant self-serve checkout yet.",
+      formTitle: "Submit a request",
+      fieldTitle: "Proposed headline (optional)",
+      fieldTitleHint: "Short line; may be left empty if the body is enough.",
+      fieldBody: "Proposed text",
+      fieldBodyHint: "At least 10 characters. Plain text only.",
+      fieldLink: "Destination URL (optional)",
+      fieldLinkHint: "Where people go when they tap the headline (https://…).",
+      submit: "Submit request",
+      submitting: "Sending…",
+      successToast: "Request received. You can track status below.",
+      signInTitle: "Sign in to apply",
+      signInBody: "You need an account to submit sponsored placement requests.",
+      signInLink: "Log in or sign up",
+      myRequestsTitle: "Your requests",
+      emptyMine: "You have not submitted any requests yet.",
+      statusPending: "Pending review",
+      statusApproved: "Approved (not yet live until published in Ads)",
+      statusRejected: "Rejected",
+      adminNoteFromTeam: "Note from the team",
+    },
     security: {
       navAria: "Security navigation",
       title: "Security",
@@ -1446,6 +1608,10 @@ const en: Bundle = {
         title: "Terms & Privacy",
         description: "Terms of service and privacy information for Metafeed.",
       },
+      sponsored: {
+        title: "Sponsored placement",
+        description: "Request the feed-top sponsored strip on Metafeed.",
+      },
       security: {
         title: "Security",
         description: "Security tips and account safety on Metafeed.",
@@ -1471,6 +1637,7 @@ const ka: Bundle = {
       notifications: "შეტყობინებები",
       profile: "პროფილი",
       settings: "პარამეტრები",
+      premium: "პრემიუმი",
       admin: "ადმინი",
       adminMenuAria: "ადმინის გვერდები",
       adminOverview: "მიმოხილვა",
@@ -1626,6 +1793,8 @@ const ka: Bundle = {
       loadMore: "კიდევ ({pageSize} გვერდზე)",
       feedAdSponsored: "სპონსორი",
       feedAdSponsoredContent: "სპონსორის კონტენტი",
+      feedAdExternalCta: "ბმულის გახსნა",
+      feedAdVideoFallback: "ბრაუზერს არ შეუძლია ამ ვიდეოს დაკვრა.",
       premiumCtaTitle: "პრემიუმი",
       premiumCtaBody: "უფრო გრძელი პოსტები, მეტი თეგი, ვიდეო და სხვა. მართეთ პარამეტრებში.",
       premiumCtaBodyNoBilling:
@@ -1634,7 +1803,10 @@ const ka: Bundle = {
       premiumCtaLinkLogin: "შესვლა",
       sidebarTrendingTitle: "ტრენდული თეგები",
       sidebarTrendingAria: "ტრენდული თეგები და მალსახმობები",
+      sidebarLandmarkAria: "ტრენდული თეგები და პრემიუმი",
       sidebarTrendingEmpty: "ამ კვირაში ტრენდული თეგები არაა.",
+      composeExpandAria: "პოსტის ფორმის გახსნა",
+      composeCollapse: "ჩაკეცვა",
     },
     login: {
       titleSignIn: "შესვლა",
@@ -1736,6 +1908,12 @@ const ka: Bundle = {
       removeMedia: "მიმაგრების მოშორება",
       mediaInvalidType: "აირჩიეთ სურათი (JPEG, PNG, WebP, GIF) ან ვიდეო (MP4, WebM).",
       videoRequiresPremium: "ვიდეო პოსტზე საჭიროა პრემიუმი.",
+      videoDailyLimitFree:
+        "დღეს უკვე გამოქვეყნებული გაქვთ ვიდეო პოსტი. უფასო გეგმაზე დღეში ერთი ვიდეოა (UTC). ხვალ სცადეთ ან გადადით Premium-ზე.",
+      videoFreeTierDailyHint:
+        "უფასო გეგმა: ერთი ვიდეო პოსტი კალენდარულ დღეში (UTC). Premium-ზე — მეტი ნებისმიერ დროს.",
+      videoDailyLimitFreeHint:
+        "დღეური უფასო ვიდეო უკვე გამოყენებულია (UTC). სურათის დამატება კიდევ შეგიძლიათ, ან ხვალ სცადეთ.",
       previewAlt: "არჩეული ფაილის გადახედვა",
       tagsLabel: "თეგები (არასავალდებულო)",
       tagsPlaceholder: "მაგ. news, dev, release-notes",
@@ -1781,6 +1959,9 @@ const ka: Bundle = {
       followRequests: "გამოწერის მოთხოვნები",
       acceptRequest: "დადასტურება",
       rejectRequest: "უარყოფა",
+      noPublicNameYet: "საჯარო სახელი ჯერ არაა",
+      publicNamePrivacyHint:
+        "ელფოსტა პროფილზე არ ჩანს. დაამატეთ საჯარო სახელი «პროფილის რედაქტირებაში».",
       tabPosts: "პოსტები",
       tabCommented: "კომენტარები",
       sectionCommented: "პოსტები, სადაც დაგიწერით",
@@ -1794,6 +1975,7 @@ const ka: Bundle = {
       notFound: "პროფილი ვერ მოიძებნა.",
       bannedNotice: "ანგარიში შეზღუდულია.",
       emailHidden: "დამალული",
+      memberFallback: "მონაწილე · {short}",
       followersStat: "გამომწერები: {count}",
       followingStat: "გამოწერები: {count}",
       follow: "გამოწერა",
@@ -1880,6 +2062,7 @@ const ka: Bundle = {
         linkBlocks: "ბლოკები — მომხმარებლის ბლოკირების ჟურნალი",
         linkStats: "სტატისტიკა — პლატფორმის სრული რაოდენობები",
         linkAds: "რეკლამა — ლენტის ზედა ზოლი",
+        linkAdRequests: "სპონსორი — განაცხადების რიგი",
         linkApi: "API კატალოგი — ცხრილები და RPC (Supabase)",
         countsTitle: "რაოდენობები",
         statProfiles: "პროფილები",
@@ -1939,11 +2122,21 @@ const ka: Bundle = {
       },
       ads: {
         title: "რეკლამა",
-        intro: "ლენტის ზედა ზოლი მთავარ გვერდზე. მხოლოდ ტექსტი (HTML არა).",
+        intro: "ლენტის ზედა ზოლი მთავარ გვერდზე. ტექსტი (HTML არა); არასავალდებულო ვიდეო MP4/WebM.",
+        testModeBanner:
+          "სატესტო რეჟიმი: ფასიანი განთავსება ან გადახდები არ მუშაობს. გამოიყენეთ მხოლოდ შიდა ტესტისთვის, სანამ ოფიციალურ განახლებას არ გამოვაქვეყნებთ.",
         feedTopTitle: "ლენტის ზედა",
         fieldTitle: "სათაური",
         fieldBody: "ტექსტი",
         fieldLinkUrl: "ბმულის URL",
+        fieldVideo: "სარეკლამო ვიდეო",
+        videoHelp: "არასავალდებულო. MP4 ან WebM, მაქს. 50 მბ. ახალი ატვირთვა ცვლის წინას.",
+        pickVideo: "ვიდეოს ატვირთვა",
+        pickVideoAria: "სარეკლამო ვიდეოს ფაილის არჩევა",
+        removeVideo: "ვიდეოს წაშლა",
+        uploadingVideo: "იტვირთება…",
+        videoInvalidMime: "დაშვებულია მხოლოდ MP4 ან WebM ვიდეო.",
+        videoInvalidSize: "ვიდეო არ უნდა აღემატებოდეს 50 მბ-ს.",
         activeLabel: "აქტიური (ლენტაზე ჩვენება)",
         phTitle: "სათაური (არასავალდებულო)",
         phBody: "მოკლე ტექსტი",
@@ -1952,6 +2145,30 @@ const ka: Bundle = {
         save: "შენახვა",
         savedToast: "შენახულია.",
         noSlot: "რეკლამის ჩანაწერი არაა (გაუშვით მიგრაციები).",
+        linkReviewRequests: "განაცხადების რიგის გახსნა →",
+      },
+      adRequests: {
+        title: "სპონსორის განაცხადები",
+        intro:
+          "წევრები აქ აგზავნიან ტექსტს ლენტის ზედა ზოლისთვის. დააყენეთ სტატუსი; ცოცხალი ტექსტი მაინც „ლენტის ზედა“-ში იწერება (მხოლოდ ტექსტი, HTML არა).",
+        testModeBanner:
+          "სატესტო რეჟიმი: განაცხადი არ არის ფასიანი კონტრაქტი. პასუხისას ნათლად უთხარით; საკომერციო პირობები მხოლოდ მომავალი განახლების შემდეგ.",
+        empty: "განაცხადები ჯერ არაა.",
+        colCreated: "გაგზავნა",
+        colApplicant: "ავტორი",
+        colTitle: "შემოთავაზებული სათაური",
+        colBody: "შემოთავაზებული ტექსტი",
+        colLink: "ბმული",
+        colStatus: "სტატუსი",
+        colNote: "შენიშვნა ავტორისთვის",
+        statusPending: "მოლოდინში",
+        statusApproved: "დამტკიცებული (სანამ Ads-ში არ გამოქვეყნდება)",
+        statusRejected: "უარყოფილი",
+        placeholderNote: "არასავალდებულო — ავტორი ხედავს თავისი განაცხადების სიაში.",
+        save: "შენახვა",
+        saving: "ინახება…",
+        savedToast: "განახლდა.",
+        viewProfile: "პროფილი",
       },
       stats: {
         title: "სტატისტიკა",
@@ -2106,6 +2323,35 @@ const ka: Bundle = {
       title: "იურიდიული ინფორმაცია",
       lastUpdated: "ბოლო განახლება: 2026-04-01 · Metafeed v1 (MVP)",
     },
+    sponsored: {
+      title: "სპონსორის განთავსება",
+      testModeBanner:
+        "სატესტო რეჟიმი: ჯერ არავის ვთავაზობთ ფასიან განთავსებას ან ფულს. ფუნქციები შეიძლება შეიცვალოს — საკომერციო პირობებს მხოლოდ პროდუქტის განახლების შემდეგ ელოდეთ.",
+      intro:
+        "მთავარ ლენტაზე „სპონსორი“ აქ მოგიყვანთ. გაგზავნეთ სათაური, მოკლე ტექსტი და არასავალდებულო URL. გუნდი განიხილავს; საჭიროების შემთხვევაში დაგიკავშირდებით ელფოსტით.",
+      howItWorksTitle: "როგორ მუშაობს",
+      howItWorksBody:
+        "1) აქ აგზავნით შემოთავაზებულ ტექსტს. 2) ვაკეთებთ გადაწყვეტილებას (მოლოდინში → დამტკიცება ან უარი). 3) დამტკიცების შემთხვევაშიც კი საბოლოო ტექსტს ადმინის Ads ხელს უწერს სანამ ცოცხლად გამოჩნდება. ეს ჯერ არ არის მყისიერი self-serve გადახდა.",
+      formTitle: "განაცხადის გაგზავნა",
+      fieldTitle: "შემოთავაზებული სათაური (არასავალდებულო)",
+      fieldTitleHint: "მოკლე ხაზი; თუ ტექსტი საკმარისია, შეიძლება ცარიელი დატოვოთ.",
+      fieldBody: "შემოთავაზებული ტექსტი",
+      fieldBodyHint: "მინიმუმ 10 სიმბოლო. მხოლოდ ტექსტი.",
+      fieldLink: "დანიშნულების URL (არასავალდებულო)",
+      fieldLinkHint: "სადაც მომხმარებელი მიდის სათაურზე დაჭერისას (https://…).",
+      submit: "განაცხადის გაგზავნა",
+      submitting: "იგზავნება…",
+      successToast: "მივიღეთ. სტატუსს ქვემოთ ნახავთ.",
+      signInTitle: "შედით სისტემაში",
+      signInBody: "განაცხადის გასაგზავნად საჭიროა ანგარიში.",
+      signInLink: "შესვლა ან რეგისტრაცია",
+      myRequestsTitle: "თქვენი განაცხადები",
+      emptyMine: "ჯერ განაცხადი არ გაგიგზავნიათ.",
+      statusPending: "განხილვაში",
+      statusApproved: "დამტკიცებული (სანამ Ads-ში არ გამოქვეყნდება)",
+      statusRejected: "უარყოფილი",
+      adminNoteFromTeam: "შენიშვნა გუნდიდან",
+    },
     security: {
       navAria: "უსაფრთხოების ნავიგაცია",
       title: "უსაფრთხოება",
@@ -2202,6 +2448,10 @@ const ka: Bundle = {
         title: "წესები და კონფიდენციალურობა",
         description: "მომსახურების წესები და კონფიდენციალურობა Metafeed-ზე.",
       },
+      sponsored: {
+        title: "სპონსორის განთავსება",
+        description: "ლენტის ზედა სპონსორის ზოლისთვის განაცხადი Metafeed-ზე.",
+      },
       security: {
         title: "უსაფრთხოება",
         description: "რჩევები ანგარიშის უსაფრთხოებისთვის Metafeed-ზე.",
@@ -2227,6 +2477,7 @@ const ru: Bundle = {
       notifications: "Уведомления",
       profile: "Профиль",
       settings: "Настройки",
+      premium: "Премиум",
       admin: "Админ",
       adminMenuAria: "Страницы администратора",
       adminOverview: "Обзор",
@@ -2382,6 +2633,8 @@ const ru: Bundle = {
       loadMore: "Ещё (по {pageSize} на страницу)",
       feedAdSponsored: "Реклама",
       feedAdSponsoredContent: "Рекламный контент",
+      feedAdExternalCta: "Перейти по ссылке",
+      feedAdVideoFallback: "Ваш браузер не может воспроизвести это видео.",
       premiumCtaTitle: "Premium",
       premiumCtaBody: "Длиннее посты, больше тегов, видео и другое. Управление в Настройках.",
       premiumCtaBodyNoBilling:
@@ -2390,7 +2643,10 @@ const ru: Bundle = {
       premiumCtaLinkLogin: "Войти",
       sidebarTrendingTitle: "Популярные теги",
       sidebarTrendingAria: "Популярные теги и быстрые ссылки",
+      sidebarLandmarkAria: "Популярные теги и Premium",
       sidebarTrendingEmpty: "На этой неделе популярных тегов нет.",
+      composeExpandAria: "Открыть форму поста",
+      composeCollapse: "Свернуть",
     },
     login: {
       titleSignIn: "Вход",
@@ -2492,6 +2748,12 @@ const ru: Bundle = {
       removeMedia: "Убрать вложение",
       mediaInvalidType: "Выберите изображение (JPEG, PNG, WebP, GIF) или видео (MP4, WebM).",
       videoRequiresPremium: "Видео в постах доступны с Premium.",
+      videoDailyLimitFree:
+        "Сегодня вы уже опубликовали пост с видео. На бесплатном плане — одно видео в сутки (UTC). Попробуйте завтра или оформите Premium.",
+      videoFreeTierDailyHint:
+        "Бесплатный план: одно видео за календарный день (UTC). Premium — больше в любое время.",
+      videoDailyLimitFreeHint:
+        "Бесплатное видео на сегодня уже использовано (UTC). Можно добавить изображение или попробовать завтра.",
       previewAlt: "Предпросмотр вложения",
       tagsLabel: "Теги (необязательно)",
       tagsPlaceholder: "напр. news, dev, release-notes",
@@ -2537,6 +2799,9 @@ const ru: Bundle = {
       followRequests: "Запросы на подписку",
       acceptRequest: "Принять",
       rejectRequest: "Отклонить",
+      noPublicNameYet: "Публичное имя не задано",
+      publicNamePrivacyHint:
+        "Email на профиле не показывается. Добавьте имя в «Редактировать профиль».",
       tabPosts: "Посты",
       tabCommented: "Комментарии",
       sectionCommented: "Посты, где вы оставили комментарии",
@@ -2550,6 +2815,7 @@ const ru: Bundle = {
       notFound: "Профиль не найден.",
       bannedNotice: "Аккаунт ограничен.",
       emailHidden: "Скрыто",
+      memberFallback: "Участник · {short}",
       followersStat: "Подписчики: {count}",
       followingStat: "Подписки: {count}",
       follow: "Подписаться",
@@ -2636,6 +2902,7 @@ const ru: Bundle = {
         linkBlocks: "Блокировки — журнал блокировок",
         linkStats: "Статистика — счётчики по платформе",
         linkAds: "Реклама — верхняя полоса в ленте",
+        linkAdRequests: "Спонсорство — очередь заявок",
         linkApi: "Каталог API — таблицы и RPC (Supabase)",
         countsTitle: "Счётчики",
         statProfiles: "Профили",
@@ -2695,11 +2962,21 @@ const ru: Bundle = {
       },
       ads: {
         title: "Реклама",
-        intro: "Верхняя полоса на главной ленте. Только текст (без HTML).",
+        intro: "Верхняя полоса на главной ленте. Только текст (без HTML); опционально рекламное видео (MP4/WebM).",
+        testModeBanner:
+          "Тестовый режим: платные размещения и выплаты не активны. Используйте только для внутренних тестов до публикации производственного обновления.",
         feedTopTitle: "Верх ленты",
         fieldTitle: "Заголовок",
         fieldBody: "Текст",
         fieldLinkUrl: "URL ссылки",
+        fieldVideo: "Рекламное видео",
+        videoHelp: "Необязательно. MP4 или WebM, макс. 50 МБ. Новая загрузка заменяет предыдущую.",
+        pickVideo: "Загрузить видео",
+        pickVideoAria: "Выбрать файл рекламного видео",
+        removeVideo: "Удалить видео",
+        uploadingVideo: "Загрузка…",
+        videoInvalidMime: "Разрешены только видео MP4 или WebM.",
+        videoInvalidSize: "Видео должно быть не больше 50 МБ.",
         activeLabel: "Активно (показывать в ленте)",
         phTitle: "Заголовок (необязательно)",
         phBody: "Короткий текст",
@@ -2708,6 +2985,30 @@ const ru: Bundle = {
         save: "Сохранить",
         savedToast: "Сохранено.",
         noSlot: "Нет строки слота (выполните миграции).",
+        linkReviewRequests: "Открыть очередь заявок →",
+      },
+      adRequests: {
+        title: "Заявки на спонсорский блок",
+        intro:
+          "Участники присылают текст для верхней полосы ленты. Меняйте статус здесь; публикация по-прежнему в «Верх ленты» (только текст, без HTML).",
+        testModeBanner:
+          "Тестовый режим: заявка не является платным договором. Пишите ясно в ответах; коммерческие условия — только после будущего обновления.",
+        empty: "Заявок пока нет.",
+        colCreated: "Отправлено",
+        colApplicant: "Заявитель",
+        colTitle: "Предлагаемый заголовок",
+        colBody: "Предлагаемый текст",
+        colLink: "Ссылка",
+        colStatus: "Статус",
+        colNote: "Заметка для заявителя",
+        statusPending: "На рассмотрении",
+        statusApproved: "Одобрено (ещё не в ленте, пока не опубликовано в Ads)",
+        statusRejected: "Отклонено",
+        placeholderNote: "Необязательно — заявитель увидит в списке своих заявок.",
+        save: "Сохранить",
+        saving: "Сохранение…",
+        savedToast: "Обновлено.",
+        viewProfile: "Профиль",
       },
       stats: {
         title: "Статистика",
@@ -2863,6 +3164,35 @@ const ru: Bundle = {
       title: "Юридическая информация",
       lastUpdated: "Обновлено: 1 апреля 2026 · Metafeed v1 (MVP)",
     },
+    sponsored: {
+      title: "Спонсорское размещение",
+      testModeBanner:
+        "Тестовый режим: платные размещения и выплаты никому не предлагаются. Функции могут меняться — дождитесь обновления продукта, прежде чем ожидать коммерческих условий.",
+      intro:
+        "Метка «Реклама» в ленте ведёт сюда. Отправьте заголовок, короткий текст и при желании URL для верхней полосы. Команда рассматривает заявки; при необходимости свяжемся по email.",
+      howItWorksTitle: "Как это работает",
+      howItWorksBody:
+        "1) Вы отправляете текст ниже. 2) Мы принимаем решение (ожидание → одобрено или отклонено). 3) Даже при одобрении финальный текст вводится в админке Ads перед публикацией. Это пока не мгновенная оплата self-serve.",
+      formTitle: "Отправить заявку",
+      fieldTitle: "Предлагаемый заголовок (необязательно)",
+      fieldTitleHint: "Короткая строка; можно оставить пустым, если достаточно текста.",
+      fieldBody: "Предлагаемый текст",
+      fieldBodyHint: "Не менее 10 символов. Только текст.",
+      fieldLink: "Целевой URL (необязательно)",
+      fieldLinkHint: "Куда перейти по клику на заголовок (https://…).",
+      submit: "Отправить заявку",
+      submitting: "Отправка…",
+      successToast: "Заявка получена. Статус ниже.",
+      signInTitle: "Войдите, чтобы подать заявку",
+      signInBody: "Нужен аккаунт, чтобы отправлять заявки на спонсорский блок.",
+      signInLink: "Вход или регистрация",
+      myRequestsTitle: "Ваши заявки",
+      emptyMine: "Вы ещё не отправляли заявок.",
+      statusPending: "На рассмотрении",
+      statusApproved: "Одобрено (ещё не в ленте, пока не опубликовано в Ads)",
+      statusRejected: "Отклонено",
+      adminNoteFromTeam: "Сообщение от команды",
+    },
     security: {
       navAria: "Навигация по безопасности",
       title: "Безопасность",
@@ -2958,6 +3288,10 @@ const ru: Bundle = {
       legal: {
         title: "Условия и конфиденциальность",
         description: "Условия использования и политика конфиденциальности Metafeed.",
+      },
+      sponsored: {
+        title: "Спонсорское размещение",
+        description: "Заявка на верхний спонсорский блок ленты в Metafeed.",
       },
       security: {
         title: "Безопасность",

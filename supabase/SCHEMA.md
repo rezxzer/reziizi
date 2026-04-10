@@ -23,6 +23,7 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 | `chat_messages` | Messages in a conversation |
 | `reports` | User reports on posts |
 | `ad_slots` | Sponsored slots (e.g. `feed_top`) |
+| `ad_placement_requests` | User applications for feed-top sponsored copy; admin queue |
 | `feature_flags` | Admin-toggled flags (`key`, `enabled`); public `SELECT`, app hides UI when off — migrations `20260401351500` … `20260401351700` |
 | `follows` | User A follows user B (directed) |
 | `abuse_flags` | Audit rows when content is auto-flagged (FK to post, comment, or optional `message_id`) |
@@ -42,7 +43,7 @@ See `.cursor/rules/reziizi.mdc` or list `supabase/migrations/*.sql` sorted by na
 
 ### `posts`
 
-- `id`, `user_id`, `body` (hard cap **1–5000** chars, `posts_body_length_check`; tier: **free 1000** / **premium or admin 5000** via `posts_enforce_tier_limits` — `20260401351300_posts_tier_free_premium.sql`), `image_url` (nullable; bucket `post-images`), `video_url` (nullable; bucket `post-videos`) — **at most one** of `image_url` / `video_url` non-null (`posts_one_media_type` CHECK); **`video_url` only for premium or admin** (same trigger + Storage insert/update on `post-videos`)
+- `id`, `user_id`, `body` (hard cap **1–5000** chars, `posts_body_length_check`; tier: **free 1000** / **premium or admin 5000** via `posts_enforce_tier_limits` — `20260401351300_posts_tier_free_premium.sql`, extended **`20260401352300_free_tier_one_video_per_utc_day.sql`**), `image_url` (nullable; bucket `post-images`), `video_url` (nullable; bucket `post-videos`) — **at most one** of `image_url` / `video_url` non-null (`posts_one_media_type` CHECK); **`video_url`:** premium/admin unlimited; **free max 1 post with video per UTC calendar day** (trigger + Storage; replace video on same post allowed)
 - `is_flagged` (boolean; when true, row is hidden from public SELECT via RLS except author + admins), `spam_score` (int; heuristic)
 
 ### `follows`
@@ -96,7 +97,15 @@ Migration: `20260401350500_add_report_threshold_auto_flag.sql`.
 
 ### `ad_slots`
 
-- `id`, `placement` (unique), `title`, `body`, `link_url`, `is_active`, `updated_at`
+- `id`, `placement` (unique), `title`, `body`, `link_url`, `video_url` (optional; public Storage URL, bucket **`feed-ad-videos`**, path `feed_top/*`), `is_active`, `updated_at`
+
+### `ad_placement_requests`
+
+Migration: `20260401352400_add_ad_placement_requests.sql`.
+
+- `id`, `user_id` → `profiles.id`, `proposed_title`, `proposed_body`, `proposed_link_url`, `status` (`pending` | `approved` | `rejected`), `admin_note`, `created_at`, `updated_at`
+- **RLS:** authenticated users **INSERT** own row; **SELECT** own rows or admin all; **UPDATE** admin only.
+- **App:** `/sponsored` (apply + my list); `/admin/ad-requests` (queue). Live feed copy remains **`ad_slots`** via `/admin/ads`.
 
 ### `feature_flags`
 
@@ -137,6 +146,7 @@ Helpers: `normalize_body_for_spam`, `spam_duplicate_eligible`, `count_url_indica
 | `search_post_ids` | Search v2 — ranked post ids: FTS (`simple`) + `ts_rank_cd`, ILIKE fallback; excludes `is_flagged`; GIN on `to_tsvector('simple', body)` — `20260401350400_add_search_v2_rpcs.sql` |
 | `search_profile_ids` | Search v2 — ranked profile ids by email match (exact / prefix / substring); `searchable` or self row; same privacy as legacy client query |
 | `user_commented_post_ids` | Profile “Commented” tab — distinct `post_id`s the user commented on, ordered by latest comment activity (`max(created_at)` per post); `20260401350900_add_user_commented_post_ids_rpc.sql` |
+| `my_post_video_count_today` | Free-tier UX: count of current user’s posts with `video_url` whose `created_at` is on the current **UTC** calendar day — `20260401352300_free_tier_one_video_per_utc_day.sql` |
 | `get_or_create_conversation` | Chat thread id |
 | `admin_set_user_banned` | Admin ban/unban (+ reason) |
 | `admin_set_user_premium_until` | Admin premium window |
@@ -150,7 +160,7 @@ Other `public` functions exist for triggers (e.g. `handle_new_user`, `notify_pos
 
 ## Storage (Supabase)
 
-Not in `public`; configured in `storage.buckets` / policies on `storage.objects`. See migrations `20260401280000_add_storage_post_images.sql`, `20260401320000_add_post_videos_storage_and_video_url.sql`, `20260401300000_add_profiles_avatar_url_and_storage_avatars.sql`.
+Not in `public`; configured in `storage.buckets` / policies on `storage.objects`. See migrations `20260401280000_add_storage_post_images.sql`, `20260401320000_add_post_videos_storage_and_video_url.sql`, `20260401300000_add_profiles_avatar_url_and_storage_avatars.sql`, **`20260401352500_add_ad_slots_video_url_and_storage.sql`** (`feed-ad-videos`).
 
 | Bucket id | Public read | File limit | Allowed MIME | Object path pattern |
 |-----------|-------------|------------|--------------|---------------------|
@@ -158,7 +168,7 @@ Not in `public`; configured in `storage.buckets` / policies on `storage.objects`
 | `post-videos` | yes | 50 MiB | `video/mp4`, `video/webm` | `posts/{user_id}/{post_id}/{filename}` |
 | `avatars` | yes | 2 MiB | same image MIMEs | `avatars/{user_id}/{filename}` |
 
-Authenticated users may **insert/update/delete** post images and post videos only under `posts/{their_user_id}/...`, and avatars only under `avatars/{their_user_id}/...`.
+Authenticated users may **insert/update/delete** post images and post videos only under `posts/{their_user_id}/...`, and avatars only under `avatars/{their_user_id}/...`. **`post-videos`:** premium/admin always; free tier matches tier trigger (one new video post per UTC day, or replacement upload for a post that already has `video_url`).
 
 ### Account deletion (Edge Function)
 

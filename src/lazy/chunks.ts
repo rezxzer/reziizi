@@ -34,6 +34,11 @@ export const AdminAdsPage = lazy(async () => {
   return { default: m.AdminAdsPage };
 });
 
+export const AdminAdPlacementRequestsPage = lazy(async () => {
+  const m = await import("../pages/AdminAdPlacementRequestsPage.tsx");
+  return { default: m.AdminAdPlacementRequestsPage };
+});
+
 export const AdminApiPage = lazy(async () => {
   const m = await import("../pages/AdminApiPage.tsx");
   return { default: m.AdminApiPage };

@@ -43,6 +43,9 @@ coverage
 .vercel
 .netlify
 
+# Supabase CLI local cache (never commit)
+supabase/.temp/
+
 # Local Claude worktree artifacts (never commit)
 .claude/worktrees/
 

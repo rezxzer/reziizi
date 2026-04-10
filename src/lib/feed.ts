@@ -39,7 +39,7 @@ export async function enrichPosts(posts: PostRow[]): Promise<FeedPost[]> {
   const userIds: string[] = [...new Set(posts.map((p) => p.user_id))];
 
   const [{ data: profileRows }, { data: reactionRows }, authRes, tagMap] = await Promise.all([
-    supabase.from("profiles").select("id, email, avatar_url").in("id", userIds),
+    supabase.from("profiles").select("id, email, avatar_url, display_name").in("id", userIds),
     supabase.from("reactions").select("post_id, user_id, value").in("post_id", postIds),
     supabase.auth.getUser(),
     fetchTagSlugsForPostIds(postIds),
@@ -52,10 +52,18 @@ export async function enrichPosts(posts: PostRow[]): Promise<FeedPost[]> {
   const myId: string | null = authRes.data.user?.id ?? null;
 
   const emailByUserId = new Map<string, string | null>();
+  const displayNameByUserId = new Map<string, string | null>();
   const avatarByUserId = new Map<string, string | null>();
   for (const row of profileRows ?? []) {
-    const r = row as { id: string; email: string | null; avatar_url: string | null };
+    const r = row as {
+      id: string;
+      email: string | null;
+      avatar_url: string | null;
+      display_name: string | null;
+    };
     emailByUserId.set(r.id, r.email);
+    const dn: string | null = r.display_name?.trim() ? r.display_name.trim() : null;
+    displayNameByUserId.set(r.id, dn);
     avatarByUserId.set(r.id, r.avatar_url ?? null);
   }
 
@@ -85,6 +93,7 @@ export async function enrichPosts(posts: PostRow[]): Promise<FeedPost[]> {
     const c = counts.get(p.id) ?? { up: 0, down: 0 };
     return {
       ...p,
+      authorDisplayName: displayNameByUserId.get(p.user_id) ?? null,
       authorEmail: emailByUserId.get(p.user_id) ?? null,
       authorAvatarUrl: avatarByUserId.get(p.user_id) ?? null,
       thumbsUp: c.up,

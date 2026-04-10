@@ -6,6 +6,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { RouteFallback } from "./components/RouteFallback.tsx";
 import { HomePage } from "./pages/HomePage.tsx";
 import { LegalPage } from "./pages/LegalPage.tsx";
+import { SponsoredPage } from "./pages/SponsoredPage.tsx";
 import { SecurityPage } from "./pages/SecurityPage.tsx";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage.tsx";
 import { LoginPage } from "./pages/LoginPage.tsx";
@@ -17,6 +18,7 @@ import { BannedPage } from "./pages/BannedPage.tsx";
 import { AdminRoute } from "./components/AdminRoute.tsx";
 import {
   AdminAdsPage,
+  AdminAdPlacementRequestsPage,
   AdminBlocksPage,
   AdminFeatureFlagsPage,
   AdminApiPage,
@@ -88,6 +90,7 @@ export default function App(): ReactElement {
             }
           />
           <Route path="/legal" element={<LegalPage />} />
+          <Route path="/sponsored" element={<SponsoredPage />} />
           <Route path="/security" element={<SecurityPage />} />
           <Route path="/banned" element={<BannedPage />} />
           <Route
@@ -135,6 +138,14 @@ export default function App(): ReactElement {
             element={
               <AdminRoute>
                 <AdminAdsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/ad-requests"
+            element={
+              <AdminRoute>
+                <AdminAdPlacementRequestsPage />
               </AdminRoute>
             }
           />

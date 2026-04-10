@@ -5,6 +5,7 @@ const FOLLOW_LIST_PAGE_SIZE = 50;
 export type FollowListMember = {
   userId: string;
   email: string | null;
+  display_name: string | null;
   avatar_url: string | null;
   searchable: boolean;
   is_banned: boolean;
@@ -127,7 +128,7 @@ export async function fetchFollowersPage(
   const ids: string[] = list.map((r) => r.follower_id);
   const { data: profs, error: pErr } = await supabase
     .from("profiles")
-    .select("id, email, avatar_url, searchable, is_banned")
+    .select("id, email, display_name, avatar_url, searchable, is_banned")
     .in("id", ids);
 
   if (pErr) {
@@ -139,6 +140,7 @@ export async function fetchFollowersPage(
       const r = p as {
         id: string;
         email: string | null;
+        display_name: string | null;
         avatar_url: string | null;
         searchable: boolean | null;
         is_banned: boolean | null;
@@ -147,6 +149,7 @@ export async function fetchFollowersPage(
         r.id,
         {
           email: r.email ?? null,
+          display_name: r.display_name?.trim() ? r.display_name.trim() : null,
           avatar_url: r.avatar_url ?? null,
           searchable: Boolean(r.searchable),
           is_banned: Boolean(r.is_banned),
@@ -160,6 +163,7 @@ export async function fetchFollowersPage(
     return {
       userId: fr.follower_id,
       email: pr?.email ?? null,
+      display_name: pr?.display_name ?? null,
       avatar_url: pr?.avatar_url ?? null,
       searchable: pr?.searchable ?? false,
       is_banned: pr?.is_banned ?? false,
@@ -196,7 +200,7 @@ export async function fetchFollowingPage(
   const ids: string[] = list.map((r) => r.following_id);
   const { data: profs, error: pErr } = await supabase
     .from("profiles")
-    .select("id, email, avatar_url, searchable, is_banned")
+    .select("id, email, display_name, avatar_url, searchable, is_banned")
     .in("id", ids);
 
   if (pErr) {
@@ -208,6 +212,7 @@ export async function fetchFollowingPage(
       const r = p as {
         id: string;
         email: string | null;
+        display_name: string | null;
         avatar_url: string | null;
         searchable: boolean | null;
         is_banned: boolean | null;
@@ -216,6 +221,7 @@ export async function fetchFollowingPage(
         r.id,
         {
           email: r.email ?? null,
+          display_name: r.display_name?.trim() ? r.display_name.trim() : null,
           avatar_url: r.avatar_url ?? null,
           searchable: Boolean(r.searchable),
           is_banned: Boolean(r.is_banned),
@@ -229,6 +235,7 @@ export async function fetchFollowingPage(
     return {
       userId: fr.following_id,
       email: pr?.email ?? null,
+      display_name: pr?.display_name ?? null,
       avatar_url: pr?.avatar_url ?? null,
       searchable: pr?.searchable ?? false,
       is_banned: pr?.is_banned ?? false,

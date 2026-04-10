@@ -21,6 +21,36 @@
 
 ## ჩანაწერები
 
+### 2026-04-10 — სპონსორი/რეკლამა: სატესტო რეჟიმის banner (ფული არა)
+
+- **UI:** `/sponsored`, `/admin/ad-requests`, `/admin/ads` — `platform-test-notice` + i18n `testModeBanner` (`en`/`ka`/`ru`): ფასიანი განთავსება/გადახდა არა, დალოდება განახლებამდე.
+- **Docs:** `project.md` CURRENT WORK (სპონსორის ხაზი) + §24 Creator draft — საჯარო წესი ტესტ რეჟიმზე.
+
+### 2026-04-10 — Creator ad revenue share: draft სპეკი `project.md`-ში (კოდი არა)
+
+- **დოკუმენტი მხოლოდ:** `project.md` → **`#### ბიზნესი / §24`** — ქვესექცია **Creator ad revenue share (platform offer on creator video)** — DRAFT; განსხვავება `ad_placement_requests`-ისგან; v0/v1/v2; რიგი (P1/P2/tipping არ ავურიოთ); გადასაწყვეტი კითხვები. **იმპლემენტაცია ⬜** — არსებული აპი/RLS არ შეცვლილა.
+
+### 2026-04-10 — Admin feed-top promotional video
+
+- **DB + Storage:** `20260401352500_add_ad_slots_video_url_and_storage.sql` — `ad_slots.video_url`; bucket `feed-ad-videos` (public read; admin insert/update/delete, path `feed_top/…`).
+- **App:** `feedAdVideoStorage.ts`, `AdminAdsPage` upload/remove + preview, `FeedAdSlot` embedded video, `AdSlotRow` / `ads.ts`, i18n `en`/`ka`/`ru`.
+- **Docs:** `SCHEMA.md`, `verify_schema.sql`, `project.md` CURRENT WORK, `reziizi.mdc` migration #44.
+- **Production:** run migration on Supabase before use.
+
+### 2026-04-10 — Sponsored: applications + `/sponsored` + admin queue
+
+- **DB:** `20260401352400_add_ad_placement_requests.sql` — `ad_placement_requests` (user copy proposal, `pending`/`approved`/`rejected`, `admin_note`), RLS (own insert/select; admin select/update), `updated_at` trigger.
+- **App:** `/sponsored` (apply + my requests), `/admin/ad-requests` (review); `FeedAdSlot` label **Link** → `/sponsored`; custom ad title still uses external `link_url` when set; without title, “Visit link” uses `link_url`. `AdminAdsPage` + `AdminPage` link to the queue. i18n `en`/`ka`/`ru`, SEO `/sponsored`, `registry` + `queryKeys` + `adPlacementRequests.ts`.
+- **Docs:** `SCHEMA.md`, `verify_schema.sql`, `project.md` CURRENT WORK, `reziizi.mdc` migration #43.
+- **Production:** run the migration on Supabase before relying on the feature live.
+
+### 2026-04-10 — Free tier: one video post per UTC day
+
+- **DB + Storage:** migration `20260401352300_free_tier_one_video_per_utc_day.sql` — `posts_enforce_tier_limits` allows non-premium users one post with `video_url` per UTC calendar day (premium/admin unchanged); `post-videos` policies aligned (+ same-post replacement path); RPC `my_post_video_count_today` for client quota.
+- **App:** `PostForm` + `queryKeys.postVideoToday`, `registry.RPC.my_post_video_count_today`, i18n hints/errors; invalidate after successful video post.
+- **Docs:** `project.md` (Premium vs free table), `SCHEMA.md`, `verify_schema.sql`, `reziizi.mdc` migration #42.
+- **Production:** run the new migration on Supabase when deploying.
+
 ### 2026-04-10 — Production auth/domain confirmation + login/signup UX hardening
 
 - **Domain live (confirmed):** production domain is now **`https://www.metafeed.it.com`** (Vercel + Namecheap DNS fixed). App is reachable directly via custom domain.

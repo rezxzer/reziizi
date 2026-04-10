@@ -23,9 +23,10 @@ describe("getSeoForPath", () => {
     expect(getSeoForPath("/admin/moderation", "en").robots).toBe("noindex,nofollow");
   });
 
-  it("search and legal are indexable", () => {
+  it("search, legal, and sponsored are indexable", () => {
     expect(getSeoForPath("/search", "en").robots).toBe("index,follow");
     expect(getSeoForPath("/legal", "en").robots).toBe("index,follow");
+    expect(getSeoForPath("/sponsored", "en").robots).toBe("index,follow");
   });
 
   it("search with valid q uses dynamic title and description (en)", () => {

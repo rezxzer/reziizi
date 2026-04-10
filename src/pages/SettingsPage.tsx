@@ -1,6 +1,6 @@
 import type { FormEvent, ReactElement } from "react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ThemePreferenceControls } from "../components/ThemePreferenceControls.tsx";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
@@ -29,6 +29,7 @@ export function SettingsPage(): ReactElement {
   const { t, locale, setLocale } = useI18n();
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { isPremium, premiumUntil, loading: flagsLoading } = useProfileFlags();
@@ -186,6 +187,23 @@ export function SettingsPage(): ReactElement {
     setSearchParams(next, { replace: true });
   }, [user, searchParams, setSearchParams, t, toast]);
 
+  useEffect(() => {
+    if (location.pathname !== "/settings" || location.hash !== "#settings-premium") {
+      return;
+    }
+    const el = document.getElementById("settings-premium");
+    if (!el) {
+      return;
+    }
+    const reduceMotion: boolean = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const frame = requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [location.hash, location.pathname]);
+
   async function handlePrivacySave(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     if (!user) {
@@ -280,7 +298,9 @@ export function SettingsPage(): ReactElement {
               t("settings.premiumNone")
             )}
           </p>
-          <h3 className="settings-premium-billing-title">{t("settings.premiumBillingTitle")}</h3>
+          <h3 className="settings-premium-billing-title" id="settings-premium">
+            {t("settings.premiumBillingTitle")}
+          </h3>
           {isBillingCheckoutEnabled() ? (
             <>
               <p className="muted">{t("settings.premiumCheckoutHint")}</p>

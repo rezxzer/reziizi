@@ -14,23 +14,14 @@ import {
   type FollowListMember,
 } from "../lib/follows.ts";
 import { isValidUuid } from "../lib/chat.ts";
-import { canShowEmail, fetchPublicProfile, type PublicProfileView } from "../lib/profileView.ts";
+import { fetchPublicProfile } from "../lib/profileView.ts";
 
-function memberLabel(m: FollowListMember, viewerId: string | null): string {
-  const p: PublicProfileView = {
-    id: m.userId,
-    email: m.email,
-    avatar_url: m.avatar_url,
-    display_name: null,
-    bio: null,
-    searchable: m.searchable,
-    is_private: false,
-    is_banned: m.is_banned,
-  };
-  if (canShowEmail(p, viewerId)) {
-    return m.email ?? m.userId.slice(0, 8);
+function memberLabel(m: FollowListMember, t: (key: string, params?: Record<string, string>) => string): string {
+  const dn = m.display_name?.trim();
+  if (dn) {
+    return dn;
   }
-  return `${m.userId.slice(0, 8)}…`;
+  return t("pages.userProfile.memberFallback", { short: m.userId.slice(0, 8) });
 }
 
 export function UserFollowListPage(): ReactElement {
@@ -39,7 +30,6 @@ export function UserFollowListPage(): ReactElement {
   const { userId } = useParams<{ userId: string }>();
   const location = useLocation();
   const targetId: string = userId ?? "";
-  const viewerId: string | null = user?.id ?? null;
 
   const mode: "followers" | "following" = location.pathname.endsWith("/following") ? "following" : "followers";
 
@@ -146,7 +136,7 @@ export function UserFollowListPage(): ReactElement {
             {rows.length > 0 ? (
               <ul className="follow-list">
                 {rows.map((m) => {
-                  const label = memberLabel(m, viewerId);
+                  const label = memberLabel(m, t);
                   return (
                     <li key={`${m.userId}-${m.followedAt}`} className="follow-list__item">
                       <Avatar imageUrl={m.avatar_url} label={label} size="sm" />

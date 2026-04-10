@@ -26,6 +26,12 @@ const NAV_ITEMS: {
   { to: "/admin/blocks", labelKey: "pages.admin.overview.linkBlocks", icon: "\u{1F6AB}", color: "var(--danger)" },
   { to: "/admin/stats", labelKey: "pages.admin.overview.linkStats", icon: "\u{1F4CA}", color: "var(--accent-secondary)" },
   { to: "/admin/ads", labelKey: "pages.admin.overview.linkAds", icon: "\u{1F4E2}", color: "var(--success)" },
+  {
+    to: "/admin/ad-requests",
+    labelKey: "pages.admin.overview.linkAdRequests",
+    icon: "\u{1F4DD}",
+    color: "var(--accent-secondary)",
+  },
   { to: "/admin/features", labelKey: "pages.admin.overview.linkFeatures", icon: "\u{2699}", color: "var(--muted)" },
   { to: "/admin/api", labelKey: "pages.admin.overview.linkApi", icon: "\u{1F4E6}", color: "var(--text-tertiary)" },
 ];

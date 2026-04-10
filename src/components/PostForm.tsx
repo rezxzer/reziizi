@@ -1,11 +1,14 @@
 import type { ChangeEvent, FormEvent, ReactElement } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
+import { RPC } from "../lib/api/registry.ts";
 import { errorMessage } from "../lib/errors.ts";
+import { queryKeys } from "../lib/queryKeys.ts";
 import {
   removePostImageObject,
   uploadPostImage,
@@ -28,8 +31,10 @@ type PostFormProps = {
 export function PostForm({ onPosted }: PostFormProps): ReactElement {
   const { t } = useI18n();
   const toast = useToast();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { isBanned, isPremium, isAdmin, loading: flagsLoading } = useProfileFlags();
+  const videoUnlimited: boolean = isPremium || isAdmin;
   const maxLen: number = useMemo(
     () => getPostBodyMaxLength(isPremium, isAdmin),
     [isPremium, isAdmin],
@@ -38,7 +43,23 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
     () => getMaxTagsPerPost(isPremium, isAdmin),
     [isPremium, isAdmin],
   );
-  const allowVideo: boolean = isPremium || isAdmin;
+
+  const { data: videoCountToday = 0, isPending: videoQuotaLoading } = useQuery({
+    queryKey: queryKeys.postVideoToday(user?.id ?? "__none__"),
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await supabase.rpc(RPC.my_post_video_count_today);
+      if (error) {
+        throw error;
+      }
+      return typeof data === "number" ? data : Number(data ?? 0);
+    },
+    enabled: Boolean(user) && !flagsLoading && !videoUnlimited,
+    staleTime: 20_000,
+  });
+
+  /** Free tier: wait for RPC; block video until we know today's count (UTC day). */
+  const canPickVideo: boolean =
+    videoUnlimited || (!videoQuotaLoading && videoCountToday < 1);
   const [body, setBody] = useState("");
   const [tagsInput, setTagsInput] = useState("");
   const previewTagSlugs: string[] = useMemo(
@@ -66,7 +87,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
   }, [maxLen]);
 
   useEffect(() => {
-    if (allowVideo || !mediaFile?.type.startsWith("video/")) {
+    if (canPickVideo || !mediaFile?.type.startsWith("video/")) {
       return;
     }
     setMediaFile(null);
@@ -74,7 +95,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, [allowVideo, mediaFile]);
+  }, [canPickVideo, mediaFile]);
 
   function setPreviewFromFile(file: File | null): void {
     if (previewUrlRef.current) {
@@ -124,8 +145,11 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
       return validatePostImageFile(file);
     }
     if (file.type.startsWith("video/")) {
-      if (!allowVideo) {
-        return t("pages.postForm.videoRequiresPremium");
+      if (!videoUnlimited && videoQuotaLoading) {
+        return t("pages.common.loading");
+      }
+      if (!videoUnlimited && videoCountToday >= 1) {
+        return t("pages.postForm.videoDailyLimitFree");
       }
       return validatePostVideoFile(file);
     }
@@ -199,6 +223,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
               await removePostVideoObject(path);
               throw updateError;
             }
+            void queryClient.invalidateQueries({ queryKey: queryKeys.postVideoToday(userId) });
           } else {
             const { publicUrl, path } = await uploadPostImage(mediaFile, userId, post.id);
             const { error: updateError } = await supabase
@@ -215,7 +240,10 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           await supabase.from("posts").delete().eq("id", post.id).eq("user_id", userId);
           setSubmitting(false);
           const raw: string = errorMessage(mediaErr);
-          if (raw.includes("post_video_requires_premium") || raw.includes("post_videos")) {
+          if (raw.includes("post_video_daily_limit_free")) {
+            toast.error(t("pages.postForm.videoDailyLimitFree"));
+            void queryClient.invalidateQueries({ queryKey: queryKeys.postVideoToday(userId) });
+          } else if (raw.includes("post_video_requires_premium") || raw.includes("post_videos")) {
             toast.error(t("pages.postForm.videoRequiresPremium"));
           } else {
             toast.error(raw);
@@ -279,11 +307,11 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           className="post-form__file-input"
           type="file"
           accept={
-            allowVideo
+            canPickVideo
               ? "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
               : "image/jpeg,image/png,image/webp,image/gif"
           }
-          aria-label={allowVideo ? t("pages.postForm.attachAria") : t("pages.postForm.attachImageAria")}
+          aria-label={canPickVideo ? t("pages.postForm.attachAria") : t("pages.postForm.attachImageAria")}
           onChange={handleMediaPick}
           disabled={submitting}
         />
@@ -294,7 +322,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
             disabled={submitting}
             onClick={() => fileInputRef.current?.click()}
           >
-            {allowVideo ? t("pages.postForm.addMedia") : t("pages.postForm.addMediaImage")}
+            {canPickVideo ? t("pages.postForm.addMedia") : t("pages.postForm.addMediaImage")}
           </button>
           {previewUrl ? (
             <button
@@ -325,6 +353,11 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
               {mediaFile.name}
             </p>
           </div>
+        ) : null}
+        {!videoUnlimited && !videoQuotaLoading && videoCountToday < 1 ? (
+          <p className="muted form__hint">{t("pages.postForm.videoFreeTierDailyHint")}</p>
+        ) : !videoUnlimited && videoCountToday >= 1 ? (
+          <p className="muted form__hint">{t("pages.postForm.videoDailyLimitFreeHint")}</p>
         ) : null}
       </div>
       <label className="form__label">

@@ -25,19 +25,28 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
   const { user } = useAuth();
   const profileDisplayQuery = useQuery({
     queryKey: queryKeys.profile.display(user?.id ?? "__none__"),
-    queryFn: async (): Promise<{ email: string | null; avatar_url: string | null }> => {
+    queryFn: async (): Promise<{
+      email: string | null;
+      avatar_url: string | null;
+      display_name: string | null;
+    }> => {
       const { data: prof, error: profError } = await supabase
         .from("profiles")
-        .select("email, avatar_url")
+        .select("email, avatar_url, display_name")
         .eq("id", user!.id)
         .maybeSingle();
       if (profError) {
         throw profError;
       }
-      const r = prof as { email: string | null; avatar_url: string | null } | null;
+      const r = prof as {
+        email: string | null;
+        avatar_url: string | null;
+        display_name: string | null;
+      } | null;
       return {
         email: r?.email ?? user!.email ?? null,
         avatar_url: r?.avatar_url ?? null,
+        display_name: r?.display_name?.trim() ? r.display_name.trim() : null,
       };
     },
     enabled: Boolean(user),
@@ -107,6 +116,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       ...prev,
       {
         ...data,
+        authorDisplayName: profileDisplayQuery.data?.display_name ?? null,
         authorEmail: user.email ?? null,
         authorAvatarUrl: profileDisplayQuery.data?.avatar_url ?? null,
       },
@@ -157,7 +167,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
           {!loading ? (
             <ul className="comment-list">
               {comments.map((c) => {
-                const label = c.authorEmail ?? c.user_id.slice(0, 8);
+                const label = c.authorDisplayName ?? c.user_id.slice(0, 8);
                 const isMine = user?.id === c.user_id;
                 const time = new Date(c.created_at).toLocaleString();
                 return (

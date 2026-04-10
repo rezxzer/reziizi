@@ -7,7 +7,7 @@ export const FEED_TOP_PLACEMENT: string = "feed_top";
 export async function fetchActiveFeedTopAd(): Promise<AdSlotRow | null> {
   const { data, error } = await supabase
     .from("ad_slots")
-    .select("id, placement, title, body, link_url, is_active, updated_at")
+    .select("id, placement, title, body, link_url, video_url, is_active, updated_at")
     .eq("placement", FEED_TOP_PLACEMENT)
     .eq("is_active", true)
     .maybeSingle();
@@ -20,7 +20,10 @@ export async function fetchActiveFeedTopAd(): Promise<AdSlotRow | null> {
   }
   const row = data as AdSlotRow;
   const hasContent: boolean =
-    row.title.trim().length > 0 || row.body.trim().length > 0 || (row.link_url?.trim().length ?? 0) > 0;
+    row.title.trim().length > 0 ||
+    row.body.trim().length > 0 ||
+    (row.link_url?.trim().length ?? 0) > 0 ||
+    (row.video_url?.trim().length ?? 0) > 0;
   if (!hasContent) {
     return null;
   }
@@ -31,7 +34,7 @@ export async function fetchActiveFeedTopAd(): Promise<AdSlotRow | null> {
 export async function fetchFeedTopAdForAdmin(): Promise<AdSlotRow | null> {
   const { data, error } = await supabase
     .from("ad_slots")
-    .select("id, placement, title, body, link_url, is_active, updated_at")
+    .select("id, placement, title, body, link_url, video_url, is_active, updated_at")
     .eq("placement", FEED_TOP_PLACEMENT)
     .maybeSingle();
 
@@ -45,6 +48,7 @@ export async function saveFeedTopAd(input: {
   title: string;
   body: string;
   link_url: string | null;
+  video_url: string | null;
   is_active: boolean;
 }): Promise<void> {
   const { error } = await supabase
@@ -53,6 +57,7 @@ export async function saveFeedTopAd(input: {
       title: input.title.trim(),
       body: input.body.trim(),
       link_url: input.link_url?.trim() || null,
+      video_url: input.video_url?.trim() || null,
       is_active: input.is_active,
       updated_at: new Date().toISOString(),
     })

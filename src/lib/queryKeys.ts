@@ -45,4 +45,11 @@ export const queryKeys = {
     adminRows: ["featureFlags", "adminRows"] as const,
   },
   trendingTags: ["trendingTags"] as const,
+  /** Sponsored placement applications (`ad_placement_requests`). */
+  adPlacementRequests: {
+    mine: (userId: string) => ["adPlacementRequests", "mine", userId] as const,
+    adminList: ["adPlacementRequests", "admin"] as const,
+  },
+  /** Free tier: posts with `video_url` today (UTC day) — RPC `my_post_video_count_today`. */
+  postVideoToday: (userId: string) => ["posts", userId, "videoToday"] as const,
 } as const;

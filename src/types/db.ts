@@ -109,6 +109,23 @@ export type AdSlotRow = {
   title: string;
   body: string;
   link_url: string | null;
+  /** Public Storage URL for optional feed-top promo video (`feed-ad-videos` bucket). */
+  video_url: string | null;
   is_active: boolean;
+  updated_at: string;
+};
+
+export type AdPlacementRequestStatus = "pending" | "approved" | "rejected";
+
+/** User-submitted request for feed-top sponsored placement (`ad_placement_requests`). */
+export type AdPlacementRequestRow = {
+  id: string;
+  user_id: string;
+  proposed_title: string;
+  proposed_body: string;
+  proposed_link_url: string | null;
+  status: AdPlacementRequestStatus;
+  admin_note: string | null;
+  created_at: string;
   updated_at: string;
 };

@@ -36,6 +36,7 @@ WHERE n.nspname = 'public'
     'search_post_ids',
     'search_profile_ids',
     'user_commented_post_ids',
+    'my_post_video_count_today',
     'get_or_create_conversation',
     'notify_post_owner_on_comment',
     'notify_post_owner_on_reaction',
@@ -90,6 +91,7 @@ UNION ALL SELECT 'conversations', COUNT(*) FROM public.conversations
 UNION ALL SELECT 'chat_messages', COUNT(*) FROM public.chat_messages
 UNION ALL SELECT 'reports', COUNT(*) FROM public.reports
 UNION ALL SELECT 'ad_slots', COUNT(*) FROM public.ad_slots
+UNION ALL SELECT 'ad_placement_requests', COUNT(*) FROM public.ad_placement_requests
 UNION ALL SELECT 'follows', COUNT(*) FROM public.follows
 UNION ALL SELECT 'abuse_flags', COUNT(*) FROM public.abuse_flags;
 
@@ -100,3 +102,10 @@ WHERE table_schema = 'public'
   AND table_name = 'profiles'
   AND column_name IN ('display_name', 'bio')
 ORDER BY column_name;
+
+-- === 9) ad_slots: optional promo video URL ===
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'ad_slots'
+  AND column_name = 'video_url';
