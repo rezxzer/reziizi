@@ -271,6 +271,11 @@ html[data-theme="light"] .layout__header {
   font-weight: 500;
 }
 
+.layout__nav-link--button {
+  font-family: inherit;
+  border: 1px solid transparent;
+}
+
 .layout__nav-link:hover {
   color: var(--text);
   background: rgba(255, 255, 255, 0.06);

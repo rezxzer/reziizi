@@ -68,6 +68,9 @@ type PagesBundle = {
     modeSignUp: string;
     email: string;
     password: string;
+    confirmPassword: string;
+    passwordsDoNotMatch: string;
+    checkEmailForConfirmation: string;
     submitWait: string;
     submitSignIn: string;
     submitSignUp: string;
@@ -876,6 +879,10 @@ const en: Bundle = {
       modeSignUp: "Sign up",
       email: "Email",
       password: "Password",
+      confirmPassword: "Confirm password",
+      passwordsDoNotMatch: "Passwords do not match.",
+      checkEmailForConfirmation:
+        "Check your email to confirm your account before signing in.",
       submitWait: "Please wait…",
       submitSignIn: "Sign in",
       submitSignUp: "Sign up",
@@ -1617,6 +1624,10 @@ const ka: Bundle = {
       modeSignUp: "რეგისტრაცია",
       email: "ელფოსტა",
       password: "პაროლი",
+      confirmPassword: "პაროლის გამეორება",
+      passwordsDoNotMatch: "პაროლები არ ემთხვევა.",
+      checkEmailForConfirmation:
+        "ანგარიშის დასადასტურებლად გადაამოწმეთ ელფოსტა და შემდეგ შედით სისტემაში.",
       submitWait: "დაელოდეთ…",
       submitSignIn: "შესვლა",
       submitSignUp: "რეგისტრაცია",
@@ -2357,6 +2368,10 @@ const ru: Bundle = {
       modeSignUp: "Регистрация",
       email: "Email",
       password: "Пароль",
+      confirmPassword: "Подтвердите пароль",
+      passwordsDoNotMatch: "Пароли не совпадают.",
+      checkEmailForConfirmation:
+        "Проверьте почту, подтвердите аккаунт и затем войдите в систему.",
       submitWait: "Подождите…",
       submitSignIn: "Войти",
       submitSignUp: "Зарегистрироваться",

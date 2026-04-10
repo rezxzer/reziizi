@@ -34,6 +34,7 @@ import {
 import { fetchPrivacySettings, setProfilePrivate } from "../lib/profilePrivacy.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
 import { queryClient as qc } from "../lib/queryClient.ts";
+import { supabase } from "../lib/supabaseClient.ts";
 
 type ProfileTab = "posts" | "commented";
 
@@ -54,6 +55,7 @@ export function ProfilePage(): ReactElement {
   const [aboutMsg, setAboutMsg] = useState<string | null>(null);
   const [isPrivateLocal, setIsPrivateLocal] = useState(false);
   const [privateBusy, setPrivateBusy] = useState(false);
+  const [logoutBusy, setLogoutBusy] = useState(false);
 
   const tab: ProfileTab = searchParams.get("tab") === "commented" ? "commented" : "posts";
 
@@ -267,6 +269,18 @@ export function ProfilePage(): ReactElement {
     }
   }
 
+  async function handleLogout(): Promise<void> {
+    if (logoutBusy) {
+      return;
+    }
+    setLogoutBusy(true);
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      setLogoutBusy(false);
+    }
+  }
+
   return (
     <div className="stack profile-page">
       <section className="card profile-hero">
@@ -315,6 +329,14 @@ export function ProfilePage(): ReactElement {
                   onClick={handleToggleEdit}
                 >
                   {editOpen ? t("pages.profile.closeEdit") : t("pages.profile.editProfile")}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--small"
+                  onClick={() => void handleLogout()}
+                  disabled={logoutBusy}
+                >
+                  {t("pages.profile.signOut")}
                 </button>
               </p>
               <div className="profile-hero__layout">

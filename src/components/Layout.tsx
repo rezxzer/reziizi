@@ -10,6 +10,7 @@ import { useUnreadNotificationCount } from "../hooks/useUnreadNotificationCount.
 import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
+import { supabase } from "../lib/supabaseClient.ts";
 import { RouteAnnouncer } from "./RouteAnnouncer.tsx";
 import { RouteSeo } from "./RouteSeo.tsx";
 import { LayoutOutlet } from "./LayoutOutlet.tsx";
@@ -37,6 +38,7 @@ export function Layout(): ReactElement {
   const showNavMessages = isFeatureEnabled(featureFlags.data, FEATURE_FLAG_KEYS.navMessages);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoutBusy, setLogoutBusy] = useState(false);
   const isAdminRoute: boolean = pathname.startsWith("/admin");
 
   useEffect(() => {
@@ -71,6 +73,18 @@ export function Layout(): ReactElement {
   if (blockBanned) {
     return <Navigate to="/banned" replace />;
   }
+
+  const handleLogout = async (): Promise<void> => {
+    if (logoutBusy) {
+      return;
+    }
+    setLogoutBusy(true);
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      setLogoutBusy(false);
+    }
+  };
 
   return (
     <div className="layout">
@@ -190,6 +204,16 @@ export function Layout(): ReactElement {
           <NavLink to="/legal" className={navLinkClass}>
             {t("layout.nav.legal")}
           </NavLink>
+          {user ? (
+            <button
+              type="button"
+              className="layout__nav-link layout__nav-link--button"
+              onClick={() => void handleLogout()}
+              disabled={logoutBusy}
+            >
+              {t("settings.logOut")}
+            </button>
+          ) : null}
         </nav>
         <div className="layout__nav-right">
           <div className="theme-pill">

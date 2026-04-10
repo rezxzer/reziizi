@@ -18,6 +18,7 @@ export function LoginPage(): ReactElement {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   if (!loading && user) {
@@ -26,9 +27,15 @@ export function LoginPage(): ReactElement {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
-    if (mode === "signup" && !isPasswordLongEnough(password)) {
-      toast.error(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
-      return;
+    if (mode === "signup") {
+      if (!isPasswordLongEnough(password)) {
+        toast.error(t("settings.passwordTooShort", { min: MIN_PASSWORD_LENGTH }));
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error(t("pages.login.passwordsDoNotMatch"));
+        return;
+      }
     }
     setSubmitting(true);
     try {
@@ -44,6 +51,7 @@ export function LoginPage(): ReactElement {
           toast.error(errorMessage(signError));
           return;
         }
+        toast.success(t("pages.login.checkEmailForConfirmation"));
       }
     } finally {
       setSubmitting(false);
@@ -73,14 +81,19 @@ export function LoginPage(): ReactElement {
             <button
               type="button"
               className={`auth-mode__btn${mode === "signin" ? " auth-mode__btn--active" : ""}`}
-              onClick={() => setMode("signin")}
+              onClick={() => {
+                setMode("signin");
+                setConfirmPassword("");
+              }}
             >
               {t("pages.login.modeSignIn")}
             </button>
             <button
               type="button"
               className={`auth-mode__btn${mode === "signup" ? " auth-mode__btn--active" : ""}`}
-              onClick={() => setMode("signup")}
+              onClick={() => {
+                setMode("signup");
+              }}
             >
               {t("pages.login.modeSignUp")}
             </button>
@@ -111,6 +124,21 @@ export function LoginPage(): ReactElement {
                 minLength={mode === "signup" ? MIN_PASSWORD_LENGTH : 1}
               />
             </label>
+            {mode === "signup" ? (
+              <label className="form__label">
+                {t("pages.login.confirmPassword")}
+                <input
+                  className="form__input"
+                  type="password"
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={MIN_PASSWORD_LENGTH}
+                />
+              </label>
+            ) : null}
             <button type="submit" className="btn btn--primary" disabled={submitting}>
               {submitting
                 ? t("pages.login.submitWait")
