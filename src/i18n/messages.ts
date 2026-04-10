@@ -75,6 +75,10 @@ type PagesBundle = {
     confirmationPendingTitle: string;
     confirmationPendingBody: string;
     backToSignIn: string;
+    resendCta: string;
+    resendSending: string;
+    resendCooldown: string;
+    resendSuccess: string;
     submitWait: string;
     submitSignIn: string;
     submitSignUp: string;
@@ -893,6 +897,10 @@ const en: Bundle = {
       confirmationPendingBody:
         "We sent a confirmation link to {email}. Open your inbox, confirm the account, then return here to sign in.",
       backToSignIn: "Back to sign in",
+      resendCta: "Resend confirmation email",
+      resendSending: "Sending…",
+      resendCooldown: "Resend in {seconds}s",
+      resendSuccess: "Confirmation email sent again. Check your inbox.",
       submitWait: "Please wait…",
       submitSignIn: "Sign in",
       submitSignUp: "Sign up",
@@ -1645,6 +1653,10 @@ const ka: Bundle = {
       confirmationPendingBody:
         "დადასტურების ბმული გამოგიგზავნეთ: {email}. გახსენით შემოსული წერილი, დაადასტურეთ ანგარიში და შემდეგ დაბრუნდით შესასვლელად.",
       backToSignIn: "შესვლაზე დაბრუნება",
+      resendCta: "დადასტურების წერილის ხელახლა გაგზავნა",
+      resendSending: "იგზავნება…",
+      resendCooldown: "თავიდან გაგზავნა {seconds}წმ-ში",
+      resendSuccess: "დადასტურების წერილი ხელახლა გაიგზავნა. შეამოწმეთ ელფოსტა.",
       submitWait: "დაელოდეთ…",
       submitSignIn: "შესვლა",
       submitSignUp: "რეგისტრაცია",
@@ -2396,6 +2408,10 @@ const ru: Bundle = {
       confirmationPendingBody:
         "Мы отправили ссылку подтверждения на {email}. Откройте письмо, подтвердите аккаунт и вернитесь для входа.",
       backToSignIn: "Вернуться ко входу",
+      resendCta: "Отправить письмо подтверждения снова",
+      resendSending: "Отправка…",
+      resendCooldown: "Повтор через {seconds}с",
+      resendSuccess: "Письмо подтверждения отправлено повторно. Проверьте почту.",
       submitWait: "Подождите…",
       submitSignIn: "Войти",
       submitSignUp: "Зарегистрироваться",

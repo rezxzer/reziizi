@@ -1,5 +1,5 @@
 import type { FormEvent, ReactElement } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext.tsx";
@@ -24,6 +24,20 @@ export function LoginPage(): ReactElement {
     kind: "success" | "info";
     message: string;
   } | null>(null);
+  const [resendBusy, setResendBusy] = useState(false);
+  const [resendCooldownSec, setResendCooldownSec] = useState(0);
+
+  useEffect(() => {
+    if (resendCooldownSec <= 0) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setResendCooldownSec((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [resendCooldownSec]);
 
   if (!loading && user) {
     return <Navigate to={from} replace />;
@@ -70,6 +84,27 @@ export function LoginPage(): ReactElement {
       }
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleResendConfirmation(): Promise<void> {
+    if (!email || resendBusy || resendCooldownSec > 0) {
+      return;
+    }
+    setResendBusy(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+      });
+      if (error) {
+        toast.error(errorMessage(error));
+        return;
+      }
+      toast.success(t("pages.login.resendSuccess"));
+      setResendCooldownSec(60);
+    } finally {
+      setResendBusy(false);
     }
   }
 
@@ -131,6 +166,18 @@ export function LoginPage(): ReactElement {
                     ? t("pages.login.confirmationPendingBody", { email })
                     : t("pages.login.checkEmailForConfirmation")}
                 </p>
+                <button
+                  type="button"
+                  className="btn btn--small"
+                  onClick={() => void handleResendConfirmation()}
+                  disabled={resendBusy || resendCooldownSec > 0}
+                >
+                  {resendBusy
+                    ? t("pages.login.resendSending")
+                    : resendCooldownSec > 0
+                      ? t("pages.login.resendCooldown", { seconds: resendCooldownSec })
+                      : t("pages.login.resendCta")}
+                </button>
                 <button
                   type="button"
                   className="btn btn--primary"
