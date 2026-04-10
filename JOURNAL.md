@@ -21,10 +21,14 @@
 
 ## ჩანაწერები
 
+### 2026-04-11 — Supabase production: migrations 523–525 დადასტურებული
+
+- **`20260401352300_free_tier_one_video_per_utc_day.sql`**, **`20260401352400_add_ad_placement_requests.sql`**, **`20260401352500_add_ad_slots_video_url_and_storage.sql`** — წარმატებით გაშვებულია production Supabase-ზე (ჩატში დადასტურებული). **`project.md` CURRENT WORK** სინქი.
+
 ### 2026-04-11 — GitHub sync + Supabase მიგრაციები (გასაშვები production-ზე)
 
 - **Git:** `main` → `origin` push — commit `2d86a73` (სპონსორი/რეკლამა, მიგრაციები 523–525, test-mode banner, `.gitignore` → `supabase/.temp/`).
-- **Supabase production:** CLI ამ რეპოში **არ არის** `link`-ზე — სამი ფაილი გაუშვი ხელით **რიგით:** `20260401352300` → `20260401352400` → `20260401352500`. დადასტურების შემდეგ განაახლე `project.md` CURRENT WORK (Supabase ხაზი) აქ „გაშვებულია“.
+- **შენიშვნა:** ქვემოთ ჩანაწერი „523–525 დადასტურებული“ — production გაშვების დადასტურება.
 
 ### 2026-04-10 — სპონსორი/რეკლამა: სატესტო რეჟიმის banner (ფული არა)
 
