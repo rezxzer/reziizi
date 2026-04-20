@@ -114,11 +114,32 @@ export function SearchPage(): ReactElement {
 
   return (
     <div className="stack search-page">
-      <section className="card" aria-labelledby="search-heading">
-        <h1 id="search-heading" className="card__title">
-          {t("pages.search.title")}
-        </h1>
-        <div className="card__body">
+      <section className="page-hero search-page__hero" aria-labelledby="search-heading">
+        <div className="page-hero__icon search-page__hero-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+        </div>
+        <div className="page-hero__text search-page__hero-copy">
+          <h1 id="search-heading" className="page-hero__title">
+            {t("pages.search.title")}
+          </h1>
+          <p className="page-hero__subtitle search-page__hero-subtitle">
+            {hasNoQuery ? t("pages.search.introHint") : t("pages.search.rankingHint")}
+          </p>
+          {isSearchQueryValid(pattern) && !loading && !error ? (
+            <p className="muted form__hint search-page__summary" aria-live="polite">
+              {t("pages.search.resultsSummary", {
+                q: pattern,
+                total: totalResults,
+                posts: posts.length,
+                users: profiles.length,
+              })}
+            </p>
+          ) : null}
+        </div>
+        <div className="search-page__search-panel">
           <form className="search-form form" role="search" onSubmit={handleSubmit}>
             <label className="form__label">
               {t("pages.search.queryLabel")}
@@ -143,27 +164,28 @@ export function SearchPage(): ReactElement {
               ) : null}
             </span>
           </form>
-          {hasNoQuery ? (
-            <p className="muted form__hint">{t("pages.search.introHint")}</p>
-          ) : null}
           {showHint ? (
-            <p className="muted">{t("pages.search.hintMinChars")}</p>
-          ) : null}
-          {isSearchQueryValid(patternForHint) ? (
-            <p className="muted form__hint">{t("pages.search.rankingHint")}</p>
-          ) : null}
-          {isSearchQueryValid(pattern) && !loading && !error ? (
-            <p className="muted form__hint search-page__summary" aria-live="polite">
-              {t("pages.search.resultsSummary", {
-                q: pattern,
-                total: totalResults,
-                posts: posts.length,
-                users: profiles.length,
-              })}
-            </p>
+            <p className="muted form__hint search-page__panel-note">{t("pages.search.hintMinChars")}</p>
           ) : null}
         </div>
       </section>
+
+      {isSearchQueryValid(pattern) && !loading && !error ? (
+        <div className="page-stats-bar search-page__stats" aria-live="polite">
+          <div className="page-stats-bar__item page-stats-bar__item--accent">
+            <span className="page-stats-bar__value">{totalResults}</span>
+            <span className="page-stats-bar__label">{t("pages.search.title")}</span>
+          </div>
+          <div className="page-stats-bar__item">
+            <span className="page-stats-bar__value">{profiles.length}</span>
+            <span className="page-stats-bar__label">{t("pages.search.usersWithCount", { count: profiles.length })}</span>
+          </div>
+          <div className="page-stats-bar__item">
+            <span className="page-stats-bar__value">{posts.length}</span>
+            <span className="page-stats-bar__label">{t("pages.search.postsWithCount", { count: posts.length })}</span>
+          </div>
+        </div>
+      ) : null}
 
       {isSearchQueryValid(pattern) ? (
         <div
@@ -174,18 +196,31 @@ export function SearchPage(): ReactElement {
           aria-label={t("pages.search.resultsRegionLabel")}
         >
           {loading ? (
-            <p className="page-loading" role="status">
-              {t("pages.search.searching")}
-            </p>
+            <section className="card search-page__state-card" role="status" aria-live="polite">
+              <div className="page-loading-block">
+                <div className="page-loading-block__spinner" />
+                <p className="muted">{t("pages.search.searching")}</p>
+              </div>
+            </section>
           ) : null}
 
           {!loading && error ? (
-            <section className="card search-page__error" role="alert" aria-live="assertive">
-              <div className="card__body">
-                <p className="form__error">{t("pages.search.errorTitle")}</p>
-                <p className="muted">{error}</p>
-                <p className="muted form__hint">{t("pages.search.errorHint")}</p>
-                <button type="button" className="btn btn--small" onClick={handleRetry}>
+            <section className="card search-page__state-card search-page__error" role="alert" aria-live="assertive">
+              <div className="page-empty-state search-page__state search-page__state--error">
+                <div className="page-empty-state__icon search-page__state-icon" aria-hidden="true">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                    <path d="M11 8v4" />
+                    <path d="M11 15h.01" />
+                  </svg>
+                </div>
+                <div className="search-page__state-copy">
+                  <p className="search-page__state-title">{t("pages.search.errorTitle")}</p>
+                  <p className="page-empty-state__text">{error}</p>
+                  <p className="muted form__hint">{t("pages.search.errorHint")}</p>
+                </div>
+                <button type="button" className="btn btn--primary" onClick={handleRetry}>
                   {t("pages.search.retry")}
                 </button>
               </div>
@@ -193,10 +228,18 @@ export function SearchPage(): ReactElement {
           ) : null}
 
           {!loading && !error && bothEmpty ? (
-            <section className="card search-page__empty-all" aria-live="polite" role="status">
-              <div className="card__body">
-                <p className="muted">{t("pages.search.noResultsAny", { q: pattern })}</p>
-                <p className="muted form__hint">{t("pages.search.noResultsTips")}</p>
+            <section className="card search-page__state-card search-page__empty-all" aria-live="polite" role="status">
+              <div className="page-empty-state search-page__state">
+                <div className="page-empty-state__icon search-page__state-icon" aria-hidden="true">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                  </svg>
+                </div>
+                <div className="search-page__state-copy">
+                  <p className="search-page__state-title">{t("pages.search.noResultsAny", { q: pattern })}</p>
+                  <p className="page-empty-state__text">{t("pages.search.noResultsTips")}</p>
+                </div>
               </div>
             </section>
           ) : null}
@@ -204,13 +247,17 @@ export function SearchPage(): ReactElement {
           {!loading && !error && !bothEmpty ? (
             <>
               <section className="card search-results-card" aria-labelledby="users-heading">
-                <h2 id="users-heading" className="card__title search-results-card__title">
-                  {t("pages.search.usersWithCount", { count: profiles.length })}
-                </h2>
+                <div className="search-results-card__head">
+                  <h2 id="users-heading" className="card__title search-results-card__title">
+                    {t("pages.search.usersWithCount", { count: profiles.length })}
+                  </h2>
+                </div>
                 <div className="card__body search-results-card__body">
                   <p className="muted search-results-card__intro">{t("pages.search.usersPrivacyNote")}</p>
                   {profiles.length === 0 ? (
-                    <p className="muted">{t("pages.search.noProfiles")}</p>
+                    <div className="page-empty-state search-results-card__empty">
+                      <p className="page-empty-state__text">{t("pages.search.noProfiles")}</p>
+                    </div>
                   ) : (
                     <ul className="search-profile-list">
                       {profiles.map((p) => {
@@ -254,12 +301,16 @@ export function SearchPage(): ReactElement {
               </section>
 
               <section className="card search-results-card" aria-labelledby="posts-heading">
-                <h2 id="posts-heading" className="card__title search-results-card__title">
-                  {t("pages.search.postsWithCount", { count: posts.length })}
-                </h2>
+                <div className="search-results-card__head">
+                  <h2 id="posts-heading" className="card__title search-results-card__title">
+                    {t("pages.search.postsWithCount", { count: posts.length })}
+                  </h2>
+                </div>
                 <div className="card__body search-posts search-results-card__body">
                   {posts.length === 0 ? (
-                    <p className="muted">{t("pages.search.noPosts")}</p>
+                    <div className="page-empty-state search-results-card__empty">
+                      <p className="page-empty-state__text">{t("pages.search.noPosts")}</p>
+                    </div>
                   ) : (
                     <ul className="post-list">
                       {posts.map((post) => (
