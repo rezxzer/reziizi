@@ -677,6 +677,9 @@ export type Bundle = {
     ariaGroup: string;
   };
   settings: {
+    pageEyebrow: string;
+    pageSubtitle: string;
+    pageMetaAria: string;
     language: string;
     languageHelp: string;
     languageEn: string;
@@ -752,6 +755,7 @@ export type Bundle = {
     passwordUpdated: string;
     passwordTooShort: string;
     session: string;
+    sessionHint: string;
     logOut: string;
     deleteAccount: string;
     deleteAccountHint: string;
@@ -835,6 +839,9 @@ const en: Bundle = {
     ariaGroup: "Color theme",
   },
   settings: {
+    pageEyebrow: "Account center",
+    pageSubtitle: "Manage how Metafeed looks, what it shares, and how your account feels across this device.",
+    pageMetaAria: "Settings summary",
     language: "Language",
     languageHelp: "Interface language (stored on this device).",
     languageEn: "English",
@@ -912,6 +919,7 @@ const en: Bundle = {
     passwordUpdated: "Password updated.",
     passwordTooShort: "Password must be at least {min} characters.",
     session: "Session",
+    sessionHint: "End your current session on this device when you are done.",
     logOut: "Log out",
     deleteAccount: "Delete account",
     deleteAccountHint:
@@ -1674,6 +1682,9 @@ const ka: Bundle = {
     ariaGroup: "ფერის თემა",
   },
   settings: {
+    pageEyebrow: "ანგარიშის ცენტრი",
+    pageSubtitle: "აქ მართავ Metafeed-ის იერს, გაზიარების პარამეტრებს და შენი ანგარიშის ძირითად გარემოს ამ მოწყობილობაზე.",
+    pageMetaAria: "პარამეტრების შეჯამება",
     language: "ენა",
     languageHelp: "ინტერფეისის ენა (ინახება ამ მოწყობილობაზე).",
     languageEn: "ინგლისური",
@@ -1752,6 +1763,7 @@ const ka: Bundle = {
     passwordUpdated: "პაროლი განახლდა.",
     passwordTooShort: "პაროლი უნდა იყოს მინიმუმ {min} სიმბოლო.",
     session: "სესია",
+    sessionHint: "მოწყობილობაზე მიმდინარე სესია დაასრულე, როცა მუშაობას ამთავრებ.",
     logOut: "გასვლა",
     deleteAccount: "ანგარიშის წაშლა",
     deleteAccountHint:
@@ -2514,6 +2526,9 @@ const ru: Bundle = {
     ariaGroup: "Цветовая тема",
   },
   settings: {
+    pageEyebrow: "Центр аккаунта",
+    pageSubtitle: "Здесь управляются внешний вид Metafeed, приватность и ключевые параметры аккаунта на этом устройстве.",
+    pageMetaAria: "Сводка настроек",
     language: "Язык",
     languageHelp: "Язык интерфейса (сохраняется на этом устройстве).",
     languageEn: "Английский",
@@ -2592,6 +2607,7 @@ const ru: Bundle = {
     passwordUpdated: "Пароль обновлён.",
     passwordTooShort: "Пароль должен содержать не менее {min} символов.",
     session: "Сессия",
+    sessionHint: "Завершите текущую сессию на этом устройстве, когда закончите работу.",
     logOut: "Выйти",
     deleteAccount: "Удаление аккаунта",
     deleteAccountHint:

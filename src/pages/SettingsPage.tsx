@@ -241,47 +241,84 @@ export function SettingsPage(): ReactElement {
   const dateLocale: string | undefined =
     locale === "ka" ? "ka-GE" : locale === "ru" ? "ru-RU" : undefined;
 
+  const premiumStatusLabel: string =
+    flagsLoading
+      ? t("settings.premiumLoading")
+      : isPremium && premiumUntil != null
+        ? `${t("settings.premiumActiveUntil")} ${new Date(premiumUntil).toLocaleDateString(dateLocale, {
+            dateStyle: "medium",
+          })}`
+        : t("settings.premiumNone");
+
   return (
     <div className="stack settings-page">
-      <section className="card">
-        <h2 className="card__title" id="language-heading">
-          {t("settings.language")}
-        </h2>
-        <div className="card__body">
-          <p className="muted">{t("settings.languageHelp")}</p>
-          <div className="form">
-            <label className="form__label" htmlFor="settings-locale">
-              {t("settings.language")}
-            </label>
-            <select
-              id="settings-locale"
-              className="form__input"
-              value={locale}
-              onChange={(ev) => setLocale(normalizeLocale(ev.target.value))}
-            >
-              <option value="en">{t("settings.languageEn")}</option>
-              <option value="ka">{t("settings.languageKa")}</option>
-              <option value="ru">{t("settings.languageRu")}</option>
-            </select>
+      <section className="page-hero settings-page__hero" aria-labelledby="settings-page-title">
+        <div className="page-hero__icon settings-page__hero-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10.09 3H10a2 2 0 1 1 4 0h-.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 21 10.09V10a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+          </svg>
+        </div>
+        <div className="page-hero__text settings-page__hero-copy">
+          <p className="settings-page__eyebrow">{t("settings.pageEyebrow")}</p>
+          <h1 id="settings-page-title" className="page-hero__title settings-page__hero-title">
+            {t("layout.nav.settings")}
+          </h1>
+          <p className="page-hero__subtitle settings-page__hero-subtitle">{t("settings.pageSubtitle")}</p>
+        </div>
+        <div className="settings-page__hero-meta" aria-label={t("settings.pageMetaAria")}>
+          <div className="settings-page__hero-pill">
+            <span className="settings-page__hero-pill-label">{t("settings.signedInAs")}</span>
+            <strong>{user?.email ?? "—"}</strong>
+          </div>
+          <div className="settings-page__hero-pill">
+            <span className="settings-page__hero-pill-label">{t("settings.premium")}</span>
+            <strong>{premiumStatusLabel}</strong>
           </div>
         </div>
       </section>
 
-      <section className="card">
-        <h2 className="card__title" id="theme-heading">
-          {t("settings.appearance")}
-        </h2>
-        <div className="card__body">
-          <p className="muted">{t("settings.appearanceHint")}</p>
-          <ThemePreferenceControls labelledBy="theme-heading" />
-        </div>
-      </section>
+      <div className="settings-page__cluster settings-page__cluster--top">
+        <section className="card settings-card settings-card--compact">
+          <h2 className="card__title" id="language-heading">
+            {t("settings.language")}
+          </h2>
+          <div className="card__body settings-card__body">
+            <p className="muted settings-card__intro">{t("settings.languageHelp")}</p>
+            <div className="form">
+              <label className="form__label" htmlFor="settings-locale">
+                {t("settings.language")}
+              </label>
+              <select
+                id="settings-locale"
+                className="form__input"
+                value={locale}
+                onChange={(ev) => setLocale(normalizeLocale(ev.target.value))}
+              >
+                <option value="en">{t("settings.languageEn")}</option>
+                <option value="ka">{t("settings.languageKa")}</option>
+                <option value="ru">{t("settings.languageRu")}</option>
+              </select>
+            </div>
+          </div>
+        </section>
 
-      <section className="card">
+        <section className="card settings-card settings-card--compact">
+          <h2 className="card__title" id="theme-heading">
+            {t("settings.appearance")}
+          </h2>
+          <div className="card__body settings-card__body">
+            <p className="muted settings-card__intro">{t("settings.appearanceHint")}</p>
+            <ThemePreferenceControls labelledBy="theme-heading" />
+          </div>
+        </section>
+      </div>
+
+      <section className="card settings-card settings-card--feature">
         <h2 className="card__title">{t("settings.account")}</h2>
-        <div className="card__body">
-          <p className="muted">
-            {t("settings.signedInAs")} <strong>{user?.email ?? "—"}</strong>
+        <div className="card__body settings-card__body">
+          <p className="muted settings-card__intro">
+            {t("settings.signedInAs")} <strong>{user?.email ?? "â€”"}</strong>
           </p>
           <p className="muted">
             {t("settings.premium")}:{" "}
@@ -335,137 +372,142 @@ export function SettingsPage(): ReactElement {
         </div>
       </section>
 
-      <section className="card">
-        <h2 className="card__title">{t("settings.privacy")}</h2>
-        <div className="card__body">
-          <p className="muted">{t("settings.privacyHint")}</p>
-          {privacyLoading ? (
-            <p className="page-loading" role="status">
-              {t("settings.privacyLoading")}
-            </p>
-          ) : (
-            <form className="form" onSubmit={(ev) => void handlePrivacySave(ev)}>
-              <label className="form__label--checkbox">
-                <input
-                  type="checkbox"
-                  checked={searchable}
-                  onChange={(ev) => setSearchable(ev.target.checked)}
-                />
-                {t("settings.privacyCheckbox")}
-              </label>
-              <button type="submit" className="btn btn--primary" disabled={privacyBusy}>
-                {privacyBusy ? t("settings.privacySaving") : t("settings.privacySave")}
-              </button>
-              {privacyMsg ? (
-                <p className="form__success" role="status">
-                  {privacyMsg}
-                </p>
-              ) : null}
-            </form>
-          )}
-        </div>
-      </section>
-
-      <section className="card">
-        <h2 className="card__title">{t("settings.notificationsSection")}</h2>
-        <div className="card__body">
-          <p className="muted">{t("settings.notificationsHint")}</p>
-          {!user ? null : notifLoading ? (
-            <p className="page-loading" role="status">
-              {t("settings.notificationsLoading")}
-            </p>
-          ) : (
-            <form className="form" onSubmit={(ev) => void handleNotificationPrefsSave(ev)}>
-              <label className="form__label--checkbox">
-                <input
-                  type="checkbox"
-                  checked={notifPrefs.notifyOnComment}
-                  onChange={(ev) =>
-                    setNotifPrefs((p) => ({ ...p, notifyOnComment: ev.target.checked }))
-                  }
-                />
-                {t("settings.notifyOnComment")}
-              </label>
-              <label className="form__label--checkbox">
-                <input
-                  type="checkbox"
-                  checked={notifPrefs.notifyOnReaction}
-                  onChange={(ev) =>
-                    setNotifPrefs((p) => ({ ...p, notifyOnReaction: ev.target.checked }))
-                  }
-                />
-                {t("settings.notifyOnReaction")}
-              </label>
-              <label className="form__label--checkbox">
-                <input
-                  type="checkbox"
-                  checked={notifPrefs.notifyOnFollow}
-                  onChange={(ev) =>
-                    setNotifPrefs((p) => ({ ...p, notifyOnFollow: ev.target.checked }))
-                  }
-                />
-                {t("settings.notifyOnFollow")}
-              </label>
-              <button type="submit" className="btn btn--primary" disabled={notifBusy}>
-                {notifBusy ? t("settings.notificationsSaving") : t("settings.notificationsSave")}
-              </button>
-              {notifMsg ? (
-                <p className="form__success" role="status">
-                  {notifMsg}
-                </p>
-              ) : null}
-            </form>
-          )}
-        </div>
-      </section>
-
-      <section className="card">
-        <h2 className="card__title">{t("settings.changePassword")}</h2>
-        <div className="card__body">
-          <p className="muted">
-            {t("settings.passwordMinHint", { min: MIN_PASSWORD_LENGTH })}{" "}
-            <Link to="/security">{t("layout.nav.security")}</Link>.
-          </p>
-          <form className="form" onSubmit={(e) => void handlePassword(e)}>
-            <label className="form__label">
-              {t("settings.newPassword")}
-              <input
-                className="form__input"
-                type="password"
-                name="newPassword"
-                autoComplete="new-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                minLength={6}
-                required
-              />
-            </label>
-            <button type="submit" className="btn btn--primary" disabled={passwordBusy}>
-              {passwordBusy ? t("settings.updatingPassword") : t("settings.updatePassword")}
-            </button>
-            {passwordMsg ? (
-              <p className="form__success" role="status">
-                {passwordMsg}
+      <div className="settings-page__cluster settings-page__cluster--preferences">
+        <section className="card settings-card">
+          <h2 className="card__title">{t("settings.privacy")}</h2>
+          <div className="card__body settings-card__body">
+            <p className="muted settings-card__intro">{t("settings.privacyHint")}</p>
+            {privacyLoading ? (
+              <p className="page-loading" role="status">
+                {t("settings.privacyLoading")}
               </p>
-            ) : null}
-          </form>
-        </div>
-      </section>
+            ) : (
+              <form className="form" onSubmit={(ev) => void handlePrivacySave(ev)}>
+                <label className="form__label--checkbox">
+                  <input
+                    type="checkbox"
+                    checked={searchable}
+                    onChange={(ev) => setSearchable(ev.target.checked)}
+                  />
+                  {t("settings.privacyCheckbox")}
+                </label>
+                <button type="submit" className="btn btn--primary" disabled={privacyBusy}>
+                  {privacyBusy ? t("settings.privacySaving") : t("settings.privacySave")}
+                </button>
+                {privacyMsg ? (
+                  <p className="form__success" role="status">
+                    {privacyMsg}
+                  </p>
+                ) : null}
+              </form>
+            )}
+          </div>
+        </section>
 
-      <section className="card">
-        <h2 className="card__title">{t("settings.session")}</h2>
-        <div className="card__body">
-          <button type="button" className="btn" onClick={() => void handleLogout()}>
-            {t("settings.logOut")}
-          </button>
-        </div>
-      </section>
+        <section className="card settings-card">
+          <h2 className="card__title">{t("settings.notificationsSection")}</h2>
+          <div className="card__body settings-card__body">
+            <p className="muted settings-card__intro">{t("settings.notificationsHint")}</p>
+            {!user ? null : notifLoading ? (
+              <p className="page-loading" role="status">
+                {t("settings.notificationsLoading")}
+              </p>
+            ) : (
+              <form className="form" onSubmit={(ev) => void handleNotificationPrefsSave(ev)}>
+                <label className="form__label--checkbox">
+                  <input
+                    type="checkbox"
+                    checked={notifPrefs.notifyOnComment}
+                    onChange={(ev) =>
+                      setNotifPrefs((p) => ({ ...p, notifyOnComment: ev.target.checked }))
+                    }
+                  />
+                  {t("settings.notifyOnComment")}
+                </label>
+                <label className="form__label--checkbox">
+                  <input
+                    type="checkbox"
+                    checked={notifPrefs.notifyOnReaction}
+                    onChange={(ev) =>
+                      setNotifPrefs((p) => ({ ...p, notifyOnReaction: ev.target.checked }))
+                    }
+                  />
+                  {t("settings.notifyOnReaction")}
+                </label>
+                <label className="form__label--checkbox">
+                  <input
+                    type="checkbox"
+                    checked={notifPrefs.notifyOnFollow}
+                    onChange={(ev) =>
+                      setNotifPrefs((p) => ({ ...p, notifyOnFollow: ev.target.checked }))
+                    }
+                  />
+                  {t("settings.notifyOnFollow")}
+                </label>
+                <button type="submit" className="btn btn--primary" disabled={notifBusy}>
+                  {notifBusy ? t("settings.notificationsSaving") : t("settings.notificationsSave")}
+                </button>
+                {notifMsg ? (
+                  <p className="form__success" role="status">
+                    {notifMsg}
+                  </p>
+                ) : null}
+              </form>
+            )}
+          </div>
+        </section>
+      </div>
+
+      <div className="settings-page__cluster settings-page__cluster--security">
+        <section className="card settings-card">
+          <h2 className="card__title">{t("settings.changePassword")}</h2>
+          <div className="card__body settings-card__body">
+            <p className="muted settings-card__intro">
+              {t("settings.passwordMinHint", { min: MIN_PASSWORD_LENGTH })}{" "}
+              <Link to="/security">{t("layout.nav.security")}</Link>.
+            </p>
+            <form className="form" onSubmit={(e) => void handlePassword(e)}>
+              <label className="form__label">
+                {t("settings.newPassword")}
+                <input
+                  className="form__input"
+                  type="password"
+                  name="newPassword"
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  minLength={6}
+                  required
+                />
+              </label>
+              <button type="submit" className="btn btn--primary" disabled={passwordBusy}>
+                {passwordBusy ? t("settings.updatingPassword") : t("settings.updatePassword")}
+              </button>
+              {passwordMsg ? (
+                <p className="form__success" role="status">
+                  {passwordMsg}
+                </p>
+              ) : null}
+            </form>
+          </div>
+        </section>
+
+        <section className="card settings-card settings-card--compact">
+          <h2 className="card__title">{t("settings.session")}</h2>
+          <div className="card__body settings-card__body">
+            <p className="muted settings-card__intro">{t("settings.sessionHint")}</p>
+            <button type="button" className="btn" onClick={() => void handleLogout()}>
+              {t("settings.logOut")}
+            </button>
+          </div>
+        </section>
+      </div>
 
       {user ? (
-        <section className="card settings-delete-zone">
+        <section className="card settings-card settings-delete-zone">
           <h2 className="card__title">{t("settings.deleteAccount")}</h2>
-          <div className="card__body">
-            <p className="muted">{t("settings.deleteAccountHint")}</p>
+          <div className="card__body settings-card__body">
+            <p className="muted settings-card__intro">{t("settings.deleteAccountHint")}</p>
             <p className="muted">{t("settings.deleteAccountTypeDelete")}</p>
             <div className="form">
               <label className="form__label" htmlFor="settings-delete-confirm">
@@ -495,7 +537,7 @@ export function SettingsPage(): ReactElement {
         </section>
       ) : null}
 
-      <p className="muted">
+      <p className="muted settings-page__footer">
         <Link to="/legal">{t("settings.termsLink")}</Link>
       </p>
     </div>
