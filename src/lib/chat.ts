@@ -126,27 +126,20 @@ export async function sendMessage(conversationId: string, body: string): Promise
   return data as ChatMessageRow;
 }
 
-/**
- * Broadcast a typing event to the conversation channel.
- * Uses Supabase Realtime broadcast (no persistence).
- */
-export function broadcastTyping(conversationId: string, userId: string): void {
-  const channel = supabase.channel(`chat:${conversationId}`);
-  void channel.send({
-    type: "broadcast",
-    event: "typing",
-    payload: { userId },
-  });
+export interface TypingChannel {
+  broadcast: (userId: string) => void;
+  unsubscribe: () => void;
 }
 
 /**
- * Subscribe to typing events on a conversation.
- * Returns an unsubscribe function.
+ * Subscribe to typing events on a conversation and obtain a broadcast helper
+ * for the same underlying Supabase Realtime channel. One channel per
+ * conversation, reused for every keystroke broadcast.
  */
 export function subscribeToTyping(
   conversationId: string,
   onTyping: (userId: string) => void,
-): () => void {
+): TypingChannel {
   const channel = supabase
     .channel(`chat-typing:${conversationId}`)
     .on("broadcast", { event: "typing" }, (payload) => {
@@ -157,8 +150,17 @@ export function subscribeToTyping(
     })
     .subscribe();
 
-  return (): void => {
-    void supabase.removeChannel(channel);
+  return {
+    broadcast: (userId: string): void => {
+      void channel.send({
+        type: "broadcast",
+        event: "typing",
+        payload: { userId },
+      });
+    },
+    unsubscribe: (): void => {
+      void supabase.removeChannel(channel);
+    },
   };
 }
 
