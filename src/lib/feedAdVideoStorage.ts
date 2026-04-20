@@ -54,6 +54,10 @@ export async function uploadFeedAdVideo(file: File): Promise<UploadedFeedAdVideo
     throw error;
   }
   const { data } = supabase.storage.from(FEED_AD_VIDEOS_BUCKET).getPublicUrl(path);
+  if (!data?.publicUrl) {
+    void supabase.storage.from(FEED_AD_VIDEOS_BUCKET).remove([path]);
+    throw new Error("Failed to resolve public URL for uploaded ad video");
+  }
   return { publicUrl: data.publicUrl, path };
 }
 

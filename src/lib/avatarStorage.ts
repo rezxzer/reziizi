@@ -62,6 +62,10 @@ export async function uploadAvatarImage(file: File, userId: string): Promise<Upl
     throw error;
   }
   const { data } = supabase.storage.from(AVATARS_BUCKET).getPublicUrl(path);
+  if (!data?.publicUrl) {
+    void supabase.storage.from(AVATARS_BUCKET).remove([path]);
+    throw new Error("Failed to resolve public URL for uploaded avatar");
+  }
   return { publicUrl: data.publicUrl, path };
 }
 
