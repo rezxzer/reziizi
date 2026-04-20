@@ -66,9 +66,9 @@ export function NotificationsPage(): ReactElement {
           <h1 className="page-hero__title">{t("pages.notifications.title")}</h1>
           <p className="page-hero__subtitle">
             {unreadCount > 0
-              ? `${unreadCount} unread`
+              ? t("pages.notifications.heroUnreadCount", { count: unreadCount })
               : items.length > 0
-                ? `${items.length} total`
+                ? t("pages.notifications.heroTotalCount", { count: items.length })
                 : ""}
           </p>
         </div>
@@ -89,15 +89,15 @@ export function NotificationsPage(): ReactElement {
         <div className="page-stats-bar inbox-shell__stats">
           <div className="page-stats-bar__item">
             <span className="page-stats-bar__value">{items.length}</span>
-            <span className="page-stats-bar__label">Total</span>
+            <span className="page-stats-bar__label">{t("pages.notifications.statsTotal")}</span>
           </div>
           <div className="page-stats-bar__item page-stats-bar__item--accent">
             <span className="page-stats-bar__value">{unreadCount}</span>
-            <span className="page-stats-bar__label">Unread</span>
+            <span className="page-stats-bar__label">{t("pages.notifications.statsUnread")}</span>
           </div>
           <div className="page-stats-bar__item">
             <span className="page-stats-bar__value">{items.length - unreadCount}</span>
-            <span className="page-stats-bar__label">Read</span>
+            <span className="page-stats-bar__label">{t("pages.notifications.statsRead")}</span>
           </div>
         </div>
       ) : null}

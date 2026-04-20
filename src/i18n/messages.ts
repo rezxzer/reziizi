@@ -510,11 +510,16 @@ type PagesBundle = {
       };
     };
     notifications: {
-    title: string;
-    loading: string;
-    markAllRead: string;
-    markRead: string;
-    empty: string;
+      title: string;
+      loading: string;
+      heroUnreadCount: string;
+      heroTotalCount: string;
+      statsTotal: string;
+      statsUnread: string;
+      statsRead: string;
+      markAllRead: string;
+      markRead: string;
+      empty: string;
     backToFeed: string;
     /** Word before post id snippet, e.g. "post" */
     postLabel: string;
@@ -1426,6 +1431,11 @@ const en: Bundle = {
     notifications: {
       title: "Notifications",
       loading: "Loading…",
+      heroUnreadCount: "{count} unread",
+      heroTotalCount: "{count} total",
+      statsTotal: "Total",
+      statsUnread: "Unread",
+      statsRead: "Read",
       markAllRead: "Mark all read",
       markRead: "Mark read",
       empty:
@@ -2270,6 +2280,11 @@ const ka: Bundle = {
     notifications: {
       title: "შეტყობინებები",
       loading: "იტვირთება…",
+      heroUnreadCount: "{count} წაუკითხავი",
+      heroTotalCount: "{count} სულ",
+      statsTotal: "სულ",
+      statsUnread: "წაუკითხავი",
+      statsRead: "წაკითხული",
       markAllRead: "ყველა წავიკითხე",
       markRead: "წავიკითხე",
       empty:
@@ -3115,6 +3130,11 @@ const ru: Bundle = {
     notifications: {
       title: "Уведомления",
       loading: "Загрузка…",
+      heroUnreadCount: "{count} непрочитанных",
+      heroTotalCount: "{count} всего",
+      statsTotal: "Всего",
+      statsUnread: "Непрочитанные",
+      statsRead: "Прочитанные",
       markAllRead: "Прочитать все",
       markRead: "Прочитано",
       empty:
