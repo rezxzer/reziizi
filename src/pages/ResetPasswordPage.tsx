@@ -19,18 +19,24 @@ export function ResetPasswordPage(): ReactElement {
 
   useEffect(() => {
     let cancelled = false;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const hashHasRecovery = window.location.hash.includes("type=recovery");
 
     async function init(): Promise<void> {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (!cancelled && !error) {
+        if (cancelled) {
+          return;
+        }
+        if (error) {
+          setTimedOut(true);
+        } else {
           setRecoveryReady(true);
         }
         return;
       }
-      if (window.location.hash.includes("type=recovery")) {
+      if (hashHasRecovery) {
         setRecoveryReady(true);
       }
     }
@@ -44,16 +50,23 @@ export function ResetPasswordPage(): ReactElement {
       }
     });
 
-    const timer = window.setTimeout(() => {
-      if (!cancelled) {
-        setTimedOut(true);
-      }
-    }, 6000);
+    // Fallback only when no code and no recovery hash — otherwise the exchange
+    // result or the auth event is authoritative and must not race a timer.
+    let timer: number | null = null;
+    if (!code && !hashHasRecovery) {
+      timer = window.setTimeout(() => {
+        if (!cancelled) {
+          setTimedOut(true);
+        }
+      }, 6000);
+    }
 
     return () => {
       cancelled = true;
       subscription.unsubscribe();
-      window.clearTimeout(timer);
+      if (timer !== null) {
+        window.clearTimeout(timer);
+      }
     };
   }, []);
 

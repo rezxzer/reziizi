@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { fetchActiveFeedTopAd } from "../lib/ads.ts";
+import { safeHttpUrl } from "../lib/safeUrl.ts";
 import type { AdSlotRow } from "../types/db.ts";
 
 export function FeedAdSlot(): ReactElement | null {
@@ -34,13 +35,13 @@ export function FeedAdSlot(): ReactElement | null {
 
   const hasTitle: boolean = ad.title.trim().length > 0;
   const hasBody: boolean = ad.body.trim().length > 0;
-  const hasLink: boolean = Boolean(ad.link_url && ad.link_url.trim().length > 0);
+  const safeLink: string | null = safeHttpUrl(ad.link_url);
   const videoSrc: string | null = ad.video_url?.trim() ? ad.video_url.trim() : null;
 
   const titleNode: ReactElement | null = hasTitle ? (
     <h3 className="feed-ad__title">
-      {hasLink ? (
-        <a className="feed-ad__title-link" href={ad.link_url!} rel="noopener noreferrer" target="_blank">
+      {safeLink ? (
+        <a className="feed-ad__title-link" href={safeLink} rel="noopener noreferrer" target="_blank">
           {ad.title.trim()}
         </a>
       ) : (
@@ -72,9 +73,9 @@ export function FeedAdSlot(): ReactElement | null {
             </video>
           </div>
         ) : null}
-        {!hasTitle && hasLink ? (
+        {!hasTitle && safeLink ? (
           <p className="feed-ad__footer-link">
-            <a className="feed-ad__title-link" href={ad.link_url!} rel="noopener noreferrer" target="_blank">
+            <a className="feed-ad__title-link" href={safeLink} rel="noopener noreferrer" target="_blank">
               {t("pages.home.feedAdExternalCta")}
             </a>
           </p>

@@ -11,6 +11,7 @@ import {
 } from "../lib/adPlacementRequests.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
+import { safeHttpUrl } from "../lib/safeUrl.ts";
 import type { AdPlacementRequestRow, AdPlacementRequestStatus } from "../types/db.ts";
 
 function statusLabel(t: (k: string) => string, s: AdPlacementRequestStatus): string {
@@ -39,12 +40,15 @@ export function SponsoredPage(): ReactElement {
   });
 
   const submitMutation = useMutation({
-    mutationFn: () =>
-      submitAdPlacementRequest({
+    mutationFn: () => {
+      const trimmedLink: string = linkUrl.trim();
+      const normalizedLink: string | null = trimmedLink.length > 0 ? safeHttpUrl(trimmedLink) : null;
+      return submitAdPlacementRequest({
         proposed_title: title,
         proposed_body: body,
-        proposed_link_url: linkUrl.trim() || null,
-      }),
+        proposed_link_url: normalizedLink,
+      });
+    },
     onSuccess: () => {
       toast.success(t("pages.sponsored.successToast"));
       setTitle("");
@@ -66,6 +70,11 @@ export function SponsoredPage(): ReactElement {
     }
     if (body.trim().length < 10) {
       toast.error(t("pages.sponsored.fieldBodyHint"));
+      return;
+    }
+    const trimmedLink: string = linkUrl.trim();
+    if (trimmedLink.length > 0 && safeHttpUrl(trimmedLink) === null) {
+      toast.error(t("pages.sponsored.fieldLinkInvalid"));
       return;
     }
     submitMutation.mutate();

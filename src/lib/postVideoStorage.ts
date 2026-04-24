@@ -57,6 +57,10 @@ export async function uploadPostVideo(
     throw error;
   }
   const { data } = supabase.storage.from(POST_VIDEOS_BUCKET).getPublicUrl(path);
+  if (!data?.publicUrl) {
+    void supabase.storage.from(POST_VIDEOS_BUCKET).remove([path]);
+    throw new Error("Failed to resolve public URL for uploaded video");
+  }
   return { publicUrl: data.publicUrl, path };
 }
 

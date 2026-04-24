@@ -66,6 +66,10 @@ export async function uploadPostImage(
     throw error;
   }
   const { data } = supabase.storage.from(POST_IMAGES_BUCKET).getPublicUrl(path);
+  if (!data?.publicUrl) {
+    void supabase.storage.from(POST_IMAGES_BUCKET).remove([path]);
+    throw new Error("Failed to resolve public URL for uploaded image");
+  }
   return { publicUrl: data.publicUrl, path };
 }
 

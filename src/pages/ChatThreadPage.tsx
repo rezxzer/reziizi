@@ -8,7 +8,6 @@ import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { useToast } from "../contexts/ToastContext.tsx";
 import {
-  broadcastTyping,
   fetchMessages,
   getOrCreateConversation,
   isValidUuid,
@@ -43,6 +42,7 @@ export function ChatThreadPage(): ReactElement {
   const bottomRef = useRef<HTMLLIElement | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingBroadcast = useRef(0);
+  const typingBroadcastRef = useRef<((userId: string) => void) | null>(null);
 
   const scrollToBottom = useCallback((): void => {
     requestAnimationFrame(() => {
@@ -122,16 +122,21 @@ export function ChatThreadPage(): ReactElement {
           });
         });
 
-        // Subscribe to typing
-        const unsubTyping = subscribeToTyping(cid, (uid: string) => {
+        // Subscribe to typing (reuses single channel per conversation)
+        const typingCh = subscribeToTyping(cid, (uid: string) => {
           if (uid !== user?.id) {
             setPeerTyping(true);
             if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
             typingTimeoutRef.current = setTimeout(() => setPeerTyping(false), 3000);
           }
         });
+        typingBroadcastRef.current = typingCh.broadcast;
         const origUnsub = unsub;
-        unsub = () => { origUnsub(); unsubTyping(); };
+        unsub = () => {
+          origUnsub();
+          typingCh.unsubscribe();
+          typingBroadcastRef.current = null;
+        };
       } catch (e: unknown) {
         if (!cancelled) {
           setThreadError(errorMessage(e));
@@ -277,9 +282,14 @@ export function ChatThreadPage(): ReactElement {
                   value={draft}
                   onChange={(e) => {
                     setDraft(e.target.value);
-                    if (conversationId && user && Date.now() - lastTypingBroadcast.current > 2000) {
+                    if (
+                      conversationId &&
+                      user &&
+                      typingBroadcastRef.current &&
+                      Date.now() - lastTypingBroadcast.current > 2000
+                    ) {
                       lastTypingBroadcast.current = Date.now();
-                      broadcastTyping(conversationId, user.id);
+                      typingBroadcastRef.current(user.id);
                     }
                   }}
                   placeholder={t("pages.chat.messagePlaceholder")}

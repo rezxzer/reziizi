@@ -598,6 +598,7 @@ type PagesBundle = {
     fieldBodyHint: string;
     fieldLink: string;
     fieldLinkHint: string;
+    fieldLinkInvalid: string;
     submit: string;
     submitting: string;
     successToast: string;
@@ -762,6 +763,7 @@ export type Bundle = {
     session: string;
     sessionHint: string;
     logOut: string;
+    logOutFailed: string;
     deleteAccount: string;
     deleteAccountHint: string;
     deleteAccountTypeDelete: string;
@@ -926,6 +928,7 @@ const en: Bundle = {
     session: "Session",
     sessionHint: "End your current session on this device when you are done.",
     logOut: "Log out",
+    logOutFailed: "Could not log out. Check your connection and try again.",
     deleteAccount: "Delete account",
     deleteAccountHint:
       "Permanently removes your login, profile, posts, comments, reactions, messages, and uploaded images. This cannot be undone. Conversations you took part in are removed for both participants.",
@@ -1517,6 +1520,7 @@ const en: Bundle = {
       fieldBodyHint: "At least 10 characters. Plain text only.",
       fieldLink: "Destination URL (optional)",
       fieldLinkHint: "Where people go when they tap the headline (https://…).",
+      fieldLinkInvalid: "Enter a valid http(s) URL or leave the field empty.",
       submit: "Submit request",
       submitting: "Sending…",
       successToast: "Request received. You can track status below.",
@@ -1775,6 +1779,7 @@ const ka: Bundle = {
     session: "სესია",
     sessionHint: "მოწყობილობაზე მიმდინარე სესია დაასრულე, როცა მუშაობას ამთავრებ.",
     logOut: "გასვლა",
+    logOutFailed: "გასვლა ვერ შესრულდა. შეამოწმე კავშირი და სცადე თავიდან.",
     deleteAccount: "ანგარიშის წაშლა",
     deleteAccountHint:
       "სამუდამოდ წაშლის შესვლას, პროფილს, პოსტებს, კომენტარებს, რეაქციებს, შეტყობინებებს, მესიჯებს და ატვირთულ სურათებს. უკან დაბრუნება შეუძლებელია. საუბრები, სადაც მონაწილე ხართ, ორივე მხარისთვის იშლება.",
@@ -2366,6 +2371,7 @@ const ka: Bundle = {
       fieldBodyHint: "მინიმუმ 10 სიმბოლო. მხოლოდ ტექსტი.",
       fieldLink: "დანიშნულების URL (არასავალდებულო)",
       fieldLinkHint: "სადაც მომხმარებელი მიდის სათაურზე დაჭერისას (https://…).",
+      fieldLinkInvalid: "ჩაწერე სწორი http(s) URL ან დატოვე ცარიელი.",
       submit: "განაცხადის გაგზავნა",
       submitting: "იგზავნება…",
       successToast: "მივიღეთ. სტატუსს ქვემოთ ნახავთ.",
@@ -2624,6 +2630,7 @@ const ru: Bundle = {
     session: "Сессия",
     sessionHint: "Завершите текущую сессию на этом устройстве, когда закончите работу.",
     logOut: "Выйти",
+    logOutFailed: "Не удалось выйти. Проверьте соединение и попробуйте снова.",
     deleteAccount: "Удаление аккаунта",
     deleteAccountHint:
       "Безвозвратно удаляет вход, профиль, посты, комментарии, реакции, уведомления, сообщения и загруженные изображения. Беседы с вашим участием удаляются для обоих собеседников.",
@@ -3216,6 +3223,7 @@ const ru: Bundle = {
       fieldBodyHint: "Не менее 10 символов. Только текст.",
       fieldLink: "Целевой URL (необязательно)",
       fieldLinkHint: "Куда перейти по клику на заголовок (https://…).",
+      fieldLinkInvalid: "Введите корректный http(s) URL или оставьте поле пустым.",
       submit: "Отправить заявку",
       submitting: "Отправка…",
       successToast: "Заявка получена. Статус ниже.",
