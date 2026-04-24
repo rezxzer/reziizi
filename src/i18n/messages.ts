@@ -510,11 +510,16 @@ type PagesBundle = {
       };
     };
     notifications: {
-    title: string;
-    loading: string;
-    markAllRead: string;
-    markRead: string;
-    empty: string;
+      title: string;
+      loading: string;
+      heroUnreadCount: string;
+      heroTotalCount: string;
+      statsTotal: string;
+      statsUnread: string;
+      statsRead: string;
+      markAllRead: string;
+      markRead: string;
+      empty: string;
     backToFeed: string;
     /** Word before post id snippet, e.g. "post" */
     postLabel: string;
@@ -678,6 +683,9 @@ export type Bundle = {
     ariaGroup: string;
   };
   settings: {
+    pageEyebrow: string;
+    pageSubtitle: string;
+    pageMetaAria: string;
     language: string;
     languageHelp: string;
     languageEn: string;
@@ -753,6 +761,7 @@ export type Bundle = {
     passwordUpdated: string;
     passwordTooShort: string;
     session: string;
+    sessionHint: string;
     logOut: string;
     logOutFailed: string;
     deleteAccount: string;
@@ -837,6 +846,9 @@ const en: Bundle = {
     ariaGroup: "Color theme",
   },
   settings: {
+    pageEyebrow: "Account center",
+    pageSubtitle: "Manage how Metafeed looks, what it shares, and how your account feels across this device.",
+    pageMetaAria: "Settings summary",
     language: "Language",
     languageHelp: "Interface language (stored on this device).",
     languageEn: "English",
@@ -914,6 +926,7 @@ const en: Bundle = {
     passwordUpdated: "Password updated.",
     passwordTooShort: "Password must be at least {min} characters.",
     session: "Session",
+    sessionHint: "End your current session on this device when you are done.",
     logOut: "Log out",
     logOutFailed: "Could not log out. Check your connection and try again.",
     deleteAccount: "Delete account",
@@ -1421,6 +1434,11 @@ const en: Bundle = {
     notifications: {
       title: "Notifications",
       loading: "Loading…",
+      heroUnreadCount: "{count} unread",
+      heroTotalCount: "{count} total",
+      statsTotal: "Total",
+      statsUnread: "Unread",
+      statsRead: "Read",
       markAllRead: "Mark all read",
       markRead: "Mark read",
       empty:
@@ -1678,6 +1696,9 @@ const ka: Bundle = {
     ariaGroup: "ფერის თემა",
   },
   settings: {
+    pageEyebrow: "ანგარიშის ცენტრი",
+    pageSubtitle: "აქ მართავ Metafeed-ის იერს, გაზიარების პარამეტრებს და შენი ანგარიშის ძირითად გარემოს ამ მოწყობილობაზე.",
+    pageMetaAria: "პარამეტრების შეჯამება",
     language: "ენა",
     languageHelp: "ინტერფეისის ენა (ინახება ამ მოწყობილობაზე).",
     languageEn: "ინგლისური",
@@ -1756,6 +1777,7 @@ const ka: Bundle = {
     passwordUpdated: "პაროლი განახლდა.",
     passwordTooShort: "პაროლი უნდა იყოს მინიმუმ {min} სიმბოლო.",
     session: "სესია",
+    sessionHint: "მოწყობილობაზე მიმდინარე სესია დაასრულე, როცა მუშაობას ამთავრებ.",
     logOut: "გასვლა",
     logOutFailed: "გასვლა ვერ შესრულდა. შეამოწმე კავშირი და სცადე თავიდან.",
     deleteAccount: "ანგარიშის წაშლა",
@@ -2263,6 +2285,11 @@ const ka: Bundle = {
     notifications: {
       title: "შეტყობინებები",
       loading: "იტვირთება…",
+      heroUnreadCount: "{count} წაუკითხავი",
+      heroTotalCount: "{count} სულ",
+      statsTotal: "სულ",
+      statsUnread: "წაუკითხავი",
+      statsRead: "წაკითხული",
       markAllRead: "ყველა წავიკითხე",
       markRead: "წავიკითხე",
       empty:
@@ -2520,6 +2547,9 @@ const ru: Bundle = {
     ariaGroup: "Цветовая тема",
   },
   settings: {
+    pageEyebrow: "Центр аккаунта",
+    pageSubtitle: "Здесь управляются внешний вид Metafeed, приватность и ключевые параметры аккаунта на этом устройстве.",
+    pageMetaAria: "Сводка настроек",
     language: "Язык",
     languageHelp: "Язык интерфейса (сохраняется на этом устройстве).",
     languageEn: "Английский",
@@ -2598,6 +2628,7 @@ const ru: Bundle = {
     passwordUpdated: "Пароль обновлён.",
     passwordTooShort: "Пароль должен содержать не менее {min} символов.",
     session: "Сессия",
+    sessionHint: "Завершите текущую сессию на этом устройстве, когда закончите работу.",
     logOut: "Выйти",
     logOutFailed: "Не удалось выйти. Проверьте соединение и попробуйте снова.",
     deleteAccount: "Удаление аккаунта",
@@ -3106,6 +3137,11 @@ const ru: Bundle = {
     notifications: {
       title: "Уведомления",
       loading: "Загрузка…",
+      heroUnreadCount: "{count} непрочитанных",
+      heroTotalCount: "{count} всего",
+      statsTotal: "Всего",
+      statsUnread: "Непрочитанные",
+      statsRead: "Прочитанные",
       markAllRead: "Прочитать все",
       markRead: "Прочитано",
       empty:

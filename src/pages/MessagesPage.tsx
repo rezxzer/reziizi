@@ -46,14 +46,14 @@ export function MessagesPage(): ReactElement {
 
   return (
     <div className="stack messages-page">
-      {/* ── Hero Header ── */}
-      <div className="page-hero">
-        <div className="page-hero__icon">
+      {/* Hero Header */}
+      <div className="page-hero inbox-shell__hero">
+        <div className="page-hero__icon inbox-shell__hero-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         </div>
-        <div className="page-hero__text">
+        <div className="page-hero__text inbox-shell__hero-copy">
           <h1 className="page-hero__title">{t("pages.messages.title")}</h1>
           <p className="page-hero__subtitle">
             {t("pages.messages.introBefore")}
@@ -63,22 +63,46 @@ export function MessagesPage(): ReactElement {
         </div>
       </div>
 
-      {/* ── Stats Bar ── */}
+      {/* Stats Bar */}
       {!loading && !loadFailed ? (
-        <div className="page-stats-bar">
+        <div className="page-stats-bar inbox-shell__stats">
           <div className="page-stats-bar__item">
             <span className="page-stats-bar__value">{items.length}</span>
-            <span className="page-stats-bar__label">{t("pages.messages.title")}</span>
+            <span className="page-stats-bar__label">Threads</span>
           </div>
         </div>
       ) : null}
 
-      {/* ── Content ── */}
-      <section className="card">
+      {/* Content */}
+      <section className="card inbox-shell__card">
         {loading ? (
           <div className="page-loading-block">
             <div className="page-loading-block__spinner" />
             <p className="muted">{t("pages.common.loading")}</p>
+          </div>
+        ) : null}
+
+        {!loading && loadFailed ? (
+          <div className="page-empty-state messages-page__error-state" role="alert" aria-live="assertive">
+            <div className="page-empty-state__icon messages-page__error-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                <path d="M12 8v4" />
+                <path d="M12 16h.01" />
+              </svg>
+            </div>
+            <div className="messages-page__error-copy">
+              <p className="messages-page__error-title">{t("errors.routeTitle")}</p>
+              <p className="page-empty-state__text">{t("errors.routeBody")}</p>
+            </div>
+            <div className="messages-page__error-actions">
+              <button type="button" className="btn btn--primary" onClick={() => void load()}>
+                {t("errors.tryAgain")}
+              </button>
+              <Link to="/search" className="btn">
+                {t("pages.search.title")}
+              </Link>
+            </div>
           </div>
         ) : null}
 
@@ -95,7 +119,7 @@ export function MessagesPage(): ReactElement {
         ) : null}
 
         {!loading && !loadFailed && items.length > 0 ? (
-          <ul className="conversation-list">
+          <ul className="conversation-list inbox-shell__list">
             {items.map((c) => (
               <li key={c.id}>
                 <Link className="conversation-list__link" to={`/messages/${c.other_user_id}`}>

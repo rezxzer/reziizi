@@ -51,9 +51,9 @@ export function NotificationsPage(): ReactElement {
 
   return (
     <div className="stack notifications-page">
-      {/* ── Hero Header ── */}
-      <div className="page-hero">
-        <div className="page-hero__icon">
+      {/* Hero Header */}
+      <div className="page-hero inbox-shell__hero">
+        <div className="page-hero__icon inbox-shell__hero-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -62,13 +62,13 @@ export function NotificationsPage(): ReactElement {
             <span className="page-hero__badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
           ) : null}
         </div>
-        <div className="page-hero__text">
+        <div className="page-hero__text inbox-shell__hero-copy">
           <h1 className="page-hero__title">{t("pages.notifications.title")}</h1>
           <p className="page-hero__subtitle">
             {unreadCount > 0
-              ? `${unreadCount} unread`
+              ? t("pages.notifications.heroUnreadCount", { count: unreadCount })
               : items.length > 0
-                ? `${items.length} total`
+                ? t("pages.notifications.heroTotalCount", { count: items.length })
                 : ""}
           </p>
         </div>
@@ -84,26 +84,26 @@ export function NotificationsPage(): ReactElement {
         ) : null}
       </div>
 
-      {/* ── Stats Bar ── */}
+      {/* Stats Bar */}
       {!loading && !error ? (
-        <div className="page-stats-bar">
+        <div className="page-stats-bar inbox-shell__stats">
           <div className="page-stats-bar__item">
             <span className="page-stats-bar__value">{items.length}</span>
-            <span className="page-stats-bar__label">Total</span>
+            <span className="page-stats-bar__label">{t("pages.notifications.statsTotal")}</span>
           </div>
           <div className="page-stats-bar__item page-stats-bar__item--accent">
             <span className="page-stats-bar__value">{unreadCount}</span>
-            <span className="page-stats-bar__label">Unread</span>
+            <span className="page-stats-bar__label">{t("pages.notifications.statsUnread")}</span>
           </div>
           <div className="page-stats-bar__item">
             <span className="page-stats-bar__value">{items.length - unreadCount}</span>
-            <span className="page-stats-bar__label">Read</span>
+            <span className="page-stats-bar__label">{t("pages.notifications.statsRead")}</span>
           </div>
         </div>
       ) : null}
 
-      {/* ── Content ── */}
-      <section className="card">
+      {/* Content */}
+      <section className="card inbox-shell__card">
         {loading ? (
           <div className="page-loading-block">
             <div className="page-loading-block__spinner" />
@@ -129,7 +129,7 @@ export function NotificationsPage(): ReactElement {
         ) : null}
 
         {!loading && items.length > 0 ? (
-          <ul className="notification-list">
+          <ul className="notification-list inbox-shell__list">
             {items.map((n) => (
               <NotificationRowItem
                 key={n.id}
@@ -180,12 +180,12 @@ function NotificationRowItem({ n, disabled, onRead }: RowProps): ReactElement {
             {n.post_id != null ? (
               <span className="notification-list__ids">
                 {" "}
-                · {t("pages.notifications.postLabel")} <code>{n.post_id.slice(0, 8)}…</code>
+                Â· {t("pages.notifications.postLabel")} <code>{n.post_id.slice(0, 8)}â€¦</code>
               </span>
             ) : n.type === "follow" ? (
               <span className="notification-list__ids">
                 {" "}
-                ·{" "}
+                Â·{" "}
                 <Link className="inline-link" to={`/u/${n.actor_id}`}>
                   {t("pages.notifications.viewProfile")}
                 </Link>
