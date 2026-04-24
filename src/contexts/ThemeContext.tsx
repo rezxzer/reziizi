@@ -24,9 +24,12 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }): React.ReactElement {
   const [preference, setPreferenceState] = useState<ThemePreference>(() => getStoredThemePreference());
-  const [systemDark, setSystemDark] = useState<boolean>(() =>
-    window.matchMedia("(prefers-color-scheme: dark)").matches,
-  );
+  const [systemDark, setSystemDark] = useState<boolean>(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return false;
+    }
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
 
   const effectiveTheme: "light" | "dark" = useMemo(
     () => (preference === "system" ? (systemDark ? "dark" : "light") : preference),
@@ -38,12 +41,23 @@ export function ThemeProvider({ children }: { children: ReactNode }): React.Reac
   }, [effectiveTheme]);
 
   useEffect(() => {
+    if (typeof window.matchMedia !== "function") {
+      return;
+    }
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (): void => {
       setSystemDark(mq.matches);
     };
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", handler);
+      return () => mq.removeEventListener("change", handler);
+    }
+    // Safari fallback
+    if (typeof mq.addListener === "function") {
+      mq.addListener(handler);
+      return () => mq.removeListener(handler);
+    }
+    return;
   }, []);
 
   const setPreference = useCallback((p: ThemePreference) => {
