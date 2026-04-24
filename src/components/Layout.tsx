@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, NavLink, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useToast } from "../contexts/ToastContext.tsx";
 import { useCardTilt } from "../hooks/useCardTilt.ts";
 import { useHeartbeat } from "../hooks/useHeartbeat.ts";
 import { useScrollParallax } from "../hooks/useScrollParallax.ts";
@@ -31,6 +32,7 @@ function navLinkClass({ isActive }: { isActive: boolean }): string {
 export function Layout(): ReactElement {
   const { pathname, hash } = useLocation();
   const { t } = useI18n();
+  const toast = useToast();
   const { user, loading } = useAuth();
   const { isAdmin, isBanned, loading: flagsLoading } = useProfileFlags();
   const profileDisplayQuery = useQuery({
@@ -95,7 +97,12 @@ export function Layout(): ReactElement {
     }
     setLogoutBusy(true);
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error(t("settings.logOutFailed"));
+      }
+    } catch {
+      toast.error(t("settings.logOutFailed"));
     } finally {
       setLogoutBusy(false);
     }
