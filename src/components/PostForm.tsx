@@ -306,11 +306,7 @@ export function PostForm({ onPosted }: PostFormProps): ReactElement {
           ref={fileInputRef}
           className="post-form__file-input"
           type="file"
-          accept={
-            canPickVideo
-              ? "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
-              : "image/jpeg,image/png,image/webp,image/gif"
-          }
+          accept={canPickVideo ? "image/*,video/*" : "image/*"}
           aria-label={canPickVideo ? t("pages.postForm.attachAria") : t("pages.postForm.attachImageAria")}
           onChange={handleMediaPick}
           disabled={submitting}

@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext.tsx";
 import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
+import { useFeedVideoBehavior } from "../hooks/useFeedVideoBehavior.ts";
 import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { updatePostBody, validatePostBody } from "../lib/editPost.ts";
 import { errorMessage } from "../lib/errors.ts";
@@ -38,6 +39,8 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
   const [bodyOverflows, setBodyOverflows] = useState(false);
   const bodyRef = useRef<HTMLParagraphElement>(null);
   const editRef = useRef<HTMLTextAreaElement>(null);
+  const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
+  useFeedVideoBehavior(videoEl);
   const isOwner = user?.id === post.user_id;
   const hasMedia: boolean = Boolean(post.image_url || post.video_url);
   const display: string =
@@ -151,6 +154,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
       {post.video_url ? (
         <div className="post-card__media">
           <video
+            ref={setVideoEl}
             className="post-card__video"
             src={post.video_url}
             controls

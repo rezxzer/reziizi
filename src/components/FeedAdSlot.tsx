@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "../contexts/I18nContext.tsx";
+import { useFeedVideoBehavior } from "../hooks/useFeedVideoBehavior.ts";
 import { fetchActiveFeedTopAd } from "../lib/ads.ts";
 import { safeHttpUrl } from "../lib/safeUrl.ts";
 import type { AdSlotRow } from "../types/db.ts";
@@ -10,6 +11,8 @@ export function FeedAdSlot(): ReactElement | null {
   const { t } = useI18n();
   const [ad, setAd] = useState<AdSlotRow | null>(null);
   const [error, setError] = useState(false);
+  const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
+  useFeedVideoBehavior(videoEl);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +66,7 @@ export function FeedAdSlot(): ReactElement | null {
         {videoSrc ? (
           <div className="feed-ad__video-wrap">
             <video
+              ref={setVideoEl}
               className="feed-ad__video"
               controls
               playsInline
