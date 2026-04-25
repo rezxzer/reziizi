@@ -6111,3 +6111,18 @@ html[data-theme="dark"] {
 html[data-theme="light"] {
   color-scheme: light;
 }
+
+/* ============= FEED SCROLL SNAP (mobile only) ============= */
+/* On touch devices, soft-snap each post into view so likes/comments/author
+   are visible together. Desktop scroll stays free. */
+@media (max-width: 768px) and (pointer: coarse) {
+  html:has(.home-page) {
+    scroll-snap-type: y proximity;
+    scroll-padding-top: 120px;
+  }
+
+  .home-page .post-list > li {
+    scroll-snap-align: start;
+    scroll-margin-top: var(--space-sm);
+  }
+}
