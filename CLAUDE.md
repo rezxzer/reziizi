@@ -1,6 +1,6 @@
 # REZIIZI — assistant handoff (Claude / others)
 
-Short orientation. **Full map:** read **`AGENTS.md`** next (repo layout, doc index, polish rules). **Authoritative spec:** **`project.md`** → **`## CURRENT WORK`**.
+Short orientation. **Full map:** read **`AGENTS.md`** next (repo layout, doc index, polish rules). **Authoritative spec:** **`docs/project.md`** → **`## CURRENT WORK`**.
 
 ## Stack & layout
 
@@ -9,8 +9,8 @@ Short orientation. **Full map:** read **`AGENTS.md`** next (repo layout, doc ind
 
 ## Rules of engagement (do not skip)
 
-1. **`project.md` is the spec.** If a request conflicts with **CURRENT WORK**, **FEATURE BREAKDOWN**, or migration order — flag it; do not silently invent scope.
-2. **External chat ideas ≠ product spec** until captured in **`project.md`** (see **`.cursor/rules/reziizi.mdc`** — “external chat vs Cursor”).
+1. **`docs/project.md` is the spec.** If a request conflicts with **CURRENT WORK**, **FEATURE BREAKDOWN**, or migration order — flag it; do not silently invent scope.
+2. **External chat ideas ≠ product spec** until captured in **`docs/project.md`** (see **`.cursor/rules/reziizi.mdc`** — “external chat vs Cursor”).
 3. **Implementation order:** check CURRENT WORK + **`reziizi.mdc`** → update docs if scope changes → SQL/RLS if needed → then code. **New tables/RPCs:** wire through **`src/lib/api/registry.ts`** (and related patterns already in the repo).
 4. **Secrets:** API keys / service role only in **`.env`** / host secrets — never commit, never paste full keys in chat.
 5. **Localization:** user-facing strings via **`src/i18n/messages.ts`** and **`t()`** (`en` / `ka` / `ru`); English is the source locale in `messages`. **Code** (names, comments): English. **Project chat with the team:** often Georgian — still keep code/docs artifacts as per repo conventions.
@@ -19,22 +19,22 @@ Short orientation. **Full map:** read **`AGENTS.md`** next (repo layout, doc ind
 
 | Need | File |
 |------|------|
-| Roadmap, status, next steps | **`project.md`** (**CURRENT WORK**, “შემდეგი განვითარების გეგმა”) |
-| Recent decisions / chronology | **`JOURNAL.md`** (newest entries at top) |
+| Roadmap, status, next steps | **`docs/project.md`** (**CURRENT WORK**, “შემდეგი განვითარების გეგმა”) |
+| Recent decisions / chronology | **`docs/JOURNAL.md`** (newest entries at top) |
 | v1/v2 order, **migration sequence**, guardrails | **`.cursor/rules/reziizi.mdc`** |
 | Run, CI, deploy | **`README.md`** |
-| Per-page UI polish scope (English) | **`HOME_PAGE_POLISH.md`**, **`*_POLISH.md`**, especially **`MOTION_SOUND_POLISH.md`** |
-| Wave 2 motion/sound **priority** (product-confirmed) | **`MOTION_SOUND_POLISH.md`** + **`JOURNAL.md`** → **2026-04-09** consolidated entry |
+| Per-page UI polish scope (English) | **`docs/HOME_PAGE_POLISH.md`**, **`docs/*_POLISH.md`**, especially **`docs/MOTION_SOUND_POLISH.md`** |
+| Wave 2 motion/sound **priority** (product-confirmed) | **`docs/MOTION_SOUND_POLISH.md`** + **`docs/JOURNAL.md`** → **2026-04-09** consolidated entry |
 
 ## Motion / sound / route transitions
 
-- Follow **`MOTION_SOUND_POLISH.md`** (Tier 1–3, route map, sound rules, `prefers-reduced-motion`). **Do not** add random global animations or new RPCs/URLs for “delight.”
+- Follow **`docs/MOTION_SOUND_POLISH.md`** (Tier 1–3, route map, sound rules, `prefers-reduced-motion`). **Do not** add random global animations or new RPCs/URLs for “delight.”
 - Route-level behavior lives around **`LayoutOutlet`** / **`styles.css`** — align with the tier model.
 
 ## Concrete pitfalls (already burned us)
 
-- **Hidden `<input type="file">`:** do not use `position: absolute; inset: 0` on a huge hit area without a tightly scoped `position: relative` parent. Prefer off-screen + `pointer-events: none` + `inputRef.current?.click()` from a real button — **`JOURNAL.md`** (2026-04-07).
-- **Vite dev HTTP 431 on `localhost`:** oversized cookies — **`package.json`** `dev` script (`--max-http-header-size`) and **`JOURNAL.md`**.
+- **Hidden `<input type="file">`:** do not use `position: absolute; inset: 0` on a huge hit area without a tightly scoped `position: relative` parent. Prefer off-screen + `pointer-events: none` + `inputRef.current?.click()` from a real button — **`docs/JOURNAL.md`** (2026-04-07).
+- **Vite dev HTTP 431 on `localhost`:** oversized cookies — **`package.json`** `dev` script (`--max-http-header-size`) and **`docs/JOURNAL.md`**.
 
 ## Verification
 

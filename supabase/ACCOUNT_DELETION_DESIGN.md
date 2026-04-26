@@ -106,7 +106,7 @@ If listing is expensive, **document** the prefix convention and delete by prefix
 - `SettingsPage`: confirm flow (type `DELETE`) → `deleteAccountViaEdgeFunction()` → `queryClient.clear()` → `signOut()` → `/`.
 - `src/lib/deleteAccount.ts`: **Production:** same-origin `POST /api/delete-account` (Vercel serverless) with `Authorization` + optional `apikey`; **fallback:** `supabase.functions.invoke('delete-account')` (Edge). See `README.md` → *Account deletion*.
 
-**Status (verified):** End-to-end deletion works on **Vercel + Supabase** when `SUPABASE_SERVICE_ROLE_KEY` and `VITE_*` are set and the deployment includes the latest `api/delete-account` build (relative imports use `.js` extensions for Vercel/Node16; see repo `JOURNAL.md`).
+**Status (verified):** End-to-end deletion works on **Vercel + Supabase** when `SUPABASE_SERVICE_ROLE_KEY` and `VITE_*` are set and the deployment includes the latest `api/delete-account` build (relative imports use `.js` extensions for Vercel/Node16; see repo `docs/JOURNAL.md`).
 
 ---
 
@@ -128,7 +128,7 @@ Without this step, the app returns **404** (or an error) when the user confirms 
   - `auth.users` row absent
   - no `profiles` / `posts` rows for that id
   - no `storage.objects` under the two prefixes for that id
-- Add a short note in `JOURNAL.md` when shipped.
+- Add a short note in `docs/JOURNAL.md` when shipped.
 
 ---
 
