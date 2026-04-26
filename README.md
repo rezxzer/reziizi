@@ -21,15 +21,16 @@ On **push** and **pull requests** to `main` / `master`, [`.github/workflows/ci.y
 ## Layout
 
 - **App code:** `src/` → `pages/`, `components/`, `lib/`.
-- **Docs at repo root:** `project.md` (spec), `AGENTS.md` (handoff), `JOURNAL.md` (log). Full tree: [**AGENTS.md**](AGENTS.md) (section „ფოლდერების განლაგება“).
+- **Docs:** repo-root entry points stay at top — `AGENTS.md` (handoff), `CLAUDE.md` (Claude handoff). Working docs live in `docs/` — `project.md` (spec), `JOURNAL.md` (log), `*_POLISH.md` (per-page polish scopes). Full tree: [**AGENTS.md**](AGENTS.md) (section „ფოლდერების განლაგება“).
 
 ## Docs
 
 | File | Purpose |
 |------|---------|
 | [**AGENTS.md**](AGENTS.md) | **Start here in a new chat** — context, doc map, folder tree, run commands, next steps. |
-| [project.md](project.md) | Full spec: features, MVP scope, **CURRENT WORK**, **`### NEXT STEPS`**. |
-| [JOURNAL.md](JOURNAL.md) | Project log. |
+| [docs/project.md](docs/project.md) | Full spec: features, MVP scope, **CURRENT WORK**, **`### NEXT STEPS`**. |
+| [docs/JOURNAL.md](docs/JOURNAL.md) | Project log. |
+| [docs/*_POLISH.md](docs/) | Per-page UI polish scopes (Home, Search, Profile, Settings, Notifications, Messages, Motion+Sound). |
 | [supabase/SCHEMA.md](supabase/SCHEMA.md) | DB tables, RPCs, Storage buckets, rate-limit triggers. |
 | [supabase/ACCOUNT_DELETION_DESIGN.md](supabase/ACCOUNT_DELETION_DESIGN.md) | Account deletion flow (Edge Function + deploy checklist). |
 | [.cursor/rules/reziizi.mdc](.cursor/rules/reziizi.mdc) | Cursor rules file + **v1 implementation order**. |
