@@ -1,5 +1,5 @@
 import type { FormEvent, ReactElement } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../contexts/AuthContext";
@@ -59,6 +59,30 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const maxLen = getCommentMaxLength();
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  /** When the panel opens, gently scroll it into view so the user does not have to chase the comments down. */
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const node: HTMLDivElement | null = panelRef.current;
+    if (!node) {
+      return;
+    }
+    const id: number = window.requestAnimationFrame(() => {
+      const reduceMotion: boolean =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      node.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(id);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) {
@@ -152,7 +176,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
       </button>
 
       {open ? (
-        <div className="comment-section__panel">
+        <div className="comment-section__panel" ref={panelRef}>
           {loading ? (
             <p className="muted" role="status">
               {t("pages.comment.loading")}
