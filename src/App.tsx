@@ -5,16 +5,10 @@ import { Layout } from "./components/Layout.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import { RouteFallback } from "./components/RouteFallback.tsx";
 import { HomePage } from "./pages/HomePage.tsx";
-import { LegalPage } from "./pages/LegalPage.tsx";
-import { SponsoredPage } from "./pages/SponsoredPage.tsx";
-import { SecurityPage } from "./pages/SecurityPage.tsx";
-import { ForgotPasswordPage } from "./pages/ForgotPasswordPage.tsx";
 import { LoginPage } from "./pages/LoginPage.tsx";
-import { ResetPasswordPage } from "./pages/ResetPasswordPage.tsx";
 import { ProfilePage } from "./pages/ProfilePage.tsx";
 import { SearchPage } from "./pages/SearchPage.tsx";
 import { SettingsPage } from "./pages/SettingsPage.tsx";
-import { BannedPage } from "./pages/BannedPage.tsx";
 import { AdminRoute } from "./components/AdminRoute.tsx";
 import {
   AdminAdsPage,
@@ -28,9 +22,15 @@ import {
   AdminStatsPage,
   AdminUserReportsPage,
   AdminUsersPage,
+  BannedPage,
   ChatThreadPage,
+  ForgotPasswordPage,
+  LegalPage,
   MessagesPage,
   NotificationsPage,
+  ResetPasswordPage,
+  SecurityPage,
+  SponsoredPage,
   UserFollowListPage,
   UserProfilePage,
   NotFoundPage,
