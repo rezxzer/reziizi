@@ -13,6 +13,7 @@ import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
 import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { fetchProfileDisplay } from "../lib/profileAbout.ts";
+import { avatarGradientForSeed } from "../lib/avatarColor.ts";
 import { navAvatarInitialsFromUser } from "../lib/userInitials.ts";
 import { queryKeys } from "../lib/queryKeys.ts";
 import { supabase } from "../lib/supabaseClient.ts";
@@ -45,6 +46,10 @@ export function Layout(): ReactElement {
     () =>
       navAvatarInitialsFromUser(profileDisplayQuery.data?.display_name ?? undefined, user?.email ?? undefined),
     [profileDisplayQuery.data?.display_name, user?.email],
+  );
+  const navAvatarGradient: string = useMemo(
+    () => avatarGradientForSeed(user?.id ?? null),
+    [user?.id],
   );
   useHeartbeat();
   useCardTilt();
@@ -258,7 +263,9 @@ export function Layout(): ReactElement {
           <div className="theme-pill">
             <ThemePreferenceControls />
           </div>
-          <div className="layout__user-avatar">{navAvatarInitials}</div>
+          <div className="layout__user-avatar" style={{ background: navAvatarGradient }}>
+            {navAvatarInitials}
+          </div>
         </div>
       </header>
       {mobileMenuOpen ? (

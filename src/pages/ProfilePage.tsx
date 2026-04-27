@@ -340,7 +340,7 @@ export function ProfilePage(): ReactElement {
               <div className="profile-hero__layout">
                 <div className="profile-hero__avatar-ring">
                   <div className="profile-hero__avatar">
-                    <Avatar imageUrl={avatarUrl} label={avatarLabel} size="lg" />
+                    <Avatar imageUrl={avatarUrl} label={avatarLabel} seed={user.id} size="lg" />
                   </div>
                 </div>
                 <div className="profile-hero__meta">

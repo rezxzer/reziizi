@@ -141,7 +141,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
       <header className="post-card__header">
         <div className="post-card__author-row">
           <div className="post-card__avatar">
-            <Avatar imageUrl={post.authorAvatarUrl} label={display} size="sm" />
+            <Avatar imageUrl={post.authorAvatarUrl} label={display} seed={post.user_id} size="sm" />
           </div>
           <Link className="post-card__author-link" to={`/u/${post.user_id}`}>
             <span className="post-card__author">{display}</span>

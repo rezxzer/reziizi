@@ -401,7 +401,7 @@ export function UserProfilePage(): ReactElement {
               ) : null}
               <div className="profile-hero__layout">
                 <div className="profile-hero__avatar">
-                  <Avatar imageUrl={profile.avatar_url} label={displayLabel} size="lg" />
+                  <Avatar imageUrl={profile.avatar_url} label={displayLabel} seed={targetId} size="lg" />
                 </div>
                 <div className="profile-hero__meta">
                   {!profile.is_banned ? (

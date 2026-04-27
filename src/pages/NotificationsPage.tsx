@@ -172,7 +172,7 @@ function NotificationRowItem({ n, disabled, onRead }: RowProps): ReactElement {
   return (
     <li className={`notification-list__item${unread ? " notification-list__item--unread" : ""}`}>
       <div className="notification-list__text notification-list__text--with-avatar">
-        <Avatar imageUrl={n.actorAvatarUrl} label={actor} size="sm" />
+        <Avatar imageUrl={n.actorAvatarUrl} label={actor} seed={n.actor_id} size="sm" />
         <div className="notification-list__copy">
           <p className="notification-list__msg">{text}</p>
           <p className="notification-list__meta muted">

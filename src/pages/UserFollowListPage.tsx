@@ -139,7 +139,7 @@ export function UserFollowListPage(): ReactElement {
                   const label = memberLabel(m, t);
                   return (
                     <li key={`${m.userId}-${m.followedAt}`} className="follow-list__item">
-                      <Avatar imageUrl={m.avatar_url} label={label} size="sm" />
+                      <Avatar imageUrl={m.avatar_url} label={label} seed={m.userId} size="sm" />
                       <div className="follow-list__main">
                         <Link className="follow-list__name" to={`/u/${m.userId}`}>
                           {label}

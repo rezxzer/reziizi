@@ -268,7 +268,7 @@ export function SearchPage(): ReactElement {
                         return (
                         <li key={p.id} className="search-profile-list__item">
                           <div className="search-profile-list__row">
-                            <Avatar imageUrl={p.avatar_url} label={listLabel} size="sm" />
+                            <Avatar imageUrl={p.avatar_url} label={listLabel} seed={p.id} size="sm" />
                             <div className="search-profile-list__main">
                               <span className="search-profile-list__display-name">{listLabel}</span>
                               {bio ? (

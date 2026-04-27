@@ -173,7 +173,7 @@ export function CommentSection({ postId }: CommentSectionProps): ReactElement {
                 return (
                   <li key={c.id} className="comment-list__item">
                     <div className="comment-list__row">
-                      <Avatar imageUrl={c.authorAvatarUrl} label={label} size="sm" />
+                      <Avatar imageUrl={c.authorAvatarUrl} label={label} seed={c.user_id} size="sm" />
                       <div className="comment-list__main">
                         <div className="comment-list__meta">
                           <span className="comment-list__author">{label}</span>

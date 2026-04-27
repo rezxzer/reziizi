@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { avatarGradientForSeed } from "../lib/avatarColor.ts";
 
 type AvatarSize = "sm" | "md" | "lg";
 
@@ -6,6 +7,12 @@ type AvatarProps = {
   imageUrl: string | null;
   /** Visible name or email for initial fallback and accessible name. */
   label: string;
+  /**
+   * Stable identifier (typically user_id) — picks a deterministic gradient
+   * from the brand palette so the same user always shows the same color.
+   * When omitted, the brand-default gradient is used.
+   */
+  seed?: string | null;
   size?: AvatarSize;
 };
 
@@ -23,7 +30,7 @@ function initialFromLabel(label: string): string {
   return t[0]!.toUpperCase();
 }
 
-export function Avatar({ imageUrl, label, size = "md" }: AvatarProps): ReactElement {
+export function Avatar({ imageUrl, label, seed, size = "md" }: AvatarProps): ReactElement {
   const cls: string = `avatar ${sizeClass[size]}`;
   if (imageUrl) {
     return (
@@ -32,8 +39,9 @@ export function Avatar({ imageUrl, label, size = "md" }: AvatarProps): ReactElem
       </span>
     );
   }
+  const gradient: string = avatarGradientForSeed(seed);
   return (
-    <span className={cls} role="img" aria-label={label}>
+    <span className={cls} role="img" aria-label={label} style={{ background: gradient }}>
       <span className="avatar__fallback" aria-hidden>
         {initialFromLabel(label)}
       </span>
