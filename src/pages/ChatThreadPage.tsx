@@ -206,7 +206,7 @@ export function ChatThreadPage(): ReactElement {
       <section className="card chat-thread">
         <div className="chat-thread__head">
           <div className="chat-thread__title-row">
-            <Avatar imageUrl={peerAvatarUrl} label={title} size="md" />
+            <Avatar imageUrl={peerAvatarUrl} label={title} seed={peerId} size="md" />
             <div className="chat-thread__title-info">
               <h1 className="card__title chat-thread__title">{title}</h1>
               {peerDisplayName && peerEmail ? (

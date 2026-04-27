@@ -124,7 +124,7 @@ export function AvatarUploadSection({ userId }: AvatarUploadSectionProps): React
           </p>
         ) : (
           <div className="avatar-settings">
-            <Avatar imageUrl={avatarUrl} label={label} size="lg" />
+            <Avatar imageUrl={avatarUrl} label={label} seed={userId} size="lg" />
             <div className="avatar-settings__actions">
               <input
                 ref={fileRef}

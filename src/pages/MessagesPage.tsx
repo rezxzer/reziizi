@@ -127,6 +127,7 @@ export function MessagesPage(): ReactElement {
                     <Avatar
                       imageUrl={c.peer_avatar_url}
                       label={c.peer_display_name ?? c.peer_email ?? c.other_user_id}
+                      seed={c.other_user_id}
                       size="sm"
                     />
                     <span className="conversation-list__peer-info">
