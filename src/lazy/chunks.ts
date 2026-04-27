@@ -88,3 +88,35 @@ export const NotFoundPage = lazy(async () => {
   const m = await import("../pages/NotFoundPage.tsx");
   return { default: m.NotFoundPage };
 });
+
+// --- Auxiliary pages: rare-traffic, lazy-loaded so anonymous landing skips them ---
+
+export const LegalPage = lazy(async () => {
+  const m = await import("../pages/LegalPage.tsx");
+  return { default: m.LegalPage };
+});
+
+export const SecurityPage = lazy(async () => {
+  const m = await import("../pages/SecurityPage.tsx");
+  return { default: m.SecurityPage };
+});
+
+export const SponsoredPage = lazy(async () => {
+  const m = await import("../pages/SponsoredPage.tsx");
+  return { default: m.SponsoredPage };
+});
+
+export const BannedPage = lazy(async () => {
+  const m = await import("../pages/BannedPage.tsx");
+  return { default: m.BannedPage };
+});
+
+export const ForgotPasswordPage = lazy(async () => {
+  const m = await import("../pages/ForgotPasswordPage.tsx");
+  return { default: m.ForgotPasswordPage };
+});
+
+export const ResetPasswordPage = lazy(async () => {
+  const m = await import("../pages/ResetPasswordPage.tsx");
+  return { default: m.ResetPasswordPage };
+});
