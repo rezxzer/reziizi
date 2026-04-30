@@ -6,6 +6,7 @@ import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { useAppFeatureFlags } from "../hooks/useAppFeatureFlags";
 import { useFeedVideoBehavior } from "../hooks/useFeedVideoBehavior.ts";
+import { getPostAbsoluteUrl, sharePostUrl } from "../lib/copyToClipboard.ts";
 import { FEATURE_FLAG_KEYS, isFeatureEnabled } from "../lib/featureFlags";
 import { updatePostBody, validatePostBody } from "../lib/editPost.ts";
 import { errorMessage } from "../lib/errors.ts";
@@ -92,6 +93,21 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
     onChanged();
   }
 
+  async function handleShare(): Promise<void> {
+    const url: string = getPostAbsoluteUrl(post.user_id, post.id);
+    const title: string = display;
+    try {
+      const outcome = await sharePostUrl(url, title);
+      if (outcome === "copied") {
+        toast.success(t("pages.postCard.shareLinkCopied"));
+      }
+      // "shared" — system share sheet was the feedback; "cancelled" — user dismissed, no toast.
+    } catch (e: unknown) {
+      logger.error("share post", e);
+      toast.error(t("pages.postCard.shareFailed"));
+    }
+  }
+
   function handleEditStart(): void {
     setEditBody(post.body);
     setEditing(true);
@@ -137,7 +153,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
   const isEdited = post.updated_at !== post.created_at;
 
   return (
-    <article className="post-card">
+    <article className="post-card" id={`post-${post.id}`}>
       <header className="post-card__header">
         <div className="post-card__author-row">
           <div className="post-card__avatar">
@@ -272,6 +288,14 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
           </span>
         </div>
         <div className="post-card__actions">
+          <button
+            type="button"
+            className="btn btn--small"
+            onClick={() => void handleShare()}
+            aria-label={t("pages.postCard.shareAria")}
+          >
+            {t("pages.postCard.share")}
+          </button>
           {isOwner && !editing ? (
             <>
               <button
