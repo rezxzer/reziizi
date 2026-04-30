@@ -548,6 +548,11 @@ type PagesBundle = {
     editSaved: string;
     editFlaggedHint: string;
     edited: string;
+    /** Share button label and aria; toast strings shown after copy or on failure. */
+    share: string;
+    shareAria: string;
+    shareLinkCopied: string;
+    shareFailed: string;
   };
   comment: {
     comments: string;
@@ -1467,6 +1472,10 @@ const en: Bundle = {
       editSaved: "Post updated.",
       editFlaggedHint: "Your edit was flagged by automated checks. It may not appear in public feeds until reviewed.",
       edited: "(edited)",
+      share: "Share",
+      shareAria: "Share this post",
+      shareLinkCopied: "Link copied to clipboard.",
+      shareFailed: "Couldn't copy the link. Try again?",
     },
     comment: {
       comments: "Comments",
@@ -2318,6 +2327,10 @@ const ka: Bundle = {
       editSaved: "პოსტი განახლდა.",
       editFlaggedHint: "თქვენი რედაქტირება ავტომატურმა შემოწმებამ მოინიშნა. შეიძლება საჯარო ლენტაში არ გამოჩნდეს განხილვამდე.",
       edited: "(რედაქტირებული)",
+      share: "გაზიარება",
+      shareAria: "ამ პოსტის გაზიარება",
+      shareLinkCopied: "ბმული დაკოპირდა.",
+      shareFailed: "ბმულის კოპირება ვერ მოხერხდა. სცადე თავიდან.",
     },
     comment: {
       comments: "კომენტარები",
@@ -3170,6 +3183,10 @@ const ru: Bundle = {
       editSaved: "Пост обновлён.",
       editFlaggedHint: "Ваша правка была помечена автоматической проверкой. Она может не отображаться в публичной ленте до проверки.",
       edited: "(изменено)",
+      share: "Поделиться",
+      shareAria: "Поделиться этим постом",
+      shareLinkCopied: "Ссылка скопирована.",
+      shareFailed: "Не удалось скопировать ссылку. Попробуйте ещё раз.",
     },
     comment: {
       comments: "Комментарии",
