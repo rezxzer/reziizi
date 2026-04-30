@@ -281,7 +281,8 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
             onChanged={onChanged}
           />
           <span
-            className="post-card__score"
+            key={netScore}
+            className="post-card__score count-bump"
             title={t("pages.postCard.netScoreTitle")}
           >
             {netScore > 0 ? `+${netScore}` : `${netScore}`}
