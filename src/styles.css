@@ -1828,6 +1828,27 @@ input[type="radio"] {
 .reactions__count {
   font-size: 12px;
   color: var(--muted);
+  display: inline-block;
+}
+
+/* Subtle bump animation when a reaction count or net score changes.
+   The element is keyed on its numeric value, so React remounts it
+   on change — re-running the keyframe each time. */
+.count-bump {
+  display: inline-block;
+  animation: count-bump 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes count-bump {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .count-bump {
+    animation: none;
+  }
 }
 
 .reactions__error {

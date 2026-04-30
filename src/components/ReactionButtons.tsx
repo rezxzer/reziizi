@@ -81,7 +81,7 @@ export function ReactionButtons({
           onClick={() => void apply(1)}
           title={user ? t("pages.reactions.thumbsUp") : t("pages.reactions.signInToReact")}
         >
-          👍 <span className="reactions__count">{thumbsUp}</span>
+          👍 <span key={thumbsUp} className="reactions__count count-bump">{thumbsUp}</span>
         </button>
         <button
           type="button"
@@ -90,7 +90,7 @@ export function ReactionButtons({
           onClick={() => void apply(-1)}
           title={user ? t("pages.reactions.thumbsDown") : t("pages.reactions.signInToReact")}
         >
-          👎 <span className="reactions__count">{thumbsDown}</span>
+          👎 <span key={thumbsDown} className="reactions__count count-bump">{thumbsDown}</span>
         </button>
       </div>
     </div>
