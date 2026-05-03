@@ -22,6 +22,8 @@ export const TABLE = {
   abuse_flags: "abuse_flags",
   /** Admin-toggled; public SELECT — home feed hides UI when off. */
   feature_flags: "feature_flags",
+  /** Free sticker emoji reactions on posts (alongside thumbs `reactions`). */
+  post_emoji_reactions: "post_emoji_reactions",
 } as const;
 
 export type TableName = (typeof TABLE)[keyof typeof TABLE];

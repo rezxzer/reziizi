@@ -18,6 +18,7 @@ import { removeStoredPostVideoByPublicUrl } from "../lib/postVideoStorage.ts";
 import type { FeedPost } from "../types/feed";
 import { Avatar } from "./Avatar.tsx";
 import { CommentSection } from "./CommentSection";
+import { EmojiReactionBar } from "./EmojiReactionBar.tsx";
 import { ReactionButtons } from "./ReactionButtons";
 import { ReportPostControl } from "./ReportPostControl.tsx";
 
@@ -288,6 +289,7 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
             {netScore > 0 ? `+${netScore}` : `${netScore}`}
           </span>
         </div>
+        <EmojiReactionBar postId={post.id} />
         <div className="post-card__actions">
           <button
             type="button"
