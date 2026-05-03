@@ -19,7 +19,6 @@ import type { FeedPost } from "../types/feed";
 import { Avatar } from "./Avatar.tsx";
 import { CommentSection } from "./CommentSection";
 import { EmojiReactionBar } from "./EmojiReactionBar.tsx";
-import { ReactionButtons } from "./ReactionButtons";
 import { ReportPostControl } from "./ReportPostControl.tsx";
 
 type PostCardProps = {
@@ -48,7 +47,6 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
   const display: string =
     post.authorDisplayName?.trim() || post.user_id.slice(0, 8);
   const created = new Date(post.created_at).toLocaleString();
-  const netScore: number = post.thumbsUp - post.thumbsDown;
   useLayoutEffect(() => {
     if (!hasMedia) {
       setBodyOverflows(false);
@@ -273,22 +271,6 @@ export function PostCard({ post, onChanged }: PostCardProps): ReactElement {
         </ul>
       ) : null}
       <footer className="post-card__footer">
-        <div className="post-card__reactions-row">
-          <ReactionButtons
-            postId={post.id}
-            thumbsUp={post.thumbsUp}
-            thumbsDown={post.thumbsDown}
-            myReaction={post.myReaction}
-            onChanged={onChanged}
-          />
-          <span
-            key={netScore}
-            className="post-card__score count-bump"
-            title={t("pages.postCard.netScoreTitle")}
-          >
-            {netScore > 0 ? `+${netScore}` : `${netScore}`}
-          </span>
-        </div>
         <EmojiReactionBar postId={post.id} />
         <div className="post-card__actions">
           <button
