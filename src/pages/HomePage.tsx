@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FeedAdSlot } from "../components/FeedAdSlot.tsx";
+import { FeedPostSkeleton } from "../components/FeedPostSkeleton.tsx";
 import { InlineError } from "../components/InlineError.tsx";
 import { PostCard } from "../components/PostCard.tsx";
 import { PostForm } from "../components/PostForm.tsx";
@@ -236,11 +237,7 @@ export function HomePage(): ReactElement {
 
         {showFeedAds ? <FeedAdSlot /> : null}
 
-        {loading && posts.length === 0 ? (
-          <p className="page-loading" role="status">
-            {t("pages.home.loadingPosts")}
-          </p>
-        ) : null}
+        {loading && posts.length === 0 ? <FeedPostSkeleton /> : null}
 
         <InlineError message={error} />
 
