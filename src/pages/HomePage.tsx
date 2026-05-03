@@ -11,6 +11,7 @@ import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags";
+import { useScrollToHashedPost } from "../hooks/useScrollToHashedPost.ts";
 import { isBillingCheckoutEnabled } from "../lib/billingFlags.ts";
 import { createPremiumCheckoutRedirectUrl } from "../lib/createCheckoutSession.ts";
 import { errorMessage } from "../lib/errors.ts";
@@ -32,6 +33,7 @@ export function HomePage(): ReactElement {
   const [checkoutBusy, setCheckoutBusy] = useState(false);
   /** Logged-in: start with a slim prompt so the feed is visible first; expand to full `PostForm`. */
   const [homeComposerExpanded, setHomeComposerExpanded] = useState(false);
+  useScrollToHashedPost();
 
   const featureFlagsQuery = useAppFeatureFlags();
 
