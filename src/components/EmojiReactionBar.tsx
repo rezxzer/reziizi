@@ -43,8 +43,16 @@ export function EmojiReactionBar({ postId }: EmojiReactionBarProps): ReactElemen
     setPending(emoji);
     try {
       if (isMine) {
+        // Same emoji clicked twice → toggle off.
         await removeEmojiReaction(postId, user.id, emoji);
       } else {
+        // Switching reaction: clear any existing emoji first so a user
+        // ends up with at most one. Defensive against historical rows
+        // that may have multiple — Slack-style behavior used to be allowed.
+        const previous: ReadonlySet<EmojiCode> = data?.mine ?? new Set();
+        for (const old of previous) {
+          await removeEmojiReaction(postId, user.id, old);
+        }
         await addEmojiReaction(postId, user.id, emoji);
       }
       await queryClient.invalidateQueries({ queryKey: [...QUERY_KEY_ROOT, postId, myId ?? "__anon__"] });
