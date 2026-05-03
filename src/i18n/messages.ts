@@ -585,6 +585,17 @@ type PagesBundle = {
     thumbsDown: string;
     signInToReact: string;
   };
+  emojiReactions: {
+    ariaLabel: string;
+    signInHint: string;
+    thumbs_up: string;
+    heart: string;
+    laugh: string;
+    wow: string;
+    fire: string;
+    celebrate: string;
+    clap: string;
+  };
   legal: {
     navAria: string;
     title: string;
@@ -1508,6 +1519,17 @@ const en: Bundle = {
       thumbsDown: "Thumbs down",
       signInToReact: "Sign in to react",
     },
+    emojiReactions: {
+      ariaLabel: "Emoji reactions",
+      signInHint: "Sign in to react",
+      thumbs_up: "Like",
+      heart: "Love",
+      laugh: "Funny",
+      wow: "Wow",
+      fire: "Fire",
+      celebrate: "Celebrate",
+      clap: "Clap",
+    },
     legal: {
       navAria: "Legal navigation",
       title: "Legal information",
@@ -2362,6 +2384,17 @@ const ka: Bundle = {
       thumbsUp: "მოწონება",
       thumbsDown: "არ მოწონება",
       signInToReact: "რეაქციისთვის შედით",
+    },
+    emojiReactions: {
+      ariaLabel: "ემოჯი რეაქციები",
+      signInHint: "რეაქციისთვის შედით",
+      thumbs_up: "მომწონს",
+      heart: "მიყვარს",
+      laugh: "სასაცილოა",
+      wow: "ვაუ",
+      fire: "ცეცხლი",
+      celebrate: "ბრავო",
+      clap: "ტაში",
     },
     legal: {
       navAria: "იურიდიული ნავიგაცია",
@@ -3218,6 +3251,17 @@ const ru: Bundle = {
       thumbsUp: "Лайк",
       thumbsDown: "Дизлайк",
       signInToReact: "Войдите, чтобы поставить реакцию",
+    },
+    emojiReactions: {
+      ariaLabel: "Эмодзи-реакции",
+      signInHint: "Войдите, чтобы реагировать",
+      thumbs_up: "Нравится",
+      heart: "Любовь",
+      laugh: "Смешно",
+      wow: "Вау",
+      fire: "Огонь",
+      celebrate: "Браво",
+      clap: "Аплодисменты",
     },
     legal: {
       navAria: "Юридическая навигация",

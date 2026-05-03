@@ -1851,6 +1851,72 @@ input[type="radio"] {
   }
 }
 
+/* Sticker / emoji reactions bar — sits next to the thumbs reactions on every post.
+   Slack-style: each emoji is its own toggle, an active one is highlighted. */
+.emoji-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0;
+}
+
+.emoji-reactions__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.emoji-reactions__btn:hover:not(:disabled) {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}
+
+.emoji-reactions__btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.emoji-reactions__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.emoji-reactions__btn--active {
+  background: rgba(225, 48, 108, 0.12);
+  border-color: var(--accent);
+}
+
+.emoji-reactions__btn--active:hover:not(:disabled) {
+  background: rgba(225, 48, 108, 0.18);
+}
+
+.emoji-reactions__glyph {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.emoji-reactions__count {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 1ch;
+}
+
+.emoji-reactions__btn--active .emoji-reactions__count {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .reactions__error {
   font-size: 12px;
   color: var(--danger);
