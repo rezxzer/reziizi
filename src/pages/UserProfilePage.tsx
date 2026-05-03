@@ -11,6 +11,7 @@ import { useI18n } from "../contexts/I18nContext.tsx";
 import { useToast } from "../contexts/ToastContext.tsx";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll.ts";
 import { useProfileFlags } from "../hooks/useProfileFlags.ts";
+import { useScrollToHashedPost } from "../hooks/useScrollToHashedPost.ts";
 import { blockUser, unblockUser, fetchBlockRelation } from "../lib/blocks.ts";
 import { errorMessage } from "../lib/errors.ts";
 import { submitUserReport } from "../lib/userReports.ts";
@@ -37,6 +38,7 @@ export function UserProfilePage(): ReactElement {
 
   const targetId: string = userId ?? "";
   const viewerId: string | null = user?.id ?? null;
+  useScrollToHashedPost();
 
   const profileQuery = useQuery({
     queryKey: ["publicProfile", targetId],
