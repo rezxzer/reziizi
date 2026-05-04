@@ -28,6 +28,7 @@ import {
   LegalPage,
   MessagesPage,
   NotificationsPage,
+  ReelsPage,
   ResetPasswordPage,
   SecurityPage,
   SponsoredPage,
@@ -42,6 +43,7 @@ export default function App(): ReactElement {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/reels" element={<ReelsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/u/:userId/followers" element={<UserFollowListPage />} />
           <Route path="/u/:userId/following" element={<UserFollowListPage />} />
