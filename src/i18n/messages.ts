@@ -117,6 +117,11 @@ type PagesBundle = {
     invalidOrExpired: string;
     backToLogin: string;
   };
+  reels: {
+    empty: string;
+    mute: string;
+    unmute: string;
+  };
   search: {
     title: string;
     queryLabel: string;
@@ -655,6 +660,7 @@ export type Bundle = {
     navAria: string;
     nav: {
       home: string;
+      reels: string;
       search: string;
       login: string;
       messages: string;
@@ -819,6 +825,7 @@ const en: Bundle = {
     navAria: "Main",
     nav: {
       home: "Home",
+      reels: "Reels",
       search: "Search",
       login: "Login",
       messages: "Messages",
@@ -1051,6 +1058,11 @@ const en: Bundle = {
       invalidOrExpired:
         "This reset link is invalid or expired. Request a new link from the log-in page.",
       backToLogin: "← Back to log in",
+    },
+    reels: {
+      empty: "No videos in the feed yet.",
+      mute: "Mute",
+      unmute: "Unmute",
     },
     search: {
       title: "Search",
@@ -1684,6 +1696,7 @@ const ka: Bundle = {
     navAria: "მთავარი ნავიგაცია",
     nav: {
       home: "მთავარი",
+      reels: "Reels",
       search: "ძიება",
       login: "შესვლა",
       messages: "მესიჯები",
@@ -1918,6 +1931,11 @@ const ka: Bundle = {
       invalidOrExpired:
         "ბმული არასწორია ან ვადაგასულია. მოითხოვეთ ახალი ბმული შესვლის გვერდიდან.",
       backToLogin: "← უკან შესვლაზე",
+    },
+    reels: {
+      empty: "ფიდში ვიდეო ჯერ არ არის.",
+      mute: "დადუმება",
+      unmute: "ხმის ჩართვა",
     },
     search: {
       title: "ძიება",
@@ -2550,6 +2568,7 @@ const ru: Bundle = {
     navAria: "Основная навигация",
     nav: {
       home: "Главная",
+      reels: "Reels",
       search: "Поиск",
       login: "Вход",
       messages: "Сообщения",
@@ -2784,6 +2803,11 @@ const ru: Bundle = {
       invalidOrExpired:
         "Ссылка недействительна или устарела. Запросите новую на странице входа.",
       backToLogin: "← Назад ко входу",
+    },
+    reels: {
+      empty: "В ленте пока нет видео.",
+      mute: "Без звука",
+      unmute: "Включить звук",
     },
     search: {
       title: "Поиск",

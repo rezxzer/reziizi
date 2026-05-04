@@ -205,3 +205,28 @@ export async function fetchUserPosts(userId: string): Promise<FeedPost[]> {
 export function getPageSize(): number {
   return PAGE_SIZE;
 }
+
+/**
+ * Page through posts that have a non-null `video_url` — feeds the Reels view.
+ * Reuses `enrichPosts` so each row carries the same author / reaction / tag
+ * shape as the regular feed.
+ */
+export async function fetchVideoFeedPage(
+  from: number,
+): Promise<{ posts: FeedPost[]; hasMore: boolean }> {
+  const to: number = from + PAGE_SIZE - 1;
+  const { data: postRows, error } = await supabase
+    .from("posts")
+    .select("id, user_id, body, image_url, video_url, is_flagged, spam_score, created_at, updated_at")
+    .not("video_url", "is", null)
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (error) {
+    throw error;
+  }
+
+  const posts: PostRow[] = postRows ?? [];
+  const feed = await enrichPosts(posts);
+  return { posts: feed, hasMore: posts.length === PAGE_SIZE };
+}

@@ -120,3 +120,8 @@ export const ResetPasswordPage = lazy(async () => {
   const m = await import("../pages/ResetPasswordPage.tsx");
   return { default: m.ResetPasswordPage };
 });
+
+export const ReelsPage = lazy(async () => {
+  const m = await import("../pages/ReelsPage.tsx");
+  return { default: m.ReelsPage };
+});

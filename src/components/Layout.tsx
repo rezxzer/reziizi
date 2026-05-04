@@ -148,6 +148,9 @@ export function Layout(): ReactElement {
           <NavLink to="/" end className={navLinkClass}>
             {t("layout.nav.home")}
           </NavLink>
+          <NavLink to="/reels" className={navLinkClass}>
+            {t("layout.nav.reels")}
+          </NavLink>
           {showNavSearch ? (
             <NavLink to="/search" className={navLinkClass}>
               {t("layout.nav.search")}

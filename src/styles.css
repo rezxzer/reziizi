@@ -6295,6 +6295,177 @@ html[data-theme="light"] {
   color-scheme: light;
 }
 
+/* ============= REELS — TikTok-style immersive video feed ============= */
+
+/* Container takes the visible viewport, scrolls vertically with hard snap so
+   one reel at a time is shown. We let the layout main absorb our height. */
+.reels-page {
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  height: calc(100vh - 60px); /* leave the sticky layout header visible */
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  background: #000;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.reels-page--loading,
+.reels-page--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-type: none;
+}
+
+.reel-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  background: #000;
+}
+
+.reel-card__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* keep the original frame; could be 'cover' for full-bleed */
+  background: #000;
+}
+
+/* Overlay layer — author top, mute top-right, caption + emoji bar bottom */
+.reel-card__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none; /* let video clicks through; children re-enable */
+  padding: var(--space-md);
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.reel-card__overlay > * {
+  pointer-events: auto;
+}
+
+.reel-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.reel-card__author-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.reel-card__author-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.reel-card__mute-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform var(--transition-fast);
+}
+
+.reel-card__mute-btn:hover {
+  transform: scale(1.05);
+}
+
+.reel-card__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  /* Soft gradient so caption and reactions stay readable on bright videos. */
+  margin: -64px calc(-1 * var(--space-md)) calc(-1 * var(--space-md));
+  padding: 64px var(--space-md) var(--space-md);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.55) 60%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+}
+
+.reel-card__caption {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* On a reel, the emoji bar inherits the dark background — give the pills a
+   slightly brighter style so they stay legible. */
+.reel-card .emoji-reactions {
+  padding: 0;
+}
+
+.reel-card .emoji-reactions__btn {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.reel-card .emoji-reactions__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.reel-card .emoji-reactions__btn--active {
+  background: rgba(225, 48, 108, 0.28);
+  border-color: var(--accent);
+}
+
+.reel-card .emoji-reactions__count {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.reels-page__sentinel {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: end;
+}
+
+/* Desktop: cap the reel column width and centre it inside the page area. */
+@media (min-width: 769px) {
+  .reels-page {
+    max-width: 420px;
+    height: calc(100vh - 80px);
+    border-radius: var(--radius-lg);
+    margin: var(--space-lg) auto;
+  }
+}
+
 /* ============= FEED SCROLL SNAP (mobile only) ============= */
 /* On touch devices, soft-snap each post into view so likes/comments/author
    are visible together. Desktop scroll stays free. */
